@@ -29,6 +29,11 @@ jobs:
     needs: export
     runs-on: ubuntu-latest
     steps:
+      - name: Debug Build Directory
+        run: |
+          echo "build_directory: ${{ needs.export.outputs.build_directory }}"
+          find /home/runner/.local/share/godot -type d 2>/dev/null || echo "No godot directory found"
+
       - name: Download Butler
         run: |
           curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
