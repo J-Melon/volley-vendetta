@@ -5,32 +5,62 @@ on:
     branches:
       - main
 
+env:
+  GODOT_VERSION: "4.3"
+
 jobs:
-  export-and-publish:
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download Godot
+        run: |
+          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64.zip
+          unzip godot.zip
+          chmod +x Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64
+          sudo mv Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 /usr/local/bin/godot
+
       - name: Run Tests
-        uses: croconut/godot-tester@v5.2
-        with:
-          version: "4.3"
-          release-type: "stable"
-          project-path: "./"
+        run: godot --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit
+
+  approve:
+    name: Approve for Release
+    needs: test
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Approved
+        run: echo "Approved for export and publish"
+
+  export:
+    name: Export Web
+    needs: approve
+    runs-on: ubuntu-latest
+    outputs:
+      build_directory: ${{ steps.export.outputs.build_directory }}
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Export Web
         id: export
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip"
-          godot_export_templates_download_url: "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz"
+          godot_executable_download_url: "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64.zip"
+          godot_export_templates_download_url: "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz"
           relative_project_path: ./
 
+  publish:
+    name: Publish to Itch.io
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
       - name: Publish to Itch.io
-        uses: josephbmanley/butler-publish-itchio-action@master
+        uses: josephbmanley/butler-publish-itchio-action@v1.0.3
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
           CHANNEL: html5
           ITCH_GAME: game-test
           ITCH_USER: Speedyoshi
-          PACKAGE: ${{ steps.export.outputs.build_directory }}
+          PACKAGE: ${{ needs.export.outputs.build_directory }}
