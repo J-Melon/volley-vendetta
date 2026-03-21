@@ -15,7 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
       - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
         run: |
           curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64.zip
           unzip godot.zip
