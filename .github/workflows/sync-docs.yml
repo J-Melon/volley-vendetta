@@ -33,7 +33,7 @@ jobs:
       - name: Push to Notion database
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
         run: |
           node << 'SCRIPT'
           const fs = require('fs');
