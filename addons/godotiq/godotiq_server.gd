@@ -4,7 +4,7 @@ extends Node
 ## dispatches requests to editor handlers or forwards to the running game.
 
 const DEFAULT_PORT := 6007
-const ADDON_VERSION := "0.3.5"
+const ADDON_VERSION := "0.3.8"
 const SCREENSHOT_TIMEOUT_MS := 30000
 const PERF_TIMEOUT_MS := 5000
 const INPUT_TIMEOUT_MS := 65000
@@ -112,6 +112,15 @@ func _on_update_check_completed(result: int, response_code: int, _headers: Packe
 		print("GodotIQ: Update available — v%s (current: v%s)" % [remote_version, ADDON_VERSION])
 		if status_label:
 			status_label.text = "GodotIQ v%s — Update available: v%s (pip install --upgrade godotiq && godotiq install-addon .)" % [ADDON_VERSION, remote_version]
+		# Show one-time popup dialog
+		var dialog := AcceptDialog.new()
+		dialog.title = "GodotIQ Update Available"
+		dialog.dialog_text = "GodotIQ v%s is available (you have v%s).\n\nRun in terminal:\npip install --upgrade godotiq && godotiq install-addon ." % [remote_version, ADDON_VERSION]
+		dialog.ok_button_text = "Got it"
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free)
+		add_child(dialog)
+		dialog.popup_centered()
 
 
 func _is_newer_version(remote: String, local: String) -> bool:
@@ -748,7 +757,7 @@ func _handle_node_ops(peer_id: int, id: String, params: Dictionary) -> void:
 		return
 
 	var action_name := "GodotIQ: %d node operation(s)" % operations.size()
-	undo_redo.create_action(action_name)
+	undo_redo.create_action(action_name, 0, scene_root)  # 0 = MERGE_DISABLE
 
 	var results: Array = []
 	var any_succeeded := false
@@ -764,6 +773,34 @@ func _handle_node_ops(peer_id: int, id: String, params: Dictionary) -> void:
 
 	if any_succeeded:
 		undo_redo.commit_action()
+
+		# Verification read-back and property change notifications
+		var modified_nodes: Dictionary = {}
+		for result in results:
+			if result["status"] != "ok":
+				continue
+			var node_ref = result.get("_node_ref")
+			if node_ref != null and is_instance_valid(node_ref):
+				modified_nodes[node_ref] = true
+				# Read back the property to verify it was actually set
+				var prop_name: String = result.get("_prop_name", "")
+				var expected = result.get("_expected")
+				if prop_name != "" and expected != null:
+					var actual = node_ref.get(prop_name)
+					if actual is Vector3:
+						result["verified"] = (actual as Vector3).is_equal_approx(expected as Vector3)
+						result["actual_value"] = [actual.x, actual.y, actual.z]
+					elif actual is Vector2:
+						result["verified"] = (actual as Vector2).is_equal_approx(expected as Vector2)
+						result["actual_value"] = [actual.x, actual.y]
+					else:
+						result["verified"] = actual == expected
+
+		# Batch notify property changes on all modified nodes
+		for node in modified_nodes:
+			if is_instance_valid(node):
+				node.notify_property_list_changed()
+
 		_godotiq_action_history.append({
 			"action": action_name,
 			"operations": results.size(),
@@ -773,6 +810,12 @@ func _handle_node_ops(peer_id: int, id: String, params: Dictionary) -> void:
 			_godotiq_action_history = _godotiq_action_history.slice(
 				_godotiq_action_history.size() - MAX_HISTORY_SIZE
 			)
+
+	# Clean up internal metadata from ALL results before sending response
+	for result in results:
+		result.erase("_node_ref")
+		result.erase("_prop_name")
+		result.erase("_expected")
 
 	send_response(peer_id, id, {
 		"results": results,
@@ -824,30 +867,31 @@ func _op_move(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	if node == null:
 		return {"op": "move", "node": node_name, "status": "error", "error": "Node not found: %s" % node_name}
 
-	var pos: Array = op_data.get("position", [0, 0, 0])
+	var pos: Array = op_data.get("position", op_data.get("value", [0, 0, 0]))
 	if not (pos is Array) or pos.size() < 2:
 		return {"op": "move", "node": node_name, "status": "error", "error": "position must be an array of at least 2 numbers"}
+	var new_pos_value  # Variant: Vector3 or Vector2
 	if node is Node3D:
 		if pos.size() < 3:
 			return {"op": "move", "node": node_name, "status": "error", "error": "Node3D position requires [x, y, z]"}
 		var old_pos := (node as Node3D).position
-		var new_pos := Vector3(float(pos[0]), float(pos[1]), float(pos[2]))
-		ur.add_do_property(node, "position", new_pos)
+		new_pos_value = Vector3(float(pos[0]), float(pos[1]), float(pos[2]))
+		ur.add_do_property(node, "position", new_pos_value)
 		ur.add_undo_property(node, "position", old_pos)
 	elif node is Node2D:
 		var old_pos := (node as Node2D).position
-		var new_pos := Vector2(float(pos[0]), float(pos[1]))
-		ur.add_do_property(node, "position", new_pos)
+		new_pos_value = Vector2(float(pos[0]), float(pos[1]))
+		ur.add_do_property(node, "position", new_pos_value)
 		ur.add_undo_property(node, "position", old_pos)
 	elif node is Control:
 		var old_pos := (node as Control).position
-		var new_pos := Vector2(float(pos[0]), float(pos[1]))
-		ur.add_do_property(node, "position", new_pos)
+		new_pos_value = Vector2(float(pos[0]), float(pos[1]))
+		ur.add_do_property(node, "position", new_pos_value)
 		ur.add_undo_property(node, "position", old_pos)
 	else:
 		return {"op": "move", "node": node_name, "status": "error", "error": "Node does not support position"}
 
-	return {"op": "move", "node": node_name, "status": "ok"}
+	return {"op": "move", "node": node_name, "status": "ok", "_node_ref": node, "_prop_name": "position", "_expected": new_pos_value}
 
 
 func _op_rotate(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
@@ -859,7 +903,7 @@ func _op_rotate(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	if not (node is Node3D):
 		return {"op": "rotate", "node": node_name, "status": "error", "error": "Rotate only supports Node3D"}
 
-	var rot: Array = op_data.get("rotation", [0, 0, 0])
+	var rot: Array = op_data.get("rotation", op_data.get("value", [0, 0, 0]))
 	if not (rot is Array) or rot.size() < 3:
 		return {"op": "rotate", "node": node_name, "status": "error", "error": "rotation requires [x, y, z]"}
 	var n3d: Node3D = node
@@ -867,7 +911,7 @@ func _op_rotate(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	var new_rot := Vector3(float(rot[0]), float(rot[1]), float(rot[2]))
 	ur.add_do_property(node, "rotation_degrees", new_rot)
 	ur.add_undo_property(node, "rotation_degrees", old_rot)
-	return {"op": "rotate", "node": node_name, "status": "ok"}
+	return {"op": "rotate", "node": node_name, "status": "ok", "_node_ref": node, "_prop_name": "rotation_degrees", "_expected": new_rot}
 
 
 func _op_scale(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
@@ -879,7 +923,7 @@ func _op_scale(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	if not (node is Node3D):
 		return {"op": "scale", "node": node_name, "status": "error", "error": "Scale only supports Node3D"}
 
-	var sc: Array = op_data.get("scale", [1, 1, 1])
+	var sc: Array = op_data.get("scale", op_data.get("value", [1, 1, 1]))
 	if not (sc is Array) or sc.size() < 3:
 		return {"op": "scale", "node": node_name, "status": "error", "error": "scale requires [x, y, z]"}
 	var n3d: Node3D = node
@@ -887,7 +931,7 @@ func _op_scale(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	var new_scale := Vector3(float(sc[0]), float(sc[1]), float(sc[2]))
 	ur.add_do_property(node, "scale", new_scale)
 	ur.add_undo_property(node, "scale", old_scale)
-	return {"op": "scale", "node": node_name, "status": "ok"}
+	return {"op": "scale", "node": node_name, "status": "ok", "_node_ref": node, "_prop_name": "scale", "_expected": new_scale}
 
 
 func _op_set_property(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
@@ -939,7 +983,7 @@ func _op_set_property(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 
 	ur.add_do_property(node, base_property, value)
 	ur.add_undo_property(node, base_property, old_value)
-	return {"op": "set_property", "node": node_name, "status": "ok", "property": property}
+	return {"op": "set_property", "node": node_name, "status": "ok", "property": property, "_node_ref": node, "_prop_name": base_property, "_expected": value}
 
 
 func _op_add_child(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
@@ -1180,17 +1224,62 @@ func _value_to_json(value) -> Variant:
 	return str(value)
 
 
-func _convert_value(value, reference_value):
-	if reference_value is Vector3 and value is Array and value.size() >= 3:
+func _to_vector3(value, fallback: Vector3 = Vector3.ZERO) -> Vector3:
+	if value is Vector3:
+		return value
+	if value is Vector3i:
+		return Vector3(value.x, value.y, value.z)
+	if value is Dictionary:
+		return Vector3(
+			float(value.get("x", fallback.x)),
+			float(value.get("y", fallback.y)),
+			float(value.get("z", fallback.z))
+		)
+	if value is Array and value.size() >= 3:
 		return Vector3(float(value[0]), float(value[1]), float(value[2]))
-	elif reference_value is Vector2 and value is Array and value.size() >= 2:
+	return fallback
+
+
+func _to_vector2(value, fallback: Vector2 = Vector2.ZERO) -> Vector2:
+	if value is Vector2:
+		return value
+	if value is Vector2i:
+		return Vector2(value.x, value.y)
+	if value is Dictionary:
+		return Vector2(
+			float(value.get("x", fallback.x)),
+			float(value.get("y", fallback.y))
+		)
+	if value is Array and value.size() >= 2:
 		return Vector2(float(value[0]), float(value[1]))
+	return fallback
+
+
+func _to_color(value, fallback: Color = Color.WHITE) -> Color:
+	if value is Color:
+		return value
+	if value is String:
+		return Color(value)
+	if value is Dictionary:
+		return Color(
+			float(value.get("r", fallback.r)),
+			float(value.get("g", fallback.g)),
+			float(value.get("b", fallback.b)),
+			float(value.get("a", 1.0))
+		)
+	if value is Array and value.size() >= 3:
+		var a: float = float(value[3]) if value.size() >= 4 else 1.0
+		return Color(float(value[0]), float(value[1]), float(value[2]), a)
+	return fallback
+
+
+func _convert_value(value, reference_value):
+	if reference_value is Vector3:
+		return _to_vector3(value, reference_value)
+	elif reference_value is Vector2:
+		return _to_vector2(value, reference_value)
 	elif reference_value is Color:
-		if value is Array and value.size() >= 3:
-			var a: float = float(value[3]) if value.size() >= 4 else 1.0
-			return Color(float(value[0]), float(value[1]), float(value[2]), a)
-		elif value is String:
-			return Color(value)
+		return _to_color(value, reference_value)
 	elif reference_value is int and (value is int or value is float):
 		return int(value)
 	elif reference_value is float and (value is int or value is float):
