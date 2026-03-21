@@ -7,11 +7,9 @@ env:
   GODOT_VERSION: "4.6.1"
 
 jobs:
-  export:
-    name: Export Web
+  export-and-publish:
+    name: Export and Publish
     runs-on: ubuntu-latest
-    outputs:
-      build_directory: ${{ steps.export.outputs.build_directory }}
     steps:
       - uses: actions/checkout@v5
 
@@ -24,16 +22,6 @@ jobs:
           relative_project_path: ./
           cache: true
 
-  publish:
-    name: Publish to Itch.io
-    needs: export
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug Build Directory
-        run: |
-          echo "build_directory: ${{ needs.export.outputs.build_directory }}"
-          find /home/runner/.local/share/godot -type d 2>/dev/null || echo "No godot directory found"
-
       - name: Download Butler
         run: |
           curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
@@ -41,6 +29,6 @@ jobs:
           chmod +x butler
 
       - name: Push to Itch.io
-        run: ./butler push "${{ needs.export.outputs.build_directory }}/Web" Speedyoshi/game-test:html5
+        run: ./butler push "${{ steps.export.outputs.build_directory }}/Web" Speedyoshi/game-test:html5
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
