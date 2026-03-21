@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://ce8nc6smq3t8v"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_31swd"]
+size = Vector2(40, 200)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ut3sq"]
+size = Vector2(40, 200)
+
+[node name="Paddle" type="RigidBody2D" unique_id=1552130604]
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="Sprite2D" parent="." unique_id=955212656]
+texture = SubResource("PlaceholderTexture2D_31swd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1850417808]
+shape = SubResource("RectangleShape2D_ut3sq")
