@@ -6,7 +6,7 @@ size = Vector2(40, 200)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ut3sq"]
 size = Vector2(40, 200)
 
-[node name="Paddle" type="RigidBody2D" unique_id=1552130604]
+[node name="Wobble Paddle" type="RigidBody2D" unique_id=1552130604]
 metadata/_edit_group_ = true
 
 [node name="ColorRect" type="Sprite2D" parent="." unique_id=955212656]

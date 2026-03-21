@@ -1,4 +1,7 @@
-<!-- godotiq-rules-version: 0.2.0 -->
+<!-- godotiq-rules-version: 0.4.0 -->
+<!-- v0.4.0: Strengthened autonomy/verification, added click_at/click_at_world input docs,
+     UI construction guidelines, background agent supervision, efficient workflow section,
+     tile/grid guidance improvements -->
 # GodotIQ — AI-Assisted Godot Development
 
 You have GodotIQ MCP tools. ALWAYS prefer these over raw file operations.
@@ -31,31 +34,51 @@ Why: Runtime-generated nodes are invisible in the editor, impossible to debug vi
 
 The only code that should exist at runtime is GAME LOGIC (movement, damage, spawning enemies, score tracking). The WORLD (terrain, decorations, static structures, towers) must be in the .tscn.
 
+### Prefer .tscn Scenes for Game Objects
+
+1. Prefer creating `.tscn` scenes with proper 3D models for game objects (towers, enemies, projectiles, UI elements). Use `build_scene` to create them.
+2. Avoid instantiating empty `Node3D` at runtime with `set_script()` when a pre-built `.tscn` scene would be more reliable. A `.tscn` scene carries its mesh, collision shape, and default properties in a way that survives script errors.
+3. Runtime `Node3D` creation is acceptable for genuinely dynamic systems like bullet pools or particle effects where the overhead of `.tscn` files is not justified, but this is the exception, not the rule.
+
+```
+❌  Creating an empty Node3D, attaching tower.gd via set_script(), hoping the script creates visuals at runtime
+✅  Building Tower.tscn with MeshInstance3D (model), Area3D (range detector), and tower.gd script, then instancing it
+```
+
 ### Using Screenshots and Visual Inspection
 
 When you receive a screenshot from `godotiq_screenshot`, **DESCRIBE what you see**. When you receive screenshots from `godotiq_explore`, **ANALYZE each one** — note lighting issues, geometry gaps, floating objects, fog artifacts, missing textures, scale problems, and general visual impression. You have vision capabilities. Use them.
 
 However, your visual interpretation is not perfect. After describing what you see:
 1. **Share your observations** with the user: "I can see the terrain grid. The towers appear to be placed correctly but one near (5,0,3) looks like it might be floating."
-2. **Ask the user to confirm** anything you're uncertain about: "Can you verify in the editor that the tower base is touching the ground?"
+2. **Cross-verify with tools** — use `spatial_audit`, `state_inspect`, or `explore` to confirm visual observations. If still uncertain after self-verification tools, note the uncertainty in your final report.
 3. If the user reports a problem you missed, debug it.
 
 ```
 ❌  "I've taken a screenshot but I can't see it — what do you see?"
-✅  "I can see the terrain grid with tiles and a road path. The 3 towers are visible but the leftmost one looks slightly elevated. Can you confirm it's grounded?"
+✅  "I can see the terrain grid with tiles and a road path. The 3 towers are visible but the leftmost one looks slightly elevated. Running spatial_audit to verify..."
 ```
 
-### Stop for confirmation after major steps
+### Autonomous Verification with Escalation
 
-After completing each major piece of work (terrain built, enemies added, towers placed, etc.), STOP and ask the user to verify in the Godot editor before continuing.
+Verify your own work autonomously. Provide verification evidence directly — screenshot showing the correct result + `state_inspect` confirming expected values — instead of asking the user to check.
+
+**Evidence-based completion:** Every fix or feature must include:
+1. A screenshot showing the correct visual result
+2. A `state_inspect` or `spatial_audit` call confirming expected property values
+3. A description of what you observe and why it confirms correctness
+
+"I can see it looks correct" is insufficient. Describe specifically: "The 3 towers are at positions (2,0,0), (4,0,0), (6,0,0) with 2-unit spacing. spatial_audit confirms no overlaps."
+
+**Escalation rule:** Only ask the user for help after **3 consecutive failed self-verification attempts on the same specific issue**. "3 failed attempts" means 3 genuinely different strategies to fix the same problem (e.g., 1: adjust the property, 2: delete and recreate the node, 3: change the approach entirely) — not 3 tool calls trying minor variations. When escalating, include the failing evidence from all 3 attempts.
+
+After all major work is complete, do a final visual verification and share results with the user.
 
 ```
-✅  "Step 1 complete — I've added the terrain grid and path to Main.tscn.
-    Open it in the Godot editor and let me know if the tiles and road
-    are visible. I'll wait for your confirmation before adding enemies."
+❌  "I've added the terrain grid. Can you check it in the editor before I continue?"
+❌  "I've added the terrain grid. It looks correct." (no evidence)
+✅  "I've added the terrain grid. spatial_audit shows 64 tiles with 2.0 spacing, no overlaps. Screenshot confirms visual alignment. Continuing to Phase 2."
 ```
-
-This prevents building an entire game on top of a broken foundation.
 
 ### Creation Workflow — `build_scene`
 
@@ -74,7 +97,7 @@ godotiq_build_scene(nodes=[
     {type: "DirectionalLight3D", name: "Sun", rotation: [-60, 30, 0]}
 ])
 godotiq_save_scene()
-→ ASK USER to verify structure in editor
+→ Self-verify with explore/spatial_audit
 ```
 
 #### Phase 2: Build Terrain
@@ -93,8 +116,15 @@ godotiq_build_scene(parent="Terrain", grid={
     }
 })
 godotiq_save_scene()
-→ ASK USER to verify terrain
+→ Self-verify with explore/spatial_audit
 ```
+
+#### Working with Tile Grids
+
+1. Always use `asset_registry` to get tile dimensions before building a grid. Do not guess spacing values.
+2. **Override keys are `"row,col"` format** — row maps to Z axis (0 = north/top), col maps to X axis (0 = west/left). Row comes FIRST, like matrix notation — not (x,y) coordinate order. Example: `"2,5"` means grid row 2, column 5.
+3. **Test rotations systematically:** Place ONE tile at 0° rotation, take a close-up screenshot, and annotate the default direction (e.g., "road runs along Z at 0°"). Then calculate all other rotations from that baseline. If you have tried 3 rotations and none look right, STOP — go back to the single-tile test and re-examine the default orientation.
+4. **Never scale tiles beyond 1.02** to hide gaps between them. Scaling to fill gaps creates overlapping geometry, z-fighting (flickering surfaces), and inconsistent collision shapes. The root cause is always one of: wrong spacing value, wrong rotation, or wrong tile model. Fix the root cause instead.
 
 #### Phase 3: Add Decorations
 
@@ -106,7 +136,7 @@ godotiq_build_scene(parent="Decorations", scatter={items: [
     {scene: "res://props/rock.tscn", name: "Rock1", position: [8, 0, 1]}
 ]})
 godotiq_save_scene()
-→ ASK USER to verify decorations
+→ Self-verify with explore/spatial_audit
 ```
 
 #### Phase 4: Add Key Objects
@@ -123,7 +153,7 @@ Use `godotiq_script_ops` for game logic ONLY — NOT for scene construction.
 godotiq_spatial_audit(scene="res://scenes/main.tscn")
 godotiq_signal_map(detail="brief")
 godotiq_save_scene()
-→ ASK USER to do final visual check
+→ Self-verify with explore, then share results with user
 ```
 
 #### Key Principles
@@ -133,6 +163,15 @@ godotiq_save_scene()
 - **Save and verify after each phase**
 - **Grid** for repetitive, **scatter** for handpicked, **line** for paths
 - **Max 256 nodes per call** — split larger layouts
+
+### No Rebuild from Scratch
+
+Never delete and rebuild entire groups of nodes (e.g., 120 tiles) to fix problems with a few of them. Use `node_ops` to modify individual nodes surgically. Rebuilding from scratch is the absolute last resort, only after surgical fixes have been tried and demonstrably failed. Rebuilding wastes time, loses any manual adjustments made to other nodes in the group, and risks introducing new errors.
+
+```
+❌  Deleting all 120 terrain tiles and re-running build_scene because 3 tiles had wrong rotations
+✅  Using node_ops with rotate operations on the 3 specific tiles that need fixing
+```
 
 ### Test-Driven Completion
 
@@ -190,7 +229,60 @@ Before telling the user the task is complete, you MUST run ALL 7 checks:
    - `godotiq_run(action="stop")`
    - Summarize what was tested and what passed
 
-7. **Report to user** — State what was built, summarize QA results (including what you observed in the explore screenshots), and ask the user to do a final visual check in the Godot editor. Your vision is good but not perfect — always ask the user to confirm the result looks correct.
+7. **Report to user** — State what was built, summarize QA results (including what you observed in the explore screenshots), and share results with the user for a final visual check.
+
+### Testing Player Input Systems
+
+When testing input-dependent systems (placement, selection, drag-and-drop, clicks), use `godotiq_input` to simulate real player interactions. Test the system as a player would experience it — using `exec` to set properties directly skips the entire input processing chain and can hide bugs in signal wiring, collision detection, or UI event handling.
+
+**Input commands for testing:**
+- **UI buttons:** `{"tap": "PlaceButton"}` — clicks a button by node name
+- **Viewport click:** `{"click_at": [640, 360]}` — clicks at screen coordinates
+- **World click:** `{"click_at_world": [5.0, 0.0, 3.0]}` — clicks at 3D position via camera projection
+- **Right/middle click:** `{"click_at": [640, 360], "button": "right"}` — supports "left", "right", "middle"
+- **Exec fallback:** If `click_at` is unavailable, use `exec game` with `Input.warp_mouse()` + `push_input(InputEventMouseButton.new())` — this still goes through the real input pipeline
+
+**Testing workflow:**
+1. Use `ui_map` to find clickable elements
+2. Simulate input with `tap`, `click_at`, or `click_at_world`
+3. Verify with `state_inspect` (gold decreased? tower placed? placement mode ended?)
+4. If nothing changed, that is a bug in the game system — fix it, do not bypass with exec
+
+```
+❌  godotiq_exec(code="func run(): get_node('/root/Main/Tower').position = Vector3(5, 0, 3)")
+    → Bypasses input pipeline, misses real bugs
+
+✅  godotiq_input(commands=[{"tap": "PlaceTowerBtn"}, {"click_at": [400, 300]}])
+    → Simulates real player actions, then verify: godotiq_state_inspect(...)
+```
+
+### UI Construction
+
+Prefer building game UI as `.tscn` scenes with Control nodes in the editor, not generating everything via code in `_ready()`.
+
+- **Scene structure in .tscn:** Container, Label, Button, and other Control nodes should be defined in a `.tscn` file. Use `build_scene` to create the node tree.
+- **Runtime styling is acceptable:** `add_theme_stylebox_override()`, `add_theme_font_size_override()` and similar calls are fine for dynamic theming and data binding (`$GoldLabel.text = str(gold)`).
+- **Always test UI with screenshot** before declaring complete. Verify with `ui_map` that the runtime structure matches expectations.
+- **Verification checklist:** Elements visible on screen, text readable, buttons clickable (test with `godotiq_input` tap), layout proportional to viewport (default: 1280×720).
+
+```
+❌  300 lines of StyleBoxFlat / PanelContainer / Label creation in _ready()
+    → Invisible in editor, impossible to debug visually, breaks silently on typos
+
+✅  Create HUD.tscn with PanelContainer > VBoxContainer > Label + Button nodes
+    Attach small script for runtime data binding and theme overrides
+    → Visible and editable in Godot editor, survives script errors
+```
+
+### Background Agent Supervision
+
+If your tool supports background agents or parallel task execution:
+
+1. After completion, **read every file created or modified** by the background task
+2. Run `check_errors(scope="project")` on the entire project
+3. Run `validate` on every new or modified script
+4. Launch the game and verify with `screenshot` + `state_inspect` that nothing is broken
+5. Prefer sequential execution for files that might overlap — concurrent modifications to the same file silently overwrite each other
 
 ---
 
@@ -265,7 +357,7 @@ When a Pro tool returns a Community response, use these alternatives:
 | `validate` | Convention check | `check_errors` for compilation issues only | Style rules, naming conventions, type hint checks |
 | `impact_check` | Change safety analysis | `file_ops(op="search")` to find references manually | Risk rating, transitive impact, safe recommendations |
 | `trace_flow` | Execution chain tracing | Read scripts manually and follow the call chain | Cross-file tracing, failure point detection |
-| `spatial_audit` | 3D issue scanner | `screenshot` + ask user to visually check | Automated overlap/gap/scale detection |
+| `spatial_audit` | 3D issue scanner | `screenshot` + manual visual inspection | Automated overlap/gap/scale detection |
 | `placement` | Smart positioning | Estimate position, use `node_ops(validate=true)` to catch collisions | Marker3D slot matching, constraint solving |
 | `asset_registry` | Asset inventory | `file_ops(op="list")` + `file_ops(op="search")` | Usage tracking, unused detection, categorization |
 | `suggest_scale` | Scale recommendation | Look at existing similar nodes with `scene_tree` | Statistical scale matching |
@@ -320,6 +412,12 @@ The user experiences a working workflow — but with visible friction. They see 
 6. **Act immediately.** When you know the next step, execute it. Don't write multi-paragraph plans. The tool will tell you if something is wrong — act on the response, don't pre-plan for every contingency.
 
 7. **Maximum 2 paragraphs between tool calls.** After a tool call, explain what happened in 1-2 sentences, then make the next call. Don't write essay-length analysis between actions. If you find yourself writing more than 2 short paragraphs without a tool call, stop and act instead.
+
+8. **Group modifications, verify once.** Make all changes (rotations, moves, property edits) in a single `exec editor` or `node_ops` batch, then one `save_scene`, then one `screenshot` to verify. Prefer one verification cycle per batch of changes, not per individual change.
+
+9. **Runtime verification: one cycle.** A single `wait_ms` + `state_inspect` + `screenshot` per verification point. Do not call `state_inspect` multiple times consecutively waiting for a value to change — use `wait_ms` with an appropriate delay first.
+
+10. **Loops for repetitive operations.** If you need to modify many nodes with the same logic (rotate 7 tiles, set a property on 20 nodes), write a loop in `exec editor` rather than separate `node_ops` calls for each node.
 
 ---
 
@@ -424,10 +522,10 @@ godotiq_placement(near=ref, constraints={...})                    → find safe 
 godotiq_build_scene(grid=..., parent="Terrain")                   → batch creation (grids, scatter, lines)
 godotiq_node_ops(operations=[...], validate=true)                 → individual edits with validation
 godotiq_save_scene()                                              → persist to disk
-→ ASK USER to verify visually in the editor
+→ Self-verify with explore/spatial_audit
 ```
 
-ALWAYS use `validate: true` on move/scale/add_child. ALWAYS ask the user to verify after 3D changes.
+ALWAYS use `validate: true` on move/scale/add_child. Self-verify with explore/spatial_audit after 3D changes.
 
 ### 4. After Building or Modifying a Scene (VISUAL QA)
 
@@ -476,11 +574,11 @@ NEVER refactor multiple files without running `impact_check` first. ALWAYS compa
 godotiq_run(action="play")                → start game
 godotiq_state_inspect(queries)            → check runtime values (PREFERRED — cheap)
 godotiq_verify_motion(node="Enemy")       → prove movement (PREFERRED over screenshot for motion)
-godotiq_screenshot(scale=0.3, quality=0.3) → visual check (EXPENSIVE — ask user to interpret)
+godotiq_screenshot(scale=0.3, quality=0.3) → visual check (EXPENSIVE — describe what you see)
 godotiq_run(action="stop")                → stop game
 ```
 
-Use `state_inspect` for data. Use `verify_motion` to prove animation/movement. Use `screenshot` only when visual confirmation is needed, and always ask the user what they see.
+Use `state_inspect` for data. Use `verify_motion` to prove animation/movement. Use `screenshot` only when visual confirmation is needed, and describe what you see.
 
 ---
 
@@ -544,7 +642,7 @@ Use `state_inspect` for data. Use `verify_motion` to prove animation/movement. U
 
 **`godotiq_verify_motion`** — Verify a node property changes over time (proves movement/animation). Takes two readings separated by a duration and returns MOVING or STATIC verdict. Use instead of screenshots to verify motion. Game must be running.
 
-**`godotiq_screenshot`** — Capture viewport. Describe what you see, then ask the user to confirm anything uncertain.
+**`godotiq_screenshot`** — Capture viewport. Describe what you see and cross-verify with tools. Note any uncertainties in your final report.
 
 **`godotiq_explore`** — Autonomous visual inspection via drone camera. Two modes: **tour** (parses scene, clusters nodes into areas, flies camera through calculated positions, captures screenshots) and **inspect** (visits specific user-provided positions). Use after building or modifying 3D scenes. In screenshots, look for: lighting issues, geometry gaps, floating objects, fog/skybox appearance, decoration placement, general visual impression. Parameters: `mode` (tour/inspect), `max_areas` (default 3), `screenshots_per_area` (default 1), `positions` (for inspect mode), `scale` (default 0.3), `quality` (default 0.4), `fov`, `eye_height`. Has an 80K character budget — stops capturing and returns partial results if exceeded. Pro tool — Community users get cluster analysis without screenshots.
 

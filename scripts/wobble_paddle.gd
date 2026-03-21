@@ -10,4 +10,4 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	var direction := Input.get_axis("paddle_up", "paddle_down")
 	linear_velocity.y = direction * GameRules.PADDLE_SPEED
-	position.x = _start_x
+	position.x = _start_x # Lock x position

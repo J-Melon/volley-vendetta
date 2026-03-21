@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "godotiq": {
+      "command": "uvx",
+      "args": ["godotiq"],
+      "env": {
+        "GODOTIQ_PROJECT_ROOT": "/mnt/c/Users/volca/Documents/gamedev/game-test",
+        "GODOTIQ_ADDON_HOST": "172.21.208.1"
+      }
+    }
+  }
+}
