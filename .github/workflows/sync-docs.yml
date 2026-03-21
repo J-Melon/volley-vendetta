@@ -45,6 +45,27 @@ jobs:
           const rawId = process.env.NOTION_DATABASE_ID.replace(/-/g, '');
           const databaseId = `${rawId.slice(0,8)}-${rawId.slice(8,12)}-${rawId.slice(12,16)}-${rawId.slice(16,20)}-${rawId.slice(20)}`;
 
+          // Ensure the database has a "File" rich_text property
+          async function ensureFileProperty() {
+            const db = await notion.databases.retrieve({ database_id: databaseId });
+            if (!db.properties['File']) {
+              await notion.databases.update({
+                database_id: databaseId,
+                properties: {
+                  'File': { rich_text: {} }
+                }
+              });
+              console.log('Created "File" property on database');
+            }
+            // Find the title property name
+            for (const [name, prop] of Object.entries(db.properties)) {
+              if (prop.type === 'title') return name;
+            }
+            return 'Name';
+          }
+
+          let titleProp;
+
           async function syncFile(filePath) {
             const content = fs.readFileSync(filePath, 'utf-8');
             const title = content.match(/^#\s+(.+)/m)?.[1] || filePath;
@@ -72,7 +93,7 @@ jobs:
               await notion.pages.update({
                 page_id: pageId,
                 properties: {
-                  'Name': { title: [{ text: { content: title } }] }
+                  [titleProp]: { title: [{ text: { content: title } }] }
                 }
               });
               console.log(`Updated: ${filePath}`);
@@ -81,7 +102,7 @@ jobs:
               await notion.pages.create({
                 parent: { database_id: databaseId },
                 properties: {
-                  'Name': { title: [{ text: { content: title } }] },
+                  [titleProp]: { title: [{ text: { content: title } }] },
                   'File': { rich_text: [{ text: { content: filePath } }] }
                 },
                 children: blocks
@@ -91,6 +112,7 @@ jobs:
           }
 
           async function main() {
+            titleProp = await ensureFileProperty();
             const changedFiles = fs.readFileSync('changed_files.txt', 'utf-8')
               .split('\n')
               .filter(f => f.trim());
