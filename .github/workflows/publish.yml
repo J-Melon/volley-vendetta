@@ -31,7 +31,8 @@ jobs:
     steps:
       - name: Download Butler
         run: |
-          curl -L -o butler https://broth.itch.zone/butler/linux-amd64/15.26.1/butler
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
           chmod +x butler
 
       - name: Push to Itch.io
