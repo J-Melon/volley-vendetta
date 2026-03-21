@@ -20,7 +20,7 @@ GodotIQRuntime="*uid://5f55jejx8ekg"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godotiq/plugin.cfg")
+enabled=PackedStringArray("res://addons/godotiq/plugin.cfg", "res://addons/gut/plugin.cfg")
 
 [physics]
 

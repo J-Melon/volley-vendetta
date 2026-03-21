@@ -4,7 +4,7 @@ extends Node
 ## dispatches requests to editor handlers or forwards to the running game.
 
 const DEFAULT_PORT := 6007
-const ADDON_VERSION := "0.1.0"
+const ADDON_VERSION := "0.3.5"
 const SCREENSHOT_TIMEOUT_MS := 30000
 const PERF_TIMEOUT_MS := 5000
 const INPUT_TIMEOUT_MS := 65000
@@ -15,13 +15,14 @@ var _exec_counter: int = 0
 var _tcp_server: TCPServer
 var _peers: Dictionary = {}          # peer_id -> WebSocketPeer
 var _peer_tcp: Dictionary = {}       # peer_id -> StreamPeerTCP (prevent GC)
-var _pending_game_requests: Dictionary = {}  # request_id -> {peer_id, method, timeout_at}
+var _pending_game_requests: Dictionary = {}  # req_key ("peer:id") -> {peer_id, request_id, method, timeout_at}
 var _pending_screenshot = null  # Deferred editor screenshot capture data
 var _pending_run = null  # Poll for scene play confirmation {peer_id, id, timeout_at, started_at}
 var _pending_scene_open = null  # Deferred scene open + play {peer_id, id, scene_path, timeout}
 var _game_running: bool = false
 var _next_peer_id: int = 1
 var _port: int = DEFAULT_PORT
+var _bridge_token: String = ""
 var debugger  # untyped — set by godotiq_plugin.gd
 var undo_redo  # untyped — set by godotiq_plugin.gd (EditorUndoRedoManager)
 var status_label: Label  # Bottom panel status label — set by godotiq_plugin.gd
@@ -60,6 +61,9 @@ func _get_script_errors() -> Array:
 
 func _ready() -> void:
 	_port = _load_port_from_config()
+	_bridge_token = _load_or_create_bridge_token()
+	if _bridge_token.is_empty():
+		push_error("GodotIQ: Bridge token unavailable. Requests will be rejected until res://.godotiq/bridge_token can be created.")
 	_tcp_server = TCPServer.new()
 	var err := _tcp_server.listen(_port, "127.0.0.1")
 	if err == OK:
@@ -70,11 +74,12 @@ func _ready() -> void:
 		if status_label:
 			status_label.text = "Server: Failed to start (port %d)" % _port
 	# Logger registration (Godot 4.5+ only)
-	if ClassDB.class_exists("Logger"):
+	# Use call() for OS.add_logger — avoids compile error on Godot versions without it
+	if ClassDB.class_exists("Logger") and OS.has_method("add_logger"):
 		var logger_script = load("res://addons/godotiq/godotiq_logger.gd")
 		if logger_script:
 			_error_logger = logger_script.new(self)
-			OS.add_logger(_error_logger)
+			OS.call("add_logger", _error_logger)
 			_has_logger = true
 			print("GodotIQ: Logger registered (Godot 4.5+)")
 		else:
@@ -130,6 +135,9 @@ func get_port() -> int:
 func _update_status_label() -> void:
 	if status_label == null:
 		return
+	if _bridge_token.is_empty():
+		status_label.text = "Server: Auth unavailable (.godotiq/bridge_token)"
+		return
 	if _peers.size() > 0:
 		status_label.text = "Server: Connected (port %d)" % _port
 	else:
@@ -152,6 +160,48 @@ func _load_port_from_config() -> int:
 			if port is int or port is float:
 				return int(port)
 	return DEFAULT_PORT
+
+
+func _load_or_create_bridge_token() -> String:
+	var token_path := "res://.godotiq/bridge_token"
+	if FileAccess.file_exists(token_path):
+		var existing_file := FileAccess.open(token_path, FileAccess.READ)
+		if existing_file != null:
+			var existing := existing_file.get_as_text().strip_edges()
+			existing_file.close()
+			if not existing.is_empty():
+				return existing
+
+	var dir_err := DirAccess.make_dir_recursive_absolute(
+		ProjectSettings.globalize_path("res://.godotiq")
+	)
+	if dir_err != OK and dir_err != ERR_ALREADY_EXISTS:
+		push_warning("GodotIQ: Failed to prepare .godotiq dir for bridge token")
+		return ""
+
+	var token := _generate_bridge_token()
+	var file := FileAccess.open(token_path, FileAccess.WRITE)
+	if file == null:
+		push_warning("GodotIQ: Failed to persist bridge token")
+		return ""
+	file.store_string(token)
+	file.close()
+	return token
+
+
+func _generate_bridge_token() -> String:
+	if ClassDB.class_exists("Crypto"):
+		var crypto := Crypto.new()
+		var bytes := crypto.generate_random_bytes(32)
+		if bytes.size() > 0:
+			return bytes.hex_encode()
+
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var token := ""
+	for _i in range(4):
+		token += "%08x" % rng.randi()
+	return token
 
 
 func _process(_delta: float) -> void:
@@ -202,7 +252,7 @@ func _process(_delta: float) -> void:
 		_pending_screenshot = null
 		_do_editor_screenshot(
 			s["peer_id"], s["id"], s["viewport_3d"],
-			s["camera"], s["original_transform"], true, s["scale"], s["quality"], s["fmt"]
+			s["camera"], s["original_transform"], true, s["scale"], s["quality"], s["fmt"], s.get("region", [])
 		)
 
 	# 4a. Process deferred scene open -> play
@@ -216,7 +266,7 @@ func _process(_delta: float) -> void:
 			"started_at": Time.get_ticks_msec(),
 			"timeout_at": Time.get_ticks_msec() + int(s.get("timeout", 15.0) * 1000),
 			"scene": s.get("scene_path", ""),
-			"main_scene_set": s.get("main_scene_set", false),
+			"main_scene_empty": s.get("main_scene_empty", false),
 			"script_warnings": s.get("script_warnings", []),
 		}
 
@@ -227,8 +277,9 @@ func _process(_delta: float) -> void:
 			_pending_run = null
 			var waited: float = (Time.get_ticks_msec() - r.get("started_at", Time.get_ticks_msec())) / 1000.0
 			var resp := {"action": "play", "success": true, "scene": r.get("scene", ""), "waited_seconds": waited}
-			if r.get("main_scene_set", false):
-				resp["main_scene_set"] = true
+			if r.get("main_scene_empty", false):
+				resp["main_scene_empty"] = true
+				resp["hint"] = "No main_scene set. Use set_main_scene to configure."
 			var sw = r.get("script_warnings", [])
 			if sw.size() > 0:
 				resp["script_warnings"] = sw
@@ -262,6 +313,16 @@ func _handle_message(peer_id: int, text: String) -> void:
 	var params: Dictionary = parsed.get("params", {})
 	if not (params is Dictionary):
 		params = {}
+	var token: String = str(parsed.get("token", ""))
+	if _bridge_token.is_empty():
+		_bridge_token = _load_or_create_bridge_token()
+		if _bridge_token.is_empty():
+			_update_status_label()
+			_send_error(peer_id, id, "AUTH_UNAVAILABLE", "Bridge token unavailable on addon side")
+			return
+	if token != _bridge_token:
+		_send_error(peer_id, id, "AUTH_ERROR", "Invalid or missing bridge token")
+		return
 	_dispatch(peer_id, id, method, params)
 
 
@@ -286,7 +347,8 @@ func _dispatch(peer_id: int, id: String, method: String, params: Dictionary) -> 
 		"input":
 			_handle_game_forward(peer_id, id, "godotiq:input", params, INPUT_TIMEOUT_MS)
 		"exec":
-			_handle_game_forward(peer_id, id, "godotiq:exec", params, EXEC_TIMEOUT_MS)
+			var exec_timeout_ms: int = int(params.get("timeout_ms", EXEC_TIMEOUT_MS))
+			_handle_game_forward(peer_id, id, "godotiq:exec", params, exec_timeout_ms)
 		"state_inspect":
 			_handle_game_forward(peer_id, id, "godotiq:query_state", params, STATE_TIMEOUT_MS)
 		"nav_query":
@@ -313,6 +375,8 @@ func _dispatch(peer_id: int, id: String, method: String, params: Dictionary) -> 
 			_handle_set_main_scene(peer_id, id, params)
 		"reload_script":
 			_handle_reload_script(peer_id, id, params)
+		"explore_camera":
+			_handle_game_forward(peer_id, id, "godotiq:explore_camera", params, 10000)
 		_:
 			_send_error(peer_id, id, "UNKNOWN_METHOD", "Unknown method: %s" % method)
 
@@ -463,13 +527,12 @@ func _handle_run(peer_id: int, id: String, params: Dictionary) -> void:
 			unique_paths.append(p)
 	var script_warnings := _check_scripts_valid(unique_paths)
 
-	# Step 4: Auto-set main scene if empty
-	var main_scene_set: bool = false
+	# Step 4: Check if main scene is empty (report only, do NOT auto-write)
+	var main_scene_empty: bool = false
 	if not is_current and resolved_path != "":
 		var current_main: String = ProjectSettings.get_setting("application/run/main_scene", "")
 		if current_main == "":
-			_set_main_scene_internal(resolved_path)
-			main_scene_set = true
+			main_scene_empty = true
 
 	# Step 5: Read timeout
 	var timeout: float = float(params.get("timeout", 15.0))
@@ -486,7 +549,7 @@ func _handle_run(peer_id: int, id: String, params: Dictionary) -> void:
 			"id": id,
 			"scene_path": resolved_path,
 			"timeout": timeout,
-			"main_scene_set": main_scene_set,
+			"main_scene_empty": main_scene_empty,
 			"script_warnings": script_warnings,
 		}
 	else:
@@ -498,7 +561,7 @@ func _handle_run(peer_id: int, id: String, params: Dictionary) -> void:
 			"started_at": Time.get_ticks_msec(),
 			"timeout_at": Time.get_ticks_msec() + int(timeout * 1000),
 			"scene": resolved_path,
-			"main_scene_set": main_scene_set,
+			"main_scene_empty": main_scene_empty,
 			"script_warnings": script_warnings,
 		}
 
@@ -696,7 +759,7 @@ func _handle_node_ops(peer_id: int, id: String, params: Dictionary) -> void:
 			continue
 		var result := _execute_node_op(op_data, scene_root, undo_redo)
 		results.append(result)
-		if result["status"] == "ok":
+		if result["status"] == "ok" and result.get("op", "") != "get_property":
 			any_succeeded = true
 
 	if any_succeeded:
@@ -740,6 +803,10 @@ func _execute_node_op(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 			return _op_reparent(op_data, scene_root, ur)
 		"set_anchors":
 			return _op_set_anchors(op_data, scene_root, ur)
+		"rename":
+			return _op_rename(op_data, scene_root, ur)
+		"get_property":
+			return _op_get_property(op_data, scene_root)
 		_:
 			return {"op": op, "status": "error", "error": "Unknown operation: %s" % op}
 
@@ -1043,6 +1110,76 @@ func _op_set_anchors(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
 	return result
 
 
+func _op_rename(op_data: Dictionary, scene_root: Node, ur) -> Dictionary:
+	var node_name: String = str(op_data.get("node", ""))
+	var new_name: String = str(op_data.get("new_name", ""))
+	var node := _find_node_by_name_or_path(node_name, scene_root)
+	if node == null:
+		return {"op": "rename", "node": node_name, "status": "error", "error": "Node not found: %s" % node_name}
+	if new_name.is_empty():
+		return {"op": "rename", "node": node_name, "status": "error", "error": "new_name must not be empty"}
+	var old_name: String = node.name
+	ur.add_do_property(node, "name", new_name)
+	ur.add_undo_property(node, "name", old_name)
+	return {"op": "rename", "node": node_name, "status": "ok", "new_name": new_name}
+
+
+func _op_get_property(op_data: Dictionary, scene_root: Node) -> Dictionary:
+	var node_name: String = str(op_data.get("node", ""))
+	var property_name: String = str(op_data.get("property", ""))
+	var node := _find_node_by_name_or_path(node_name, scene_root)
+	if node == null:
+		return {"op": "get_property", "node": node_name, "status": "error", "error": "Node not found: %s" % node_name}
+	if property_name.is_empty():
+		return {"op": "get_property", "node": node_name, "status": "error", "error": "property must not be empty"}
+
+	# Check property exists via property list
+	var found := false
+	for prop in node.get_property_list():
+		if prop["name"] == property_name:
+			found = true
+			break
+	if not found:
+		return {"op": "get_property", "node": node_name, "status": "error", "error": "Property not found: %s" % property_name}
+
+	var value = node.get(property_name)
+	return {"op": "get_property", "node": node_name, "status": "ok", "property": property_name, "value": _value_to_json(value)}
+
+
+func _value_to_json(value) -> Variant:
+	if value == null:
+		return null
+	if value is int or value is float or value is bool or value is String:
+		return value
+	if value is Vector2:
+		return [snapped(value.x, 0.001), snapped(value.y, 0.001)]
+	if value is Vector3:
+		return [snapped(value.x, 0.001), snapped(value.y, 0.001), snapped(value.z, 0.001)]
+	if value is Color:
+		return [snapped(value.r, 0.001), snapped(value.g, 0.001), snapped(value.b, 0.001), snapped(value.a, 0.001)]
+	if value is Array:
+		var arr: Array = []
+		for item in value:
+			arr.append(_value_to_json(item))
+		return arr
+	if value is Dictionary:
+		var dict: Dictionary = {}
+		for key in value.keys():
+			dict[str(key)] = _value_to_json(value[key])
+		return dict
+	if value is Transform3D:
+		var b: Basis = value.basis
+		return {
+			"origin": [snapped(value.origin.x, 0.001), snapped(value.origin.y, 0.001), snapped(value.origin.z, 0.001)],
+			"basis": [
+				[snapped(b.x.x, 0.001), snapped(b.x.y, 0.001), snapped(b.x.z, 0.001)],
+				[snapped(b.y.x, 0.001), snapped(b.y.y, 0.001), snapped(b.y.z, 0.001)],
+				[snapped(b.z.x, 0.001), snapped(b.z.y, 0.001), snapped(b.z.z, 0.001)],
+			],
+		}
+	return str(value)
+
+
 func _convert_value(value, reference_value):
 	if reference_value is Vector3 and value is Array and value.size() >= 3:
 		return Vector3(float(value[0]), float(value[1]), float(value[2]))
@@ -1098,7 +1235,7 @@ func _handle_undo_history(peer_id: int, id: String, _params: Dictionary) -> void
 
 func _handle_exec_editor(peer_id: int, id: String, params: Dictionary) -> void:
 	var code: String = params.get("code", "")
-	var timeout_ms: int = params.get("timeout_ms", 5000)
+	# timeout_ms is enforced by the Python bridge timeout; editor execution here is synchronous.
 
 	if code.is_empty():
 		_send_error(peer_id, id, "EXEC_ERROR", "No code provided")
@@ -1114,8 +1251,14 @@ func _handle_exec_editor(peer_id: int, id: String, params: Dictionary) -> void:
 		return
 
 	# Safety: blocked patterns
+	# Safety: blocked patterns — keep in sync with godotiq_runtime.gd and Python exec_code._BLOCKED_PATTERNS
+	# Note: DirAccess.remove also catches DirAccess.remove_absolute() via substring match
 	var blocked_patterns: Array = [
 		"DirAccess.remove",
+		"DirAccess.open",
+		"FileAccess.open",
+		"FileAccess.get_file_as_string",
+		"FileAccess.get_file_as_bytes",
 		"OS.execute",
 		"OS.kill",
 		"OS.shell_open",
@@ -1129,16 +1272,32 @@ func _handle_exec_editor(peer_id: int, id: String, params: Dictionary) -> void:
 			})
 			return
 
-	# Compile the script
+	# Compile the script — capture errors via Logger if available
+	# Prepend offset: "@tool\nextends Node\n\n" = 3 lines
+	var _exec_prepend_lines: int = 3
+	if _has_logger:
+		_clear_script_errors()
+		_error_logger.capture_all = true
 	var script := GDScript.new()
 	script.source_code = "@tool\nextends Node\n\n" + code
 	var err: int = script.reload()
+	if _has_logger:
+		_error_logger.capture_all = false
 	if err != OK:
-		send_response(peer_id, id, {
+		var resp := {
 			"status": "COMPILE_ERROR",
 			"result": "",
-			"error": "Compilation failed (error %d). Check GDScript syntax." % err,
-		})
+			"error": "Compilation failed (error %d: %s). Check GDScript syntax." % [err, error_string(err)],
+		}
+		if _has_logger:
+			var captured := _get_script_errors()
+			if not captured.is_empty():
+				var details: Array = []
+				for entry in captured:
+					var adj_line: int = maxi(entry.get("line", 0) - _exec_prepend_lines, 1)
+					details.append({"line": adj_line, "message": entry.get("message", "")})
+				resp["error_detail"] = details
+		send_response(peer_id, id, resp)
 		return
 
 	# Instantiate and execute
@@ -1249,11 +1408,30 @@ func _handle_save_scene(peer_id: int, id: String, _params: Dictionary) -> void:
 
 	var scene_path: String = scene_root.scene_file_path
 
+	# Compute feedback: file size and node count
+	var file_size_kb := 0
+	if FileAccess.file_exists(scene_path):
+		var f := FileAccess.open(scene_path, FileAccess.READ)
+		if f != null:
+			file_size_kb = maxi(1, int(f.get_length() / 1024.0))
+			f.close()
+
+	var node_count := _count_nodes(scene_root)
+
 	send_response(peer_id, id, {
 		"saved": true,
 		"scene_path": scene_path,
 		"scene_name": scene_root.name,
+		"file_size_kb": file_size_kb,
+		"node_count": node_count,
 	})
+
+
+func _count_nodes(root: Node) -> int:
+	var count := 1
+	for child in root.get_children():
+		count += _count_nodes(child)
+	return count
 
 
 func _handle_editor_screenshot(peer_id: int, id: String, params: Dictionary) -> void:
@@ -1263,6 +1441,7 @@ func _handle_editor_screenshot(peer_id: int, id: String, params: Dictionary) -> 
 	var scale: float = params.get("scale", 0.25)
 	var quality: float = clampf(params.get("quality", 0.5), 0.1, 1.0)
 	var fmt: String = params.get("format", "webp")
+	var region: Array = params.get("region", [])
 
 	var viewport_3d := EditorInterface.get_editor_viewport_3d(0)
 	if viewport_3d == null:
@@ -1296,21 +1475,29 @@ func _handle_editor_screenshot(peer_id: int, id: String, params: Dictionary) -> 
 		_pending_screenshot = {
 			"peer_id": peer_id, "id": id, "viewport_3d": viewport_3d,
 			"camera": camera, "original_transform": original_transform,
-			"scale": scale, "quality": quality, "fmt": fmt,
+			"scale": scale, "quality": quality, "fmt": fmt, "region": region,
 		}
 		return
 
 	# No camera move — capture current viewport texture immediately
-	_do_editor_screenshot(peer_id, id, viewport_3d, camera, original_transform, false, scale, quality, fmt)
+	_do_editor_screenshot(peer_id, id, viewport_3d, camera, original_transform, false, scale, quality, fmt, region)
 
 
-func _do_editor_screenshot(peer_id: int, id: String, viewport_3d: SubViewport, camera: Camera3D, original_transform: Transform3D, restore_camera: bool, scale: float, quality: float, fmt: String) -> void:
+func _do_editor_screenshot(peer_id: int, id: String, viewport_3d: SubViewport, camera: Camera3D, original_transform: Transform3D, restore_camera: bool, scale: float, quality: float, fmt: String, region: Array = []) -> void:
 	var img := viewport_3d.get_texture().get_image()
 	if img == null:
 		if restore_camera and camera != null:
 			camera.global_transform = original_transform
 		_send_error(peer_id, id, "CAPTURE_FAILED", "Failed to capture editor viewport image")
 		return
+
+	# Apply region crop before scaling
+	if region.size() == 4:
+		var rx: int = clampi(int(region[0]), 0, img.get_width())
+		var ry: int = clampi(int(region[1]), 0, img.get_height())
+		var rw: int = clampi(int(region[2]), 1, img.get_width() - rx)
+		var rh: int = clampi(int(region[3]), 1, img.get_height() - ry)
+		img = img.get_region(Rect2i(rx, ry, rw, rh))
 
 	if scale < 1.0 and scale > 0.0:
 		var new_width: int = int(img.get_width() * scale)
@@ -1471,14 +1658,23 @@ func _handle_build_scene(peer_id: int, id: String, params: Dictionary) -> void:
 		_send_error(peer_id, id, "NO_UNDO_REDO", "UndoRedo manager not available")
 		return
 
-	# Resolve parent node
+	# Resolve parent node (strip root node name from path if first segment matches)
 	var parent_str: String = str(params.get("parent", ""))
+	var original_parent_str: String = parent_str
 	var parent: Node = scene_root
 	if parent_str != "":
-		parent = _find_node_by_name_or_path(parent_str, scene_root)
-		if parent == null:
-			_send_error(peer_id, id, "PARENT_NOT_FOUND", "Parent node not found: %s" % parent_str)
-			return
+		var root_name: String = scene_root.name
+		if parent_str == root_name:
+			parent_str = ""
+		elif parent_str.begins_with(root_name + "/"):
+			parent_str = parent_str.substr(root_name.length() + 1)
+
+		if parent_str != "":
+			parent = _find_node_by_name_or_path(parent_str, scene_root)
+			if parent == null:
+				_send_error(peer_id, id, "PARENT_NOT_FOUND",
+					"Parent node not found: %s (root node is '%s', use relative paths from root children)" % [original_parent_str, root_name])
+				return
 
 	# Expand pattern into flat node specs
 	var specs: Array = _expand_build_pattern(params)
@@ -1537,21 +1733,52 @@ func _handle_build_scene(peer_id: int, id: String, params: Dictionary) -> void:
 
 
 func _expand_build_pattern(params: Dictionary) -> Array:
+	var offset: Array = params.get("offset", [0, 0, 0])
 	if params.has("grid"):
-		return _expand_build_grid(params["grid"])
+		return _expand_build_grid(params["grid"], offset)
 	if params.has("line"):
-		return _expand_build_line(params["line"])
+		return _expand_build_line(params["line"], offset)
 	if params.has("scatter"):
 		var scatter: Dictionary = params["scatter"]
-		return scatter.get("items", [])
+		var items: Array = scatter.get("items", [])
+		var off_x: float = float(offset[0])
+		var off_y: float = float(offset[1])
+		var off_z: float = float(offset[2])
+		var index: int = 0
+		for item in items:
+			if item is Dictionary and item.has("position"):
+				var pos: Array = item["position"]
+				item["position"] = [float(pos[0]) + off_x, float(pos[1]) + off_y, float(pos[2]) + off_z]
+			if item is Dictionary and not item.has("name"):
+				item["name"] = "%s_%d" % [_build_spec_name_prefix(item), index]
+			index += 1
+		return items
 	if params.has("nodes"):
 		return params["nodes"]
 	return []
 
 
-func _expand_build_grid(grid: Dictionary) -> Array:
+func _build_spec_name_prefix(spec: Dictionary) -> String:
+	if spec.has("prefix"):
+		return str(spec["prefix"])
+	var scene_path: String = str(spec.get("scene", ""))
+	if scene_path != "":
+		return scene_path.get_file().get_basename()
+	var type_name: String = str(spec.get("type", ""))
+	if type_name != "":
+		return type_name
+	return "BuildNode"
+
+
+func _expand_build_grid(grid: Dictionary, offset: Array = [0, 0, 0]) -> Array:
 	var scene_path: String = str(grid.get("scene", ""))
-	var prefix: String = str(grid.get("prefix", "Node"))
+	var prefix: String
+	if grid.has("prefix"):
+		prefix = str(grid["prefix"])
+	elif scene_path != "":
+		prefix = scene_path.get_file().get_basename()
+	else:
+		prefix = "Node"
 	var rows: int = int(grid.get("rows", 1))
 	var cols: int = int(grid.get("cols", 1))
 	var spacing: float = float(grid.get("spacing", 1.0))
@@ -1563,6 +1790,9 @@ func _expand_build_grid(grid: Dictionary) -> Array:
 	var ox: float = float(origin[0]) if origin.size() > 0 else 0.0
 	var oy: float = float(origin[1]) if origin.size() > 1 else 0.0
 	var oz: float = float(origin[2]) if origin.size() > 2 else 0.0
+	var off_x: float = float(offset[0])
+	var off_y: float = float(offset[1])
+	var off_z: float = float(offset[2])
 
 	var result: Array = []
 	for row in range(rows):
@@ -1587,21 +1817,33 @@ func _expand_build_grid(grid: Dictionary) -> Array:
 
 			if not spec.has("position"):
 				if axis == "xy":
-					spec["position"] = [ox + col * spacing, oy + row * spacing, oz]
+					spec["position"] = [ox + col * spacing + off_x, oy + row * spacing + off_y, oz + off_z]
 				else:  # "xz" default
-					spec["position"] = [ox + col * spacing, oy, oz + row * spacing]
+					spec["position"] = [ox + col * spacing + off_x, oy + off_y, oz + row * spacing + off_z]
+			else:
+				var pos: Array = spec["position"]
+				spec["position"] = [float(pos[0]) + off_x, float(pos[1]) + off_y, float(pos[2]) + off_z]
 
 			result.append(spec)
 	return result
 
 
-func _expand_build_line(line: Dictionary) -> Array:
+func _expand_build_line(line: Dictionary, offset: Array = [0, 0, 0]) -> Array:
 	var scene_path: String = str(line.get("scene", ""))
-	var prefix: String = str(line.get("prefix", "Node"))
+	var prefix: String
+	if line.has("prefix"):
+		prefix = str(line["prefix"])
+	elif scene_path != "":
+		prefix = scene_path.get_file().get_basename()
+	else:
+		prefix = "Node"
 	var points: Array = line.get("points", [])
 	var spacing: float = float(line.get("spacing", 1.0))
 	var align_to_path: bool = line.get("align_to_path", false)
 	var type_name: String = str(line.get("type", ""))
+	var off_x: float = float(offset[0])
+	var off_y: float = float(offset[1])
+	var off_z: float = float(offset[2])
 
 	if points.size() < 2 or spacing <= 0:
 		return []
@@ -1611,7 +1853,7 @@ func _expand_build_line(line: Dictionary) -> Array:
 
 	# Place first node at start point with rotation from first segment
 	var first_pt: Array = points[0]
-	var first_spec: Dictionary = {"name": "%s_%d" % [prefix, index], "position": first_pt}
+	var first_spec: Dictionary = {"name": "%s_%d" % [prefix, index], "position": [float(first_pt[0]) + off_x, float(first_pt[1]) + off_y, float(first_pt[2]) + off_z]}
 	if scene_path != "":
 		first_spec["scene"] = scene_path
 	if type_name != "":
@@ -1642,7 +1884,7 @@ func _expand_build_line(line: Dictionary) -> Array:
 			var pos := start + seg_dir * dist_along
 			var spec: Dictionary = {
 				"name": "%s_%d" % [prefix, index],
-				"position": [pos.x, pos.y, pos.z],
+				"position": [pos.x + off_x, pos.y + off_y, pos.z + off_z],
 			}
 			if scene_path != "":
 				spec["scene"] = scene_path
@@ -1659,7 +1901,7 @@ func _expand_build_line(line: Dictionary) -> Array:
 
 	# Endpoint inclusion: check if last placed node is near the final point
 	var final_pt: Array = points[points.size() - 1]
-	var final_pos := Vector3(float(final_pt[0]), float(final_pt[1]), float(final_pt[2]))
+	var final_pos := Vector3(float(final_pt[0]) + off_x, float(final_pt[1]) + off_y, float(final_pt[2]) + off_z)
 	var place_endpoint := true
 	if result.size() > 0:
 		var last_spec: Dictionary = result[result.size() - 1]
@@ -1671,7 +1913,7 @@ func _expand_build_line(line: Dictionary) -> Array:
 	if place_endpoint:
 		var end_spec: Dictionary = {
 			"name": "%s_%d" % [prefix, index],
-			"position": [final_pos.x, final_pos.y, final_pos.z],
+			"position": [final_pos.x + off_x, final_pos.y + off_y, final_pos.z + off_z],
 		}
 		if scene_path != "":
 			end_spec["scene"] = scene_path
@@ -1705,7 +1947,11 @@ func _create_build_node(spec: Dictionary, parent: Node, scene_root: Node, ur) ->
 		return {"ok": false, "error": "Spec must have 'scene' or 'type'"}
 
 	# Set name
-	var node_name: String = str(spec.get("name", "BuildNode"))
+	var node_name: String = str(spec.get("name", ""))
+	if node_name == "":
+		node_name = _build_spec_name_prefix(spec)
+		if scene_path != "" and new_node.name != "":
+			node_name = str(new_node.name)
 	new_node.name = node_name
 
 	# Register with undo/redo (deferred)
@@ -1758,38 +2004,55 @@ func _handle_game_forward(peer_id: int, id: String, msg_type: String, params: Di
 		"method": msg_type,
 		"timeout_at": Time.get_ticks_msec() + timeout_ms,
 	}
-	debugger.send_to_game(msg_type, [JSON.stringify(params)])
+	var forward_params: Dictionary = params.duplicate(true)
+	forward_params["_request_id"] = req_key
+	debugger.send_to_game(msg_type, [JSON.stringify(forward_params)])
 
 
 func handle_game_response(response_type: String, data: Array) -> void:
-	# Find matching pending request by method
-	var matched_id := ""
-	for req_id in _pending_game_requests:
-		var entry: Dictionary = _pending_game_requests[req_id]
-		if entry["method"] == response_type:
-			matched_id = req_id
-			break
-	if matched_id == "":
-		return  # no matching request — stale or duplicate
-	var entry: Dictionary = _pending_game_requests[matched_id]
-	_pending_game_requests.erase(matched_id)
-
 	var result: Dictionary = {}
-	if response_type == "godotiq:screenshot" and data.size() >= 4:
+	var response_request_id := ""
+	if data.size() >= 1 and data[0] is String:
+		var parsed = JSON.parse_string(data[0])
+		if parsed is Dictionary:
+			result = parsed
+			response_request_id = str(result.get("request_id", ""))
+			result.erase("request_id")
+		else:
+			result = {"raw": data[0]}
+	elif response_type == "godotiq:screenshot" and data.size() >= 4:
 		result = {
 			"image": data[0],
 			"format": data[1],
 			"width": data[2],
 			"height": data[3],
 		}
-	elif data.size() >= 1 and data[0] is String:
-		var parsed = JSON.parse_string(data[0])
-		if parsed is Dictionary:
-			result = parsed
-		else:
-			result = {"raw": data[0]}
 	else:
 		result = {"data": data}
+
+	var matched_id := ""
+	if response_request_id != "":
+		if _pending_game_requests.has(response_request_id):
+			matched_id = response_request_id
+		else:
+			for req_id in _pending_game_requests:
+				var entry_by_request_id: Dictionary = _pending_game_requests[req_id]
+				if entry_by_request_id["method"] == response_type and entry_by_request_id["request_id"] == response_request_id:
+					matched_id = req_id
+					break
+
+	if matched_id == "":
+		for req_id in _pending_game_requests:
+			var entry_by_method: Dictionary = _pending_game_requests[req_id]
+			if entry_by_method["method"] == response_type:
+				matched_id = req_id
+				break
+
+	if matched_id == "":
+		return  # no matching request — stale or duplicate
+
+	var entry: Dictionary = _pending_game_requests[matched_id]
+	_pending_game_requests.erase(matched_id)
 	send_response(entry["peer_id"], entry["request_id"], result)
 
 
@@ -1882,7 +2145,7 @@ func _send_text(peer_id: int, text: String) -> void:
 
 # --- check_errors ---
 
-func _handle_check_errors(peer_id: int, id: String, params: Dictionary) -> void:
+func _handle_check_errors(peer_id: int, id: String, params: Dictionary):
 	if _checking_errors:
 		_send_error(peer_id, id, "CHECK_IN_PROGRESS", "A check_errors operation is already running")
 		return
@@ -1906,14 +2169,9 @@ func _handle_check_errors(peer_id: int, id: String, params: Dictionary) -> void:
 	for i in script_paths.size():
 		var path: String = script_paths[i]
 		var res = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
-		if res == null:
-			basic_errors[path] = {"file": path, "line": 0, "error": "Failed to load script"}
-		elif res is GDScript:
-			if not res.can_instantiate():
-				basic_errors[path] = {"file": path, "line": 0, "error": "Script has parse errors (cannot instantiate)"}
-			var reload_err = res.reload()
-			if reload_err != OK and not basic_errors.has(path):
-				basic_errors[path] = {"file": path, "line": 0, "error": "Script reload failed (error %d)" % reload_err}
+		var basic_error := _check_loaded_script(path, res)
+		if not basic_error.is_empty():
+			basic_errors[path] = basic_error
 		checked += 1
 		if checked % 10 == 0:
 			await get_tree().process_frame
@@ -1953,6 +2211,17 @@ func _handle_check_errors(peer_id: int, id: String, params: Dictionary) -> void:
 		"scripts_checked": checked,
 		"scope": scope,
 	})
+
+
+func _check_loaded_script(path: String, script_res) -> Dictionary:
+	if script_res == null:
+		return {"file": path, "line": 0, "error": "Failed to load script"}
+	if not script_res.has_method("reload"):
+		return {}
+	var reload_err: int = int(script_res.reload())
+	if reload_err != OK:
+		return {"file": path, "line": 0, "error": "Script reload failed (error %d)" % reload_err}
+	return {}
 
 
 func _get_script_paths_recursive(dir: EditorFileSystemDirectory) -> Array[String]:

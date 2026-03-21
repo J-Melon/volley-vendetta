@@ -11,6 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Run Tests
+        uses: croconut/godot-tester@v5.2
+        with:
+          version: "4.3"
+          release-type: "stable"
+          project-path: "./"
+
       - name: Export Web
         id: export
         uses: firebelley/godot-export@v7.0.0
@@ -26,4 +33,4 @@ jobs:
           CHANNEL: html5
           ITCH_GAME: game-test
           ITCH_USER: Speedyoshi
-          PACKAGE: ${{ steps.export.outputs.build_directory }}/Web
+          PACKAGE: ${{ steps.export.outputs.build_directory }}
