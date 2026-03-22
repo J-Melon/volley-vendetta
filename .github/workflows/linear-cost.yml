@@ -107,9 +107,10 @@ jobs:
             "https://api.linear.app/graphql" \
             -H "Authorization: $LINEAR_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"query\":\"{ issueSearch(filter: { identifier: { eq: \\\"$ISSUE_ID\\\" } }) { nodes { id } } }\"}")
+            -d "{\"query\":\"{ issues(filter: { number: { eq: ${ISSUE_ID##*-} }, team: { key: { eq: \\\"${ISSUE_ID%%-*}\\\" } } }) { nodes { id } } }\"}")
 
-          LINEAR_ISSUE_UUID=$(echo "$ISSUE_DATA" | jq -r '.data.issueSearch.nodes[0].id // empty')
+          echo "Linear response: $ISSUE_DATA"
+          LINEAR_ISSUE_UUID=$(echo "$ISSUE_DATA" | jq -r '.data.issues.nodes[0].id // empty')
 
           if [ -z "$LINEAR_ISSUE_UUID" ]; then
             echo "Could not find Linear issue $ISSUE_ID"
