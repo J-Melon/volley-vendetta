@@ -100,7 +100,7 @@ jobs:
               -H "Authorization: Basic $TT_AUTH" \
               -H "User-Agent: LinearCostTracker/1.0")
 
-            SECONDS=$(echo "$ENTRIES" | jq '[.data[]?.duration // 0] | add // 0')
+            SECONDS=$(echo "$ENTRIES" | jq '[.data[]?.d // 0] | add // 0')
             TOTAL_SECONDS=$((TOTAL_SECONDS + SECONDS))
           done
 
