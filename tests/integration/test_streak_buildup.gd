@@ -43,7 +43,7 @@ func test_ball_speed_increases_across_three_hits() -> void:
 	var expected := minf(
 		GameRules.BALL_SPEED_MIN + 3.0 * GameRules.BALL_SPEED_INCREMENT, GameRules.BALL_SPEED_MAX
 	)
-	assert_almost_eq(_ball.linear_velocity.length(), expected, 0.01)
+	assert_almost_eq(_ball.speed, expected, 0.01)
 
 
 func test_pitch_increases_across_three_hits() -> void:

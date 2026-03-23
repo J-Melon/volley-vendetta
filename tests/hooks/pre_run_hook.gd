@@ -1,7 +1,13 @@
 extends "res://addons/gut/hook_script.gd"
 
 const Coverage = preload("res://addons/coverage/coverage.gd")
-const EXCLUDE_PATHS = ["res://addons/*", "res://tests/*"]
+const EXCLUDE_PATHS = [
+	"res://addons/*",
+	"res://tests/*",
+	# Require full scene with nodes — not unit-testable
+	"res://scripts/hud/*",
+	"res://scripts/back_wall.gd",
+]
 
 
 func run():
