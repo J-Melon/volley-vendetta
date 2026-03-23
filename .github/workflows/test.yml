@@ -38,12 +38,13 @@ jobs:
           COVERAGE_FILE: coverage.json
         run: |
           mkdir -p logs
-          godot --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit | tee test_output.txt
+          set -o pipefail
+          godot --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit 2>&1 | tee test_output.txt
 
-      - name: Coverage Summary
+      - name: Coverage Report
         if: always()
         run: |
-          echo '## Test Coverage' >> $GITHUB_STEP_SUMMARY
+          echo '## Run Tests Summary' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           grep -A 100 'Coverage' test_output.txt >> $GITHUB_STEP_SUMMARY || echo 'No coverage output found' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY

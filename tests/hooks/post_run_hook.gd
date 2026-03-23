@@ -7,15 +7,15 @@ const FILE_TARGET := 25.0
 
 
 func run():
-	var coverage := Coverage.instance
-	var coverage_file := (
+	var coverage = Coverage.instance
+	var coverage_file = (
 		OS.get_environment("COVERAGE_FILE") if OS.has_environment("COVERAGE_FILE") else ""
 	)
 	if coverage_file:
 		coverage.save_coverage_file(coverage_file)
 	coverage.set_coverage_targets(COVERAGE_TARGET, FILE_TARGET)
-	var verbosity := Coverage.Verbosity.FAILING_FILES
-	var logger := gut.get_logger()
+	var verbosity = Coverage.Verbosity.FAILING_FILES
+	var logger = gut.get_logger()
 	coverage.finalize(verbosity)
 	if coverage.coverage_passing():
 		logger.passed(
