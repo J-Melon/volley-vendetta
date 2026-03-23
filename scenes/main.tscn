@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://glw3v53y7eyu" path="res://scripts/game.gd" id="1_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://dumhl1skwhd7q" path="res://scenes/hud.tscn" id="2_tefeu"]
 [ext_resource type="PackedScene" uid="uid://ce8nc6smq3t8v" path="res://scenes/paddle.tscn" id="3_jyhfs"]
-[ext_resource type="Script" path="res://scripts/back_wall.gd" id="5_tefeu"]
+[ext_resource type="Script" uid="uid://dv6cu2cx1qqfv" path="res://scripts/back_wall.gd" id="5_tefeu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sgp6g"]
 size = Vector2(31.010721, 880.5864)
