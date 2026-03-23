@@ -40,7 +40,7 @@ func _build_streak(hits: int) -> void:
 func test_ball_speed_resets_after_miss() -> void:
 	await _build_streak(2)
 	_ball.missed.emit()
-	assert_almost_eq(_ball.linear_velocity.length(), GameRules.BALL_SPEED_MIN, 0.01)
+	assert_almost_eq(_ball.speed, GameRules.BALL_SPEED_MIN, 0.01)
 
 
 func test_hud_resets_after_miss() -> void:
