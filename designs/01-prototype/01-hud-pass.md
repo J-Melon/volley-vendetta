@@ -1,5 +1,9 @@
 # HUD Pass
 
+## Implementation notes
+
+**VolleyTracker not extracted.** The design specified extracting volley logic into `scripts/volley_tracker.gd` for unit testability. This was skipped — `game.gd` emits signals (`volley_count_changed`, `personal_best_changed`) which the scene wires to the HUD directly. Integration tests cover the same behaviour through signals, making the extra class unnecessary indirection.
+
 ## Goal
 Complete the volley tracking system and display it properly in the HUD. This is the foundation that Progression System and Ball Scaling build on.
 
