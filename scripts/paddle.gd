@@ -6,14 +6,20 @@ signal paddle_hit
 
 var _streak := 0
 var _hit_cooldown := 0.0
+var _lane_x := 0.0
+
+
+func _ready() -> void:
+	_lane_x = position.x  # Lock paddle in x position
 
 
 func _physics_process(delta: float) -> void:
 	if _hit_cooldown > 0.0:
 		_hit_cooldown -= delta
 	var direction := Input.get_axis("paddle_up", "paddle_down")
-	velocity.y = direction * GameRules.PADDLE_SPEED
+	velocity = Vector2(0.0, direction * GameRules.PADDLE_SPEED)
 	move_and_slide()
+	position.x = _lane_x
 
 
 func on_ball_hit() -> void:
