@@ -26,7 +26,7 @@ timeline
 
 ## The Break - 3pts
 
-5. **The Break Audio** (3pts) - the audio treatment of the snap moment; silence, shift, or something that makes the player feel the world change
+4. **The Break Audio** (3pts) - the audio treatment of the snap moment; silence, shift, or something that makes the player feel the world change
 
 ---
 **Total: 16pts**

@@ -4,10 +4,11 @@
 timeline
     title Volley Vendetta Roadmap (disciplines run in parallel per phase)
 
-    Prototype ~ 2.5 months (25pts)
+    Prototype ~ 3.0 months (30pts)
         : HUD Pass (2pts)
         : Ball Scaling (1pt)
         : Progression System (10pts)
+        : Upgrade Mechanics (5pts)
         : Idle Play (3pts)
         : First Partner Unlock (5pts)
         : Desktop Experience (4pts)
@@ -19,7 +20,7 @@ timeline
         : Arena Art (3pts)
         : Ball Art (1pt)
 
-    v0.5 Early Access ~ 1.5 months (46pts)
+    v0.5 Early Access ~ 1.5 months (51pts)
         : UX Design (3pts)
         : Game Design (3pts)
         : Milestone Design (3pts)
@@ -35,9 +36,9 @@ timeline
         : App Icon & Logo (2pts)
         : Balance Pass (3pts)
 
-    Content Updates ~ 3.2 months (68pts)
+    Content Updates ~ 3.2 months (74pts)
         : Upgrades (8pts)
-        : World Record (5pts)
+        : World Record (10pts)
         : Partner Animation (3pts)
         : Background & Foreground (3pts)
         : Visual Effects (3pts)
@@ -52,7 +53,7 @@ timeline
         : Milestone Badge Flavour Text (2pts)
         : Audio & Music Full (8pts)
 
-    The Break ~ 1.0 months (23pts)
+    The Break ~ 1.0 months (24pts)
         : The Break Design (5pts)
         : Narrative Scripting (5pts)
         : The Break Writing (5pts)
@@ -69,7 +70,7 @@ timeline
         : Steam Store Page (13pts)
         : Outreach (5pts)
 
-    Total ~ 12.4 months + ongoing (200pts+)
+    Total ~ 12.9 months + ongoing (200pts+)
         : Power-ups
         : New Partners
         : Achievements
@@ -79,15 +80,16 @@ timeline
         : Discord Community
 ```
 
-## Prototype (minimum fun gameplay) - 25pts
+## Prototype (minimum fun gameplay) - 30pts
 The core loop works and it feels good to play for 10 minutes. Placeholder art is fine.
 
 1. **HUD Pass** (2pts, Feature) - volley counter with reset on miss, high score display, VolleyTracker refactor
 2. **Ball Scaling** (1pt, Feature) - ball speeds up during a streak, creating natural difficulty curve, paddle hit sound
 3. **Progression System** (10pts, Spike) - earn FP from volleys, 3 upgrades (paddle speed, size, ball start speed), save/load persistence
-4. **Idle Play** (3pts, Spike) - paddles play on their own when player isn't touching controls
-5. **First Partner Unlock** (5pts, Spike) - spend FP to recruit your first partner, replaces the wall as an upgrade milestone
-6. **Desktop Experience** (4pts, Spike) - borderless small window, always on top, minimal UI, Windows build
+4. **Upgrade Mechanics** (5pts, Spike) - implement the mechanical effects of all upgrades per the upgrade design; each must produce a perceptible, satisfying change at every tier; tuned until the progression loop feels viable before moving to Idle Play
+5. **Idle Play** (3pts, Spike) - paddles play on their own when player isn't touching controls
+6. **First Partner Unlock** (5pts, Spike) - spend FP to recruit your first partner, replaces the wall as an upgrade milestone
+7. **Desktop Experience** (4pts, Spike) - borderless small window, always on top, minimal UI, Windows build
 
 Prototype done = you can leave it running on your desktop, come back, upgrade, and your streak gets further than last time.
 
@@ -102,10 +104,10 @@ Full visual language established before the game is shared. Placeholder art repl
 
 Alpha done = the game has a coherent visual identity. No more placeholders.
 
-## v0.5 Early Access (fun is proven) - 49pts
+## v0.5 Early Access (fun is proven) - 51pts
 Design locked, basic sound, polished enough to share.
 
-**Urgent (19pts)**
+**Urgent (20pts)**
 1. Design: UX Design (3pts) - flows, navigation, idle transitions, upgrade shop UX
 2. Design: Game Design (3pts) - partner abilities, upgrade effects, progression pacing
 3. Design: Milestone Design (3pts) - define the full badge set, triggers, rewards, and collection UX; feeds Art and Tech
@@ -113,7 +115,7 @@ Design locked, basic sound, polished enough to share.
 5. Writing: World and Narrative (5pts) - lore, characters, setting, tone
 6. Writing: The Event (3pts) - decide what actually happened; the real thing the game-world is a fiction for. Must be resolved before The Break can be built.
 
-**High (12pts)**
+**High (15pts)**
 
 7. Writing: Copy Pass (5pts) - onboarding text, upgrade descriptions, and welcome back messages; all short-form copy that sets tone across the early game
 8. Sound: Audio Basic (2pts) - essential hit sounds, miss sounds, streak milestone
@@ -122,19 +124,20 @@ Design locked, basic sound, polished enough to share.
 
 **Medium (13pts)**
 
-10. Art: UI Assets (8pts) - HUD icons, partner unlock screens, visual elements, UI animation
-11. Art: Upgrade Art (3pts) - visual representations of each upgrade in the shop
-12. Art: App Icon & Logo (2pts) - game logo and icon variants for desktop and store
+11. Art: UI Assets (8pts) - HUD icons, partner unlock screens, visual elements, UI animation
+12. Art: Upgrade Art (3pts) - visual representations of each upgrade in the shop
+13. Art: App Icon & Logo (2pts) - game logo and icon variants for desktop and store
 
 **Low (3pts)**
 
-13. Design: Balance Pass (3pts) - upgrade costs, ball scaling curve, time to world record
+14. Design: Balance Pass (3pts) - upgrade costs, ball scaling curve, time to world record
 
-## v0.6 - v0.9 Content Updates - 68pts
+## v0.6 - v0.9 Content Updates - 74pts
 Progressive content drops building toward v1. Partners, milestones, polish. Everything except the break.
 
 - Tech: Upgrades (8pts) - full upgrade tree implementation
-- Writing/Tech: World Record (5pts) - name, personality, backstory and abilities for 3-5 partners; establish the world record number
+- Writing: World Record (5pts) - name, personality, backstory and abilities for 3-5 partners; establish the world record number
+- Tech: World Record (5pts) - wire up partner abilities and dialogue, implement partner unlock flow
 - Art: Partner Animation (3pts) - animation states for remaining partners, ball and arena animation
 - Art: Background & Foreground (3pts) - atmospheric layers, depth, parallax elements
 - Tech: Visual Effects (3pts) - hit sparks, streak glow, miss reaction
@@ -149,7 +152,7 @@ Progressive content drops building toward v1. Partners, milestones, polish. Ever
 - Writing: Milestone Badge Flavour Text (2pts) - badge names and a line each
 - Sound: Audio & Music Full (8pts) - fanfares, audio polish, character motifs per partner, remaining tracks
 
-## The Break - 26pts
+## The Break - 24pts
 The moment the game changes. All disciplines converge here. Nothing ships until it's all ready.
 
 - Design: The Break Design (5pts) - define the moment, the one specific thing revealed, the art direction brief; and design the post-Break state for a player who now knows the truth

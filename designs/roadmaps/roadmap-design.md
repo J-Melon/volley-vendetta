@@ -26,13 +26,13 @@ timeline
 4. **Onboarding Design** (3pts) - first-run experience; how the game introduces itself, the paddle, and the dream without a tutorial
 5. **Balance Pass** (3pts) - upgrade costs, ball scaling curve, time to world record
 
-## The Break - 6pts
+## The Break - 5pts
 
 6. **The Break Design** (5pts) - define the moment, the one specific thing revealed, the art direction brief; and design the post-Break state for a player who now knows the truth
 
 ## v1 Full Release - 3pts
 
-8. **Prestige Design** (3pts) - full design of the prestige system; reset loop, multipliers, what changes and what doesn't
+7. **Prestige Design** (3pts) - full design of the prestige system; reset loop, multipliers, what changes and what doesn't
 
 ---
 **Total: 23pts**

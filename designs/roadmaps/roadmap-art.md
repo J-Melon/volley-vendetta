@@ -16,7 +16,7 @@ timeline
         : Upgrade Art (3pts)
         : App Icon & Logo (2pts)
 
-    Content Updates ~ 2.6 months (26pts)
+    Content Updates ~ 2.1 months (21pts)
         : Partner Animation (3pts)
         : Background & Foreground (3pts)
         : Reaction Portrait Panel (5pts)
@@ -44,7 +44,7 @@ timeline
 7. **Upgrade Art** (3pts) - visual representations of each upgrade in the shop
 8. **App Icon & Logo** (2pts) - game logo and icon variants for desktop and store
 
-## Content Updates - 26pts
+## Content Updates - 21pts
 
 9. **Partner Animation** (3pts) - animation states for remaining partners, ball and arena animation
 10. **Background & Foreground** (3pts) - atmospheric layers, depth, parallax elements
@@ -61,4 +61,4 @@ timeline
 15. **Steam Store Page** (13pts) - capsule images, screenshots, trailer, Steamworks setup, store page copy
 
 ---
-**Total: 78pts**
+**Total: 73pts**
