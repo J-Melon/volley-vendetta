@@ -30,30 +30,30 @@ func before_each() -> void:
 
 func _hit() -> void:
 	_paddle.on_ball_hit()
-	await get_tree().create_timer(0.25).timeout
+	_paddle.tracker.process(HitTracker.COOLDOWN)
 
 
 func test_personal_best_updates_on_new_high() -> void:
-	await _hit()
-	await _hit()
-	await _hit()
+	_hit()
+	_hit()
+	_hit()
 	assert_eq(_last_personal_best, 3)
 
 
 func test_personal_best_persists_after_miss() -> void:
-	await _hit()
-	await _hit()
-	await _hit()
+	_hit()
+	_hit()
+	_hit()
 	_ball.missed.emit()
 	assert_eq(_last_personal_best, 3)
 
 
 func test_personal_best_not_updated_when_streak_below_record() -> void:
-	await _hit()
-	await _hit()
-	await _hit()
+	_hit()
+	_hit()
+	_hit()
 	_ball.missed.emit()
-	await get_tree().create_timer(0.25).timeout
-	await _hit()
+	_paddle.tracker.process(HitTracker.COOLDOWN)
+	_hit()
 	# One hit after miss — streak is 1, best is 3, so no new update
 	assert_eq(_last_personal_best, 3)

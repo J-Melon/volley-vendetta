@@ -1,3 +1,4 @@
+class_name Game
 extends Node2D
 
 signal volley_count_changed(count: int)
