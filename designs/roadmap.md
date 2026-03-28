@@ -92,13 +92,14 @@ timeline
         : Achievements
         : Cosmetics
         : Tray Support
+        : Mac Support
 ```
 
 **Total: ~15.7 months** (art, sound, writing, tech+design running in parallel per phase) (art, sound, writing, tech+design running in parallel per phase)
 
 ## Prototype
 
-All tech. The core loop working and feeling good: the volley, the FP economy, upgrades that feel satisfying, idle play, and a first partner to recruit. Shipped as a borderless desktop window on Windows. Placeholder art throughout.
+All tech. The core loop working and feeling good: the volley, the FP economy, upgrades that feel satisfying, idle play, and a first partner to recruit. Shipped as a borderless desktop window on Linux, with Windows also working. Placeholder art throughout.
 
 Done when you can leave it running, come back, upgrade, and get further than last time.
 
@@ -140,4 +141,4 @@ Done when you'd be happy putting it on Steam and telling people to play it.
 
 ## Future Updates
 
-New partners, achievements, cosmetics, tray support.
+New partners, achievements, cosmetics, tray support, Mac support.

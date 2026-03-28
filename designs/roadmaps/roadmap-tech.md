@@ -60,7 +60,7 @@ timeline
 
 **First Partner Unlock** lets the player spend FP to recruit their first partner, replacing the wall as the thing on the other side of the net. This is the first moment the game's cast exists in the world.
 
-**Desktop Experience** ships a borderless small window that sits always-on-top with minimal UI, as a Windows build. Done when you can leave it on your desktop during a working session without it being intrusive.
+**Desktop Experience** ships a borderless small window that sits always-on-top with minimal UI. Linux is the primary target; Windows should be working too. Done when you can leave it on your desktop during a working session without it being intrusive.
 
 ## v0.2-0.3 Alpha
 
@@ -108,6 +108,6 @@ timeline
 
 ## v1 Full Release
 
-**Platform Polish** adds the Linux export and handles window management edge cases across platforms.
+**Platform Polish** handles window management edge cases on Linux and Windows before launch. Mac is not in scope for v1.
 
 **QA & Stability** is a dedicated bug fixing, optimisation, and error handling pass before launch. Not a phase for new features.

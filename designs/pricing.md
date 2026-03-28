@@ -13,7 +13,7 @@
 
 ### The case for $9.99
 
-If The Break lands as a genuinely memorable moment and early access reviews reflect that, $9.99 is defensible and better for overall revenue per unit. Watch the itch.io early access response before committing.
+If The Break lands as a genuinely memorable moment and beta reviews reflect that, $9.99 is defensible and better for overall revenue per unit. Watch the itch.io beta response before committing.
 
 ---
 
