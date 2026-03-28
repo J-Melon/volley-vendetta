@@ -316,10 +316,36 @@ So that [benefit or reason]
 - [ ] ...
 ```
 
+### Bug Report Format
+
+```
+**Summary:** [One-line description of the bug]
+
+**Steps to Reproduce:**
+1.
+2.
+3.
+
+**Expected Behavior:**
+[What should happen]
+
+**Actual Behavior:**
+[What actually happens]
+
+**Environment:**
+- Scene: [e.g. res://scenes/GameMain.tscn]
+- Conditions: [e.g. "only when upgrade purchased", "after round 2"]
+
+**Acceptance Criteria:**
+- [ ] [Specific, testable condition that confirms the bug is fixed]
+- [ ] No regression in related systems
+```
+
 ### Guidelines
 
 - Each clause on its own line. Acceptance criteria: short, testable checklist items.
 - **User Story** for player/end-user needs. **System Story** for internal/infrastructure work.
+- **Bug Report** for defects — use steps to reproduce and clear expected vs actual.
 
 ### Linear API Access
 
