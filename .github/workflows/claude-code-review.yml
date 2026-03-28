@@ -48,5 +48,4 @@ jobs:
             - Overly verbose patterns that have simpler alternatives
 
             Be opinionated. Leave comments even for minor improvements. If the code is clean, still look for simplification opportunities.
-          show_full_output: true
           claude_args: '--allowedTools "Bash(git diff),Bash(git log),Bash(git show),Read,Glob,Grep"'
