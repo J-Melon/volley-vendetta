@@ -21,18 +21,18 @@ func _ready() -> void:
 		remove_button.focus_mode = Control.FOCUS_NONE
 		row.add_child(remove_button)
 	_refresh_buttons()
+	_setup_friendship_point_controls()
 
-	_friendship_point_balance_booster()
+	UpgradeManager.upgrade_level_changed.connect(_refresh_buttons.unbind(1))
+	UpgradeManager.friendship_point_balance_changed.connect(_refresh_buttons.unbind(1))
 
 
 func _on_upgrade_pressed(upgrade_key: String) -> void:
 	UpgradeManager.purchase(upgrade_key)
-	_refresh_buttons()
 
 
 func _on_remove_level_pressed(upgrade_key: String) -> void:
 	UpgradeManager.remove_level(upgrade_key)
-	_refresh_buttons()
 
 
 func _refresh_buttons() -> void:
@@ -44,7 +44,7 @@ func _refresh_buttons() -> void:
 		button.disabled = not UpgradeManager.can_purchase(upgrade.key)
 
 
-func _friendship_point_balance_booster() -> void:
+func _setup_friendship_point_controls() -> void:
 	var friendship_point_input := SpinBox.new()
 	friendship_point_input.value = 100
 	friendship_point_input.min_value = 1
@@ -72,9 +72,7 @@ func _friendship_point_balance_booster() -> void:
 
 func _on_friendship_point_balance_booster_pressed(input: SpinBox) -> void:
 	UpgradeManager.add_friendship_points(int(input.value))
-	_refresh_buttons()
 
 
 func _on_remove_friendship_point_pressed(input: SpinBox) -> void:
 	UpgradeManager.subtract_friendship_points(int(input.value))
-	_refresh_buttons()

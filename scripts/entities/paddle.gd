@@ -57,9 +57,9 @@ func _on_upgrade_level_changed(upgrade_key: String) -> void:
 		_apply_size()
 
 
-func _apply_size() -> bool:
+func _apply_size() -> void:
 	if _collision_shape == null:
-		return false
+		return
 
 	var new_size: float = _upgrade_manager.get_value(UpgradeManager.PADDLE_SIZE_KEY)
 
@@ -67,5 +67,3 @@ func _apply_size() -> bool:
 
 	if sprite != null and _sprite_natural_height > 0.0:
 		sprite.scale.y = new_size / _sprite_natural_height
-
-	return true

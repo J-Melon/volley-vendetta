@@ -5,6 +5,8 @@ signal at_max_speed_changed(is_at_max: bool)
 
 var speed := GameRules.BALL_SPEED_MIN
 
+var _was_at_max_speed := false
+
 
 func _ready() -> void:
 	_ball_setup()
@@ -27,19 +29,24 @@ func increase_speed() -> void:
 	if speed >= GameRules.BALL_SPEED_MAX:
 		return
 	speed = min(speed + GameRules.BALL_SPEED_INCREMENT, GameRules.BALL_SPEED_MAX)
-	linear_velocity = linear_velocity.normalized() * speed
-	_emit_max_speed_if_changed()
+	_apply_speed()
 
 
 func reset_speed() -> void:
 	speed = GameRules.BALL_SPEED_MIN
+	_apply_speed()
+
+
+func _apply_speed() -> void:
 	linear_velocity = linear_velocity.normalized() * speed
-	at_max_speed_changed.emit(false)
+	_emit_max_speed_if_changed()
 
 
 func _emit_max_speed_if_changed() -> void:
 	var is_at_max: bool = speed >= GameRules.BALL_SPEED_MAX
-	at_max_speed_changed.emit(is_at_max)
+	if is_at_max != _was_at_max_speed:
+		_was_at_max_speed = is_at_max
+		at_max_speed_changed.emit(is_at_max)
 
 
 func _ball_setup() -> void:

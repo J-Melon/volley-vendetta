@@ -42,8 +42,7 @@ func purchase(upgrade_key: String) -> bool:
 	var upgrade := _get_upgrade(upgrade_key)
 
 	if _can_purchase(upgrade):
-		_progression.friendship_point_balance -= _calculate_cost(upgrade)
-		friendship_point_balance_changed.emit(_progression.friendship_point_balance)
+		subtract_friendship_points(_calculate_cost(upgrade))
 		_increment_level(upgrade.key)
 		upgrade_level_changed.emit(upgrade.key)
 		SaveManager.save()
@@ -75,18 +74,14 @@ func get_friendship_point_balance() -> int:
 	return _progression.friendship_point_balance
 
 
-## Returns true if firendship point were added to balance
-func add_friendship_points(points: int) -> bool:
+func add_friendship_points(points: int) -> void:
 	_progression.friendship_point_balance += points
 	friendship_point_balance_changed.emit(_progression.friendship_point_balance)
-	return true
 
 
-## Returns true if firendship point were subtracted from balance
-func subtract_friendship_points(points: int) -> bool:
+func subtract_friendship_points(points: int) -> void:
 	_progression.friendship_point_balance = max(0, _progression.friendship_point_balance - points)
 	friendship_point_balance_changed.emit(_progression.friendship_point_balance)
-	return true
 
 
 func _get_upgrade(key: String) -> Upgrade:
