@@ -12,7 +12,7 @@ var _mock_storage: SaveStorage
 
 func before_each() -> void:
 	_upgrade = Upgrade.new()
-	_upgrade.effect_key = SPEED_KEY
+	_upgrade.key = SPEED_KEY
 	_upgrade.base_value = 200.0
 	_upgrade.effect_per_level = 20.0
 	_upgrade.max_level = 3
@@ -32,6 +32,17 @@ func before_each() -> void:
 # --- get_level ---
 func test_get_level_returns_zero_before_any_purchase() -> void:
 	assert_eq(_manager.get_level(SPEED_KEY), 0)
+
+
+# --- get_base_value ---
+func test_get_base_value_returns_base_value() -> void:
+	assert_eq(_manager.get_base_value(SPEED_KEY), 200.0)
+
+
+func test_get_base_value_unchanged_after_purchase() -> void:
+	_manager._progression.friendship_point_balance = 1000
+	_manager.purchase(SPEED_KEY)
+	assert_eq(_manager.get_base_value(SPEED_KEY), 200.0)
 
 
 # --- get_value ---

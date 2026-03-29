@@ -10,12 +10,24 @@ var tracker := HitTracker.new()
 
 var _upgrade_manager: Node
 var _lane_x := 0.0
+var _collision_shape: RectangleShape2D
+var _sprite_natural_height := 0.0
 
 
 func _ready() -> void:
 	if _upgrade_manager == null:
 		_upgrade_manager = UpgradeManager
 	_lane_x = position.x
+	_upgrade_manager.upgrade_level_changed.connect(_on_upgrade_level_changed)
+
+	if collision != null:
+		_collision_shape = RectangleShape2D.new()
+		_collision_shape.size = collision.shape.size
+		collision.shape = _collision_shape
+
+	if sprite != null:
+		_sprite_natural_height = sprite.get_rect().size.y
+
 	_apply_size()
 
 
@@ -30,6 +42,7 @@ func _physics_process(delta: float) -> void:
 func on_ball_hit() -> void:
 	if not tracker.try_hit():
 		return
+
 	hit_sound.pitch_scale = 1.0 + (tracker.streak * 0.05)
 	hit_sound.play()
 	paddle_hit.emit()
@@ -39,16 +52,20 @@ func reset_streak() -> void:
 	tracker.reset()
 
 
+func _on_upgrade_level_changed(upgrade_key: String) -> void:
+	if upgrade_key == UpgradeManager.PADDLE_SIZE_KEY:
+		_apply_size()
+
+
 func _apply_size() -> bool:
-	if collision == null:
+	if _collision_shape == null:
 		return false
 
-	var base_size: float = collision.shape.size.y
 	var new_size: float = _upgrade_manager.get_value(UpgradeManager.PADDLE_SIZE_KEY)
 
-	collision.shape.size.y = new_size
+	_collision_shape.size.y = new_size
 
-	if sprite != null:
-		sprite.scale.y = new_size / base_size
+	if sprite != null and _sprite_natural_height > 0.0:
+		sprite.scale.y = new_size / _sprite_natural_height
 
 	return true
