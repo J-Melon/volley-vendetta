@@ -14,6 +14,7 @@ var _progression: ProgressionData
 
 func _ready():
 	_progression = ProgressionData.new()
+	_progression.load_from_disk()
 
 
 ## Returns total cost of [Upgrade] based on current level
