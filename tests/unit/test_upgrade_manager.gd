@@ -19,6 +19,7 @@ func before_each() -> void:
 	_upgrade.cost_scaling = 2.0
 
 	_manager = load("res://scripts/progression/upgrade_manager.gd").new()
+	_manager._progression = ProgressionData.new()
 	add_child_autofree(_manager)
 	_manager.upgrades.assign([_upgrade])
 

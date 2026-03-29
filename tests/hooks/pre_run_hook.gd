@@ -9,7 +9,9 @@ const EXCLUDE_PATHS = [
 	"res://scripts/hud/*",
 	"res://scripts/entities/back_wall.gd",
 	# Abstract base class — only used for mocking
-	"res://scripts/progression/save_storeage.gd",
+	"res://scripts/progression/save_storage.gd",
+	# Autoload — not unit-testable
+	"res://scripts/progression/save_manager.gd",
 ]
 
 
