@@ -117,3 +117,26 @@ func test_purchase_returns_false_at_max_level() -> void:
 	_manager.purchase(SPEED_KEY)
 	_manager.purchase(SPEED_KEY)
 	assert_false(_manager.purchase(SPEED_KEY))
+
+
+# --- remove_level ---
+func test_remove_level_decrements_level() -> void:
+	_manager._progression.friendship_point_balance = 1000
+	_manager.purchase(SPEED_KEY)
+	_manager.remove_level(SPEED_KEY)
+	assert_eq(_manager.get_level(SPEED_KEY), 0)
+
+
+func test_remove_level_does_nothing_at_zero() -> void:
+	_manager.remove_level(SPEED_KEY)
+	assert_eq(_manager.get_level(SPEED_KEY), 0)
+
+
+func test_remove_level_allows_repurchase_after_max() -> void:
+	_manager._progression.friendship_point_balance = 10000
+	_manager.purchase(SPEED_KEY)
+	_manager.purchase(SPEED_KEY)
+	_manager.purchase(SPEED_KEY)
+	assert_false(_manager.can_purchase(SPEED_KEY))
+	_manager.remove_level(SPEED_KEY)
+	assert_true(_manager.can_purchase(SPEED_KEY))
