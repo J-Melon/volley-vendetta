@@ -5,7 +5,7 @@ var _progression: ProgressionData
 var _autosave_interval: float
 
 
-func _init(autosave_interval: float = 60.0) -> void:
+func _init(autosave_interval: float = 10.0) -> void:
 	_autosave_interval = autosave_interval
 
 
