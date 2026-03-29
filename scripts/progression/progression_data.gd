@@ -25,9 +25,10 @@ func load_from_disk() -> bool:
 	if data == null:
 		return false
 
-	friendship_point_balance = data.get("friendship_point_balance", 0)
-	upgrade_levels = _to_typed_dict(data.get("upgrade_levels", {}))
-	personal_volley_best = data.get("personal_volley_best", 0)
+	var loaded := from_dict(data)
+	friendship_point_balance = loaded.friendship_point_balance
+	upgrade_levels = loaded.upgrade_levels
+	personal_volley_best = loaded.personal_volley_best
 
 	return true
 
