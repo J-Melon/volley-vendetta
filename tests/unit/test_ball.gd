@@ -30,7 +30,7 @@ func before_each() -> void:
 	_ball = load("res://scripts/entities/ball.gd").new()
 	_ball._upgrade_manager = _manager
 	add_child_autofree(_ball)
-	_ball.linear_velocity = Vector2(_effective_max_speed(), 0.0)
+	_ball.linear_velocity = Vector2(_manager.get_value(UpgradeManager.BALL_SPEED_MIN_KEY), 0.0)
 
 
 func _effective_max_speed() -> float:

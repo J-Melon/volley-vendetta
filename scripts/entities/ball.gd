@@ -59,6 +59,8 @@ func _on_upgrade_level_changed(upgrade_key: String) -> void:
 
 
 func _apply_speed() -> void:
+	# If the ball is stationary (pre-launch), normalized() returns Vector2.ZERO
+	# and velocity stays zero. Speed is still updated and takes effect on launch.
 	linear_velocity = linear_velocity.normalized() * speed
 	_emit_max_speed_if_changed()
 

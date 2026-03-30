@@ -4,6 +4,9 @@ var _buttons: Dictionary = {}
 
 
 func _ready() -> void:
+	if not OS.is_debug_build():
+		hide()
+		return
 	for upgrade in UpgradeManager.upgrades:
 		var row := HBoxContainer.new()
 		add_child(row)
