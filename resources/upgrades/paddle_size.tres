@@ -6,7 +6,8 @@
 script = ExtResource("1_qdg85")
 display_name = "Paddle Size"
 description = "Paddle size description"
-effect_key = "paddle_size"
-effect_per_level = 8.0
-base_value = 100.0
+key = "paddle_size"
+effect_per_level = 100.0
+max_level = 8
+base_value = 50.0
 base_cost = 25

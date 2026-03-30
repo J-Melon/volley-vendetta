@@ -46,3 +46,9 @@ func test_pitch_resets_to_baseline_on_first_hit_after_reset() -> void:
 	_paddle.tracker.process(HitTracker.COOLDOWN)
 	_paddle.on_ball_hit()
 	assert_almost_eq(_paddle.hit_sound.pitch_scale, 1.05, 0.001)
+
+
+# --- _apply_size ---
+func test_apply_size_does_nothing_when_collision_not_assigned() -> void:
+	_paddle._apply_size()
+	assert_null(_paddle._collision_shape)
