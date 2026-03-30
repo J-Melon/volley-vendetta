@@ -45,13 +45,17 @@ func _refresh_buttons() -> void:
 
 
 func _setup_friendship_point_controls() -> void:
+	var row := HBoxContainer.new()
+	add_child(row)
+
 	var friendship_point_input := SpinBox.new()
 	friendship_point_input.value = 100
 	friendship_point_input.min_value = 1
 	friendship_point_input.max_value = 10000
 	friendship_point_input.step = 10
 	friendship_point_input.focus_mode = Control.FOCUS_NONE
-	add_child(friendship_point_input)
+	friendship_point_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(friendship_point_input)
 
 	var friendship_point_button := Button.new()
 	friendship_point_button.text = "Add FP"
@@ -59,7 +63,7 @@ func _setup_friendship_point_controls() -> void:
 	friendship_point_button.pressed.connect(
 		_on_friendship_point_balance_booster_pressed.bind(friendship_point_input)
 	)
-	add_child(friendship_point_button)
+	row.add_child(friendship_point_button)
 
 	var remove_friendship_point_button := Button.new()
 	remove_friendship_point_button.text = "Remove FP"
@@ -67,7 +71,7 @@ func _setup_friendship_point_controls() -> void:
 	remove_friendship_point_button.pressed.connect(
 		_on_remove_friendship_point_pressed.bind(friendship_point_input)
 	)
-	add_child(remove_friendship_point_button)
+	row.add_child(remove_friendship_point_button)
 
 
 func _on_friendship_point_balance_booster_pressed(input: SpinBox) -> void:
