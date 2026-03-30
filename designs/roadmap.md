@@ -103,6 +103,7 @@ timeline
         : Cosmetics
         : Tray Support
         : Mac Support
+        : Voice Acting
 ```
 
 **Total: ~16.2 months** (art, sound, writing, tech+design running in parallel per phase)

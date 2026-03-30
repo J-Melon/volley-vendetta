@@ -10,6 +10,8 @@ Items are gameplay-first. The effect is immediately perceptible - the player fig
 
 The Tinkerer carries the narrative meaning of each item. The item itself just does its thing.
 
+FP is Act 1's incentive currency. Act 2 (battle mode) and Act 3 (enemy mode) introduce different objectives, so items designed for those acts may target different incentives entirely. Act 1 prototype items are FP-focused, but the framework must not assume FP is always the reward worth designing around. Items that carry across acts should stay useful under different objective conditions.
+
 ---
 
 ## Item effect framework
@@ -227,13 +229,127 @@ Emitted by ItemManager for presentation layer consumers (HUD, entities, audio, V
 
 ---
 
-## 8 prototype items
+## Item categories
 
-_To be designed collaboratively._
+Every item belongs to one category. Category is authored per item, not player choice.
 
-Items have 3 levels: base (purchased), upgraded, max. Effect values scale with level.
+### Kit items
 
+Default category. Equipping requires a kit slot. Causality effects and active stat modifiers only fire while equipped. Start with 3 kit slots; slots can be expanded by permanent items.
+
+Swapping kit items is allowed at any time but costs FP and triggers a per-slot cooldown. Both the FP cost and cooldown duration are Make Fun Pass tuning targets. The combined cost means swapping is a real decision without being a hard lock.
+
+### Locker items
+
+Designed to sit in the locker. High passive FP generation, weak or no active effect. Their value is bench income. Never need a kit slot.
+
+### Permanent items
+
+Always-on. No slot cost. Authored as permanently active from the moment of purchase. Visually present in the background of the game space rather than in the kit UI.
+
+Some permanent items expand kit slot count. These are early priority purchases — meta-progression that unlocks more active capacity.
+
+Permanent items can be destroyed at the Tinkerer. Destroying them is the heaviest decision in the game and carries the heaviest Tinkerer dialogue.
+
+---
+
+## Locker and passive FP
+
+All owned items generate FP passively while in the locker. Rate scales with item cost or level — investing in an item makes it a better bench earner even if it is never equipped. This gives every purchase value beyond its active effect and sustains the idle economy when the kit is locked in.
+
+### Surface layer
+
+Your gear earns FP just by being yours. You packed it, you own it, you care for it. A well-stocked locker is a kit that works for you even when you're not on the court. The bench contributes.
+
+Passive FP is communicated through sound, not visuals. Late game the locker can be generating significant FP — visual pops would become noise. Instead: a gentle ambient audio texture that grows denser as the locker fills. Not louder, richer. Individual item ticks are near-subaudible. The overall feel is atmosphere, not UI events.
+
+### Signal layer
+
+The items are proxies for relationships. The FP from the locker is ambient warmth — the emotional residue of connection persisting through proximity and care. The player never needs to read this to understand the mechanic. It is for people paying attention.
+
+The signal bleeds through in three places:
+
+**Sound treatment.** Locker FP arrives differently from hit-earned FP. Hit FP pops. Locker FP glows. Different audio, different feeling. A player paying attention notices the game treats them differently without being told why.
+
+**Partners.** Partners are who you are actually training with. They see your kit. They notice what you carry. Partner dialogue is where most of the locker signal layer lives — a partner noticing you still wear something, recognising something in your bag, remarking on how much you have accumulated after a long run together. Surface: they know your gear. Signal: they can see how much you have held onto and what it means. The Tinkerer and Shopkeeper carry their own weight elsewhere; the locker belongs to the partner relationships.
+
+**The Shopkeeper, once.** Late Act 1, as the projection starts losing coherence, the Shopkeeper notices something in the locker. One line. Something like "I saw you kept that. You don't have to use it." Surface: friendly observation. Signal: the projection is aware of what the player is holding onto. After The Break the player looks back and understands what that line meant.
+
+After The Break: the warmth from the locker was always real. It just was not the friend's warmth. It was the main character's memory of it, still generating something in the absence.
+
+---
+
+## Destruction and secret items
+
+Any item can be destroyed at the Tinkerer. Destroying specific items unlocks secret items that cannot be obtained any other way. This is not signposted. The Tinkerer's destruction dialogue does not hint at it. Most players will never find these.
+
+Secret items are for die-hards: players who destroy things out of curiosity, who pay close attention to what the Tinkerer says, who experiment beyond the obvious loop. The reward is the discovery itself.
+
+Most item destructions do not unlock anything. The partial FP refund and the Tinkerer's dialogue are the only return. Secret unlocks are rare by design — one per specific item at most, and not every item has one.
+
+Secret items entering the pool conditionally require the shop rotation system to support trigger-gated pool entries. See `04-upgrade-shop.md`.
+
+---
+
+## Items
+
+Items are designed around a **thing + twist** formula. The thing is a physical object. The twist gives it character and hints at the gameplay without explaining it. The physical description is for art direction and may differ from the name and description text.
+
+Descriptions are short — a fragment of thought from the main character's mind. No second person. Leave the narrative to the other characters.
+
+Because descriptions are short they can change dynamically. Variant text is keyed to item state and swapped silently in the UI — no announcement, no tooltip. The player notices the text has shifted and understands why through play.
+
+Every item has exactly 3 variants: default, item power revealed (triggers once the player has witnessed the effect), and narrative revealed (Post-Break for Act 1 items; tied to the relevant story beat for Act 2 and Act 3 items).
+
+Item card format:
+```
+Category | Thing + twist | Physical description
+Name
+Descriptions (state → text)
+Effects per level
+Cost | Scaling
+```
+
+Items have 3 levels: base (purchased), upgraded, max.
 Cost is the purchase price at level 1. Cost scaling formula: `cost = base_cost * scaling^current_level`.
+
+---
+
+### The Stray
+
+Kit | Lost ball + gunpowder | Worn ball dusted lightly in gunpowder, slightly singed around the seams
+
+| State | Description |
+|---|---|
+| Default | "Nobody trained it." |
+| After frenzy triggers once | "Fast. Too fast." |
+| Post-Break | "It was always going to do that." |
+
+| Level | Extra balls (cap) | Frenzy trigger |
+|---|---|---|
+| 1 | 1 ball (cap 2) | On personal best |
+| 2 | 2 balls (cap 3) | On personal best |
+| 3 | 3 balls (cap 4) | On personal best or streak milestone (tuning target) |
+
+```
+Effect 1
+  trigger: on_miss
+  condition: game_state_is_not("frenzy")
+  outcome: spawn_ball [capped per level]
+
+Effect 2
+  trigger: on_personal_best [levels 1-2] / on_personal_best or on_streak_milestone(n) [level 3]
+  outcome: set_game_state("frenzy")
+  outcome: multiply_stat_temporary(ball_speed_min, 2.0, until_state_exits("frenzy"))
+
+Effect 3
+  trigger: on_miss
+  condition: game_state_is("frenzy")
+  outcome: clear_extra_balls
+  outcome: set_game_state(null)
+```
+
+Base cost: 60 FP | Scaling: 1.7
 
 ---
 
