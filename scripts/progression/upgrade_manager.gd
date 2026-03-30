@@ -6,11 +6,13 @@ signal upgrade_level_changed(upgrade_key: String)
 const PADDLE_SPEED_KEY := "paddle_speed"
 const PADDLE_SIZE_KEY := "paddle_size"
 const BALL_SPEED_MIN_KEY := "ball_speed_min"
+const BALL_SPEED_MAX_KEY := "ball_speed_max"
 
 var upgrades: Array[Upgrade] = [
 	preload("res://resources/upgrades/paddle_speed.tres"),
 	preload("res://resources/upgrades/paddle_size.tres"),
 	preload("res://resources/upgrades/ball_speed_min.tres"),
+	preload("res://resources/upgrades/ball_speed_max.tres"),
 ]
 
 var _progression: ProgressionData
