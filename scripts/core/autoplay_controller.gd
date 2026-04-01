@@ -36,7 +36,9 @@ func _calculate_movement() -> void:
 		var drift_speed: float = (
 			paddle.get_speed() * config.autoplay_speed_scale * config.center_drift_scale
 		)
+		# clampf: treats distance as velocity directly, capping so the paddle can't overshoot center
 		var drift_velocity: float = clampf(center_diff, -drift_speed, drift_speed)
+		# lerpf: smooths velocity changes to avoid snapping when switching between drift and tracking
 		paddle.drive(lerpf(paddle.velocity.y, drift_velocity, config.center_drift_smoothing))
 		return
 
@@ -50,4 +52,5 @@ func _calculate_movement() -> void:
 	var target_velocity: float = (
 		0.0 if abs(diff) < config.snap_threshold else sign(diff) * max_speed
 	)
+	# lerpf: smooths velocity changes each frame to prevent jitter from abrupt target jumps
 	paddle.drive(lerpf(paddle.velocity.y, target_velocity, config.center_drift_smoothing))
