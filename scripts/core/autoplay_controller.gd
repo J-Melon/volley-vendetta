@@ -30,10 +30,6 @@ func toggle() -> void:
 	autoplay_toggled.emit(_autoplay)
 
 
-func get_autoplay_active() -> bool:
-	return _autoplay
-
-
 func _calculate_movement() -> void:
 	if ball.linear_velocity.x >= 0.0:
 		var center_diff: float = -paddle.position.y
@@ -49,7 +45,6 @@ func _calculate_movement() -> void:
 	_position_buffer[_position_buffer_index] = ball.position.y
 	_position_buffer_index = (_position_buffer_index + 1) % config.reaction_delay_frames
 
-	# Calculate paddle movement
 	var diff: float = delayed_y - paddle.position.y
 	var max_speed: float = paddle.get_speed() * config.autoplay_speed_scale
 	var target_velocity: float = (

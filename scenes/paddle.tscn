@@ -10,12 +10,12 @@ size = Vector2(40, 200)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ut3sq"]
 size = Vector2(40, 200)
 
-[node name="Paddle" type="CharacterBody2D" unique_id=1437655624 node_paths=PackedStringArray("hit_sound", "collision", "sprite", "_tracker")]
+[node name="Paddle" type="CharacterBody2D" unique_id=1437655624 node_paths=PackedStringArray("hit_sound", "collision", "sprite", "tracker")]
 script = ExtResource("1_3xiby")
 hit_sound = NodePath("HitSound")
 collision = NodePath("Collision")
 sprite = NodePath("Sprite")
-_tracker = NodePath("HitTracker")
+tracker = NodePath("HitTracker")
 metadata/_edit_group_ = true
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=955212656]

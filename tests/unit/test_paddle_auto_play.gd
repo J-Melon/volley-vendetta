@@ -19,7 +19,7 @@ func before_each() -> void:
 	_paddle.add_child(sound)
 	_paddle.hit_sound = sound
 	var tracker: HitTracker = load("res://scripts/core/hit_tracker.gd").new()
-	_paddle._tracker = tracker
+	_paddle.tracker = tracker
 	_paddle.add_child(tracker)
 	add_child_autofree(_paddle)
 

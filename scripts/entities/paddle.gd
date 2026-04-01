@@ -6,7 +6,7 @@ signal paddle_hit
 @export var hit_sound: AudioStreamPlayer
 @export var collision: CollisionShape2D
 @export var sprite: Sprite2D
-@export var _tracker: HitTracker
+@export var tracker: HitTracker
 
 var _upgrade_manager: Node
 
@@ -43,16 +43,16 @@ func _physics_process(_delta: float) -> void:
 
 
 func on_ball_hit() -> void:
-	if not _tracker.try_hit():
+	if not tracker.try_hit():
 		return
 
-	hit_sound.pitch_scale = 1.0 + (_tracker.streak * 0.05)
+	hit_sound.pitch_scale = 1.0 + (tracker.streak * 0.05)
 	hit_sound.play()
 	paddle_hit.emit()
 
 
 func reset_streak() -> void:
-	_tracker.reset()
+	tracker.reset()
 
 
 func drive(velocity_y: float) -> void:
