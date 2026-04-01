@@ -3,6 +3,10 @@ extends GutTest
 # Tests for AutoplayController: toggle behaviour, signal, ring-buffer delay, and
 # speed cap. Input handling (space key) is covered by integration/gameplay tests.
 
+const PHYSICS_DELTA := 0.016  # One frame at 60fps
+const FAR_BEYOND_SNAP_THRESHOLD := 9999.0  # Guarantees max speed in speed-cap tests
+const BALL_APPROACHING := Vector2(-100.0, 0.0)  # Ball moving toward paddle (negative x)
+
 var _controller: AutoplayController
 var _paddle: CharacterBody2D
 var _ball: RigidBody2D
@@ -38,17 +42,6 @@ func before_each() -> void:
 
 
 # --- toggle ---
-func test_toggle_enables_autoplay() -> void:
-	_controller.toggle()
-	assert_true(_controller._autoplay)
-
-
-func test_toggle_disables_autoplay_on_second_call() -> void:
-	_controller.toggle()
-	_controller.toggle()
-	assert_false(_controller._autoplay)
-
-
 func test_toggle_emits_autoplay_toggled_true() -> void:
 	watch_signals(_controller)
 	_controller.toggle()
@@ -76,64 +69,63 @@ func test_toggle_re_enables_paddle_physics_process_when_deactivated() -> void:
 # --- auto-play movement ---
 func test_autoplay_moves_paddle_toward_ball_when_ball_is_below() -> void:
 	_ball.position = Vector2(0.0, 200.0)
-	_ball.linear_velocity = Vector2(-100.0, 0.0)
+	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2(0.0, 0.0)
 	_controller.toggle()
 	for i in range(_config.reaction_delay_frames + 1):
-		_controller._physics_process(0.016)
+		_controller._physics_process(PHYSICS_DELTA)
 	assert_gt(_paddle.velocity.y, 0.0)
 
 
 func test_autoplay_moves_paddle_toward_ball_when_ball_is_above() -> void:
 	_ball.position = Vector2(0.0, -200.0)
-	_ball.linear_velocity = Vector2(-100.0, 0.0)
+	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2(0.0, 0.0)
 	_controller.toggle()
 	for i in range(_config.reaction_delay_frames + 1):
-		_controller._physics_process(0.016)
+		_controller._physics_process(PHYSICS_DELTA)
 	assert_lt(_paddle.velocity.y, 0.0)
 
 
 func test_autoplay_speed_is_capped_at_configured_scale() -> void:
-	_ball.position = Vector2(0.0, 9999.0)
-	_ball.linear_velocity = Vector2(-100.0, 0.0)
+	_ball.position = Vector2(0.0, FAR_BEYOND_SNAP_THRESHOLD)
+	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2(0.0, 0.0)
-	_paddle._paddle_speed = 500.0
 	_controller.toggle()
 	for i in range(_config.reaction_delay_frames + 1):
-		_controller._physics_process(0.016)
-	assert_almost_eq(_paddle.velocity.y, 500.0 * _config.autoplay_speed_scale, 0.01)
+		_controller._physics_process(PHYSICS_DELTA)
+	assert_almost_eq(_paddle.velocity.y, _paddle.get_speed() * _config.autoplay_speed_scale, 0.01)
 
 
 # --- ring buffer delay ---
 func test_autoplay_does_not_react_to_new_ball_position_within_delay_frames() -> void:
 	_ball.position = Vector2.ZERO
-	_ball.linear_velocity = Vector2(-100.0, 0.0)
+	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2.ZERO
 	_controller.toggle()
 
 	for i in range(_config.reaction_delay_frames):
-		_controller._physics_process(0.016)
+		_controller._physics_process(PHYSICS_DELTA)
 
-	_ball.position = Vector2(0.0, 9999.0)
+	_ball.position = Vector2(0.0, FAR_BEYOND_SNAP_THRESHOLD)
 	_paddle.position = Vector2.ZERO
-	_controller._physics_process(0.016)
+	_controller._physics_process(PHYSICS_DELTA)
 	assert_almost_eq(_paddle.velocity.y, 0.0, 0.01)
 
 
 func test_autoplay_tracks_new_ball_position_after_delay() -> void:
 	_ball.position = Vector2.ZERO
-	_ball.linear_velocity = Vector2(-100.0, 0.0)
+	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2.ZERO
 	_controller.toggle()
 
 	for i in range(_config.reaction_delay_frames):
-		_controller._physics_process(0.016)
+		_controller._physics_process(PHYSICS_DELTA)
 
-	_ball.position = Vector2(0.0, 9999.0)
+	_ball.position = Vector2(0.0, FAR_BEYOND_SNAP_THRESHOLD)
 	for i in range(_config.reaction_delay_frames):
-		_controller._physics_process(0.016)
+		_controller._physics_process(PHYSICS_DELTA)
 
 	_paddle.position = Vector2.ZERO
-	_controller._physics_process(0.016)
+	_controller._physics_process(PHYSICS_DELTA)
 	assert_gt(_paddle.velocity.y, 0.0)
