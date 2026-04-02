@@ -64,13 +64,13 @@ horizontal_alignment = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = 98.5
+offset_left = 72.5
 offset_top = 62.0
-offset_right = 143.5
+offset_right = 293.5
 offset_bottom = 85.0
 grow_horizontal = 2
 size_flags_horizontal = 4
-text = "AUTO"
+text = "AUTO (X% Friendship Points)"
 horizontal_alignment = 1
 
 [node name="DevUI" type="VBoxContainer" parent="." unique_id=2133504667]

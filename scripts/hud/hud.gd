@@ -30,5 +30,7 @@ func update_max_speed(is_at_max: bool) -> void:
 	max_speed_label.visible = is_at_max
 
 
-func update_auto_play(is_active: bool) -> void:
+func update_auto_play(is_active: bool, friendship_point_rate: float) -> void:
 	auto_label.visible = is_active
+	if is_active:
+		auto_label.text = "AUTO (%.0f%% Friendship Points)" % (friendship_point_rate * 100)

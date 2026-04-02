@@ -4,11 +4,12 @@ extends Node2D
 signal volley_count_changed(count: int)
 signal personal_volley_best_changed(best: int)
 signal ball_at_max_speed_changed(is_at_max: bool)
-signal auto_play_changed(is_active: bool)
+signal auto_play_changed(is_active: bool, friendship_point_rate: float)
 
 @export var ball: RigidBody2D
 @export var paddle: Node
 @export var autoplay_controller: Node
+@export var autoplay_config: AutoPlayConfig
 
 var _volley_count: int = 0
 var _progression: ProgressionData
@@ -36,7 +37,7 @@ func _ready() -> void:
 func _on_paddle_hit() -> void:
 	_volley_count += 1
 
-	var fp_to_add: float = 0.5 if _is_autoplay_active else 1.0
+	var fp_to_add: float = autoplay_config.friendship_point_rate if _is_autoplay_active else 1.0
 	_fp_accumulator += fp_to_add
 	var whole_fp: int = int(_fp_accumulator)
 	if whole_fp > 0:
@@ -53,7 +54,7 @@ func _on_paddle_hit() -> void:
 
 func _on_auto_play_changed(is_active: bool) -> void:
 	_is_autoplay_active = is_active
-	auto_play_changed.emit(is_active)
+	auto_play_changed.emit(is_active, autoplay_config.friendship_point_rate)
 
 
 func _on_ball_missed() -> void:

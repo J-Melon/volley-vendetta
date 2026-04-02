@@ -17,6 +17,7 @@ script = ExtResource("1_tbgi4")
 ball = NodePath("Ball")
 paddle = NodePath("Paddle")
 autoplay_controller = NodePath("AutoplayController")
+autoplay_config = ExtResource("8_85g3d")
 
 [node name="HUD" parent="." unique_id=794024698 instance=ExtResource("2_tefeu")]
 

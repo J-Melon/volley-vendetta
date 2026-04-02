@@ -25,10 +25,14 @@ func before_each() -> void:
 	var autoplay_controller_stub: Node = load("res://tests/stubs/autoplay_controller_stub.gd").new()
 	add_child_autofree(autoplay_controller_stub)
 
+	var autoplay_config: AutoPlayConfig = AutoPlayConfig.new()
+	autoplay_config.friendship_point_rate = 0.5
+
 	_game = load("res://scripts/core/game.gd").new()
 	_game.ball = _ball_stub
 	_game.paddle = _paddle_stub
 	_game.autoplay_controller = autoplay_controller_stub
+	_game.autoplay_config = autoplay_config
 	_game._progression = ProgressionData.new(mock_storage)
 	_game._upgrade_manager = _upgrade_manager
 	add_child_autofree(_ball_stub)
@@ -101,11 +105,11 @@ func test_fp_accumulator_carries_over_when_autoplay_ends() -> void:
 func test_auto_play_changed_emits_true_when_autoplay_enabled() -> void:
 	watch_signals(_game)
 	_game._on_auto_play_changed(true)
-	assert_signal_emitted_with_parameters(_game, "auto_play_changed", [true])
+	assert_signal_emitted_with_parameters(_game, "auto_play_changed", [true, 0.5])
 
 
 func test_auto_play_changed_emits_false_when_autoplay_disabled() -> void:
 	_game._on_auto_play_changed(true)
 	watch_signals(_game)
 	_game._on_auto_play_changed(false)
-	assert_signal_emitted_with_parameters(_game, "auto_play_changed", [false])
+	assert_signal_emitted_with_parameters(_game, "auto_play_changed", [false, 0.5])
