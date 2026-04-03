@@ -67,6 +67,20 @@ jobs:
 
           let titleProp;
 
+          function chunkArray(array, size) {
+            const chunks = [];
+            for (let i = 0; i < array.length; i += size) {
+              chunks.push(array.slice(i, i + size));
+            }
+            return chunks;
+          }
+
+          async function appendBlocksInChunks(blockId, blocks) {
+            for (const chunk of chunkArray(blocks, 100)) {
+              await notion.blocks.children.append({ block_id: blockId, children: chunk });
+            }
+          }
+
           function getInitiative(filePath) {
             const parts = filePath.split('/');
             if (parts.length >= 3) {
@@ -92,13 +106,17 @@ jobs:
 
             if (existing.results.length > 0) {
               const pageId = existing.results[0].id;
-              // Delete existing blocks
-              const children = await notion.blocks.children.list({ block_id: pageId });
-              for (const block of children.results) {
-                await notion.blocks.delete({ block_id: block.id });
+              // Delete existing blocks (paginated, Notion returns max 100 per list call)
+              let hasMore = true;
+              while (hasMore) {
+                const children = await notion.blocks.children.list({ block_id: pageId });
+                for (const block of children.results) {
+                  await notion.blocks.delete({ block_id: block.id });
+                }
+                hasMore = children.has_more;
               }
               // Add updated blocks
-              await notion.blocks.children.append({ block_id: pageId, children: blocks });
+              await appendBlocksInChunks(pageId, blocks);
               // Update title and initiative
               await notion.pages.update({
                 page_id: pageId,
@@ -110,15 +128,20 @@ jobs:
               console.log(`Updated: ${filePath}`);
             } else {
               // Create new page
-              await notion.pages.create({
+              const firstChunk = blocks.slice(0, 100);
+              const remaining = blocks.slice(100);
+              const page = await notion.pages.create({
                 parent: { database_id: databaseId },
                 properties: {
                   [titleProp]: { title: [{ text: { content: title } }] },
                   'File': { rich_text: [{ text: { content: filePath } }] },
                   'Initiative': { select: { name: initiative } }
                 },
-                children: blocks
+                children: firstChunk
               });
+              if (remaining.length > 0) {
+                await appendBlocksInChunks(page.id, remaining);
+              }
               console.log(`Created: ${filePath}`);
             }
           }
