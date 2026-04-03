@@ -16,24 +16,27 @@ Effects are data, not code. No per-item scripts. Every effect is a combination o
 classDiagram
     class EffectSource {
         <<interface>>
-        +get_active_effects() Effect[]
+        +get_effects_for_level(level: int) Effect[]
         +get_key() String
     }
 
     class Item {
         +key: String
-        +level: int
-        +degradation: int
-        +broken: bool
+        +display_name: String
+        +descriptions: String[]
+        +base_cost: int
+        +cost_scaling: float
+        +max_level: int
+        +is_court_item: bool
         +effects: Effect[]
-        +get_active_effects() Effect[]
+        +get_effects_for_level(level: int) Effect[]
     }
 
     class Partner {
         +key: String
         +relationship_level: int
         +effects: Effect[]
-        +get_active_effects() Effect[]
+        +get_effects_for_level(level: int) Effect[]
     }
 
     class Effect {
@@ -61,6 +64,9 @@ classDiagram
     class EffectManager {
         +sources: EffectSource[]
         +pending_delays: DelayedEffect[]
+        -state: EffectState
+        +get_stat(key: String) float
+        +is_state_active(state: String) bool
         +register_source(source: EffectSource)
         +unregister_source(source: EffectSource)
         +on_game_event(event: String, payload: Dictionary)
@@ -70,6 +76,7 @@ classDiagram
     }
 
     class EffectState {
+        <<internal>>
         +base_values: Dictionary
         +modifiers: StatModifier[]
         +active_states: Dictionary
@@ -83,6 +90,7 @@ classDiagram
     }
 
     class StatModifier {
+        <<internal>>
         +source_key: String
         +stat_key: String
         +operation: ModifierOp
@@ -102,9 +110,35 @@ classDiagram
     EffectState "1" --> "0..*" StatModifier
 ```
 
+| Class | Role |
+|---|---|
+| `EffectSource` | Interface for anything that provides effects (items, partners, future sources) |
+| `Item` | Pure data template: display info, cost formula, and effect definitions |
+| `Partner` | NPC companion that provides effects scaled by relationship level |
+| `Effect` | A single trigger + conditions + outcomes rule, gated by level range |
+| `Trigger` | When the effect fires (always, on_miss, on_hit, etc.) |
+| `Condition` | Optional gate that must pass before outcomes execute |
+| `Outcome` | What happens when the effect fires (modify stat, spawn ball, etc.) |
+| `EffectManager` | Evaluation engine and public stat API: subscribes to game events, matches triggers, dispatches outcomes, delegates stat queries to internal EffectState |
+| `EffectState` | Internal to EffectManager: holds base values, stat modifiers, and named game states. Not a separate autoload |
+| `StatModifier` | A single additive or multiplicative change to a stat, with an expiry condition |
+| `ItemManager` | Ownership and economy: tracks what the player owns, levels, FP balance, kit/locker |
+
+**Instance state note:** `Item` is a pure data template — no level, degradation, or broken state on the resource itself. Level is stored per-player in `ProgressionData` (keyed by item key) and passed to `get_effects_for_level()` by `EffectManager`. Degradation is tracked per-item-key in `EffectState` and manipulated via the `increment_degradation` outcome and `degradation_at` condition. Broken state is derived: `degradation >= 100`.
+
 ---
 
 ## Enums
+
+### DescriptionState
+
+```
+default
+power_revealed
+narrative_revealed
+```
+
+Indexes into `Item.descriptions`. Current state per item is tracked in `ProgressionData`.
 
 ### TriggerType
 
@@ -128,6 +162,7 @@ game_state_is
 game_state_is_not
 delay_random
 degradation_at
+degradation_below
 ```
 
 ### OutcomeType
@@ -196,11 +231,11 @@ Each outcome type routes to a different system. EffectManager handles the dispat
 
 ```mermaid
 flowchart LR
-    Outcome --> EffectState["EffectState\nmodify_stat\nmultiply_stat_temporary\nmodify_stat_until_miss\noscillate_stat\nshare_stats_with_partner\nmomentum_boost\nset_game_state"]
-    Outcome --> GameActions["Game\nspawn_ball\nclear_extra_balls\ndeflect_ball\nspawn_gravity_well\nintensify_gravity_well\nset_ball_speed"]
-    Outcome --> ItemState["Item\nincrement_degradation\nexpand_kit_slots"]
-    Outcome --> Economy["Economy\naward_friendship_points"]
-    Outcome --> Self["EffectManager\nroll_table (re-enters evaluation)"]
+    Outcome --> EffectState["<b>EffectState</b><br/>modify_stat<br/>multiply_stat_temporary<br/>modify_stat_until_miss<br/>oscillate_stat<br/>share_stats_with_partner<br/>momentum_boost<br/>set_game_state<br/>increment_degradation"]
+    Outcome --> GameActions["<b>Game</b><br/>spawn_ball<br/>clear_extra_balls<br/>deflect_ball<br/>spawn_gravity_well<br/>intensify_gravity_well<br/>set_ball_speed"]
+    Outcome --> ItemManager["<b>ItemManager</b><br/>expand_kit_slots"]
+    Outcome --> Economy["<b>ItemManager</b><br/>award_friendship_points"]
+    Outcome --> Self["<b>EffectManager</b><br/>roll_table (re-enters evaluation)"]
 ```
 
 ---
@@ -212,7 +247,7 @@ flowchart LR
     Base[Base value] --> Add[Sum add modifiers] --> Multiply[Apply multiply modifiers] --> Clamp[Clamp to valid range] --> Final[Final value]
 ```
 
-`EffectState.get_stat(key)` is called every frame or on-demand by game systems. The game never reads raw base values directly. All gameplay code queries EffectState.
+`EffectManager.get_stat(key)` is called every frame or on-demand by game systems. The game never reads raw base values directly. All gameplay code queries EffectManager, which delegates to the internal EffectState.
 
 **Resolution order matters.** Additive modifiers apply first, then multiplicative. This means a +50 add and a x2 multiply on a base of 500 gives (500 + 50) * 2 = 1100, not 500 * 2 + 50 = 1050.
 
@@ -388,7 +423,7 @@ flowchart TD
 | Class | Godot type | Location |
 |---|---|---|
 | `EffectManager` | Autoload (Node) | `res://systems/effect_manager.gd` |
-| `EffectState` | Autoload (Node) | `res://systems/effect_state.gd` |
+| `EffectState` | RefCounted (internal to EffectManager) | `res://systems/effect_state.gd` |
 | `Effect` | Resource | `res://data/effects/` |
 | `Item` | Resource | `res://data/items/` |
 | `Partner` | Resource | `res://data/partners/` |
@@ -406,6 +441,6 @@ Effects, items, and partners are `.tres` resource files. Authored in data, loade
 - `EffectManager` subscribes to game signals (`ball_missed`, `paddle_hit`, `streak_changed`, etc.) and translates them into `on_game_event` calls with the matching TriggerType.
 - `always` trigger effects are evaluated once on registration and re-evaluated when the source changes (level up, degradation change).
 - Court items call `register_source` on purchase automatically. Kit items call it on equip.
-- `EffectState.get_stat()` is the single source of truth for all gameplay values. Game systems must never hardcode stats.
-- Degradation is tracked per-item instance, not in EffectManager. The item exposes its degradation state; EffectManager just increments it when the outcome fires.
-- Partner effects use the same Effect resources. The only difference is the source: `Partner` provides effects scaled by `relationship_level` instead of `item.level`.
+- `EffectManager.get_stat()` is the single source of truth for all gameplay values. Game systems must never hardcode stats.
+- Degradation is a stat in EffectState, keyed per item (e.g. `degradation:seven_years`). The `increment_degradation` outcome is `modify_stat` on this key. The `degradation_at` and `degradation_below` conditions check it via `get_stat`.
+- Partner effects use the same Effect resources. The only difference is the source: `Partner` provides `relationship_level` as the level parameter to `get_effects_for_level()`.
