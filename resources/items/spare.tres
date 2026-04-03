@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ItemDefinition" format=3 uid="uid://ujm4lb4ivsh"]
+
+[ext_resource type="Script" uid="uid://bwtvbif3wrk20" path="res://scripts/items/effect/effect.gd" id="1_x4kt8"]
+[ext_resource type="Script" uid="uid://ypinkudmmgdn" path="res://scripts/items/effect/condition.gd" id="2_n4uck"]
+[ext_resource type="Script" uid="uid://ctw4pntulfr8u" path="res://scripts/items/effect/outcome.gd" id="3_por0g"]
+[ext_resource type="Script" uid="uid://dbqsqxhdwee6s" path="res://scripts/items/effect/trigger.gd" id="4_m8g10"]
+[ext_resource type="Script" uid="uid://257uwvphb3uc" path="res://scripts/items/item_definition.gd" id="5_cau6t"]
+
+[sub_resource type="Resource" id="Resource_ye16v"]
+script = ExtResource("3_por0g")
+type = &"modify_stat"
+parameters = {
+&"operation": &"add",
+&"stat_key": &"kit_slots",
+&"value": 1.0
+}
+
+[sub_resource type="Resource" id="Resource_ulq47"]
+script = ExtResource("4_m8g10")
+type = &"always"
+
+[sub_resource type="Resource" id="Resource_fgkgi"]
+script = ExtResource("1_x4kt8")
+trigger = SubResource("Resource_ulq47")
+outcomes = Array[ExtResource("3_por0g")]([SubResource("Resource_ye16v")])
+max_active_level = null
+
+[resource]
+script = ExtResource("5_cau6t")
+key = "spare"
+type = &"court"
+display_name = "Spare"
+descriptions = Array[String](["There's always one left over", "Wasn't supposed to need it", "Nobody noticed it was missing"])
+base_cost = 150
+max_level = 1
+effects = Array[ExtResource("1_x4kt8")]([SubResource("Resource_fgkgi")])

@@ -10,4 +10,5 @@ const BASE_STATS: Dictionary = {
 	&"friendship_points_per_hit": 1.0,
 	&"ball_magnetism": 0.0,
 	&"return_angle_influence": 0.0,
+	&"kit_slots": 3.0,
 }
