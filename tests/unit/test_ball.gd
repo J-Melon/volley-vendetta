@@ -68,28 +68,28 @@ func test_reset_speed_preserves_direction() -> void:
 
 
 # --- item level changes ---
-func test_min_speed_upgrade_instantly_increases_speed() -> void:
-	var speed_before_upgrade: float = _ball.speed
-	var min_before_upgrade: float = _manager.get_stat(&"ball_speed_min")
+func test_min_speed_purchase_instantly_increases_speed() -> void:
+	var speed_before_purchase: float = _ball.speed
+	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
 	_manager.purchase("ball_speed_min")
-	var min_after_upgrade: float = _manager.get_stat(&"ball_speed_min")
-	var expected_speed: float = speed_before_upgrade + (min_after_upgrade - min_before_upgrade)
+	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
+	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
 
 
-func test_min_speed_upgrade_increases_speed_above_new_min() -> void:
+func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 	_ball.speed = _manager.get_stat(&"ball_speed_min") + 200.0
-	var speed_before_upgrade: float = _ball.speed
-	var min_before_upgrade: float = _manager.get_stat(&"ball_speed_min")
+	var speed_before_purchase: float = _ball.speed
+	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
 	_manager.purchase("ball_speed_min")
-	var min_after_upgrade: float = _manager.get_stat(&"ball_speed_min")
-	var expected_speed: float = speed_before_upgrade + (min_after_upgrade - min_before_upgrade)
+	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
+	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
 
 
-func test_min_speed_upgrade_also_raises_max_speed() -> void:
+func test_min_speed_purchase_also_raises_max_speed() -> void:
 	_manager._progression.friendship_point_balance = 10000
 	_manager.purchase("ball_speed_min")
 	var expected_max: float = _manager.get_stat(&"ball_speed_max")
@@ -98,7 +98,7 @@ func test_min_speed_upgrade_also_raises_max_speed() -> void:
 	assert_almost_eq(_ball.speed, expected_max, 0.01)
 
 
-func test_max_speed_upgrade_clamps_speed_when_above_new_max() -> void:
+func test_max_speed_purchase_clamps_speed_when_above_new_max() -> void:
 	_ball.speed = _manager.get_stat(&"ball_speed_max")
 	_manager._progression.friendship_point_balance = 10000
 	_manager.purchase("ball_speed_max")
