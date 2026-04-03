@@ -8,8 +8,11 @@ func _ready() -> void:
 		hide()
 		return
 	for item in ItemManager.items:
+		var container := VBoxContainer.new()
+		add_child(container)
+
 		var row := HBoxContainer.new()
-		add_child(row)
+		container.add_child(row)
 
 		var buy_button := Button.new()
 		buy_button.pressed.connect(_on_item_pressed.bind(item.key))
@@ -23,6 +26,27 @@ func _ready() -> void:
 		remove_button.pressed.connect(_on_remove_level_pressed.bind(item.key))
 		remove_button.focus_mode = Control.FOCUS_NONE
 		row.add_child(remove_button)
+
+		var effect_lines := _build_effect_lines(item)
+		if effect_lines.size() > 0:
+			var details := VBoxContainer.new()
+			details.visible = false
+			container.add_child(details)
+
+			var toggle := Button.new()
+			toggle.text = "+"
+			toggle.focus_mode = Control.FOCUS_NONE
+			toggle.custom_minimum_size.x = 20
+			toggle.pressed.connect(_on_toggle_details.bind(toggle, details))
+			row.add_child(toggle)
+
+			for line in effect_lines:
+				var label := Label.new()
+				label.text = line
+				label.add_theme_font_size_override("font_size", 10)
+				label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+				details.add_child(label)
+
 	_refresh_buttons()
 	_setup_friendship_point_controls()
 
@@ -36,6 +60,11 @@ func _on_item_pressed(item_key: String) -> void:
 
 func _on_remove_level_pressed(item_key: String) -> void:
 	ItemManager.remove_level(item_key)
+
+
+func _on_toggle_details(toggle: Button, details: VBoxContainer) -> void:
+	details.visible = not details.visible
+	toggle.text = "-" if details.visible else "+"
 
 
 func _refresh_buttons() -> void:
@@ -75,6 +104,32 @@ func _setup_friendship_point_controls() -> void:
 		_on_remove_friendship_point_pressed.bind(friendship_point_input)
 	)
 	row.add_child(remove_friendship_point_button)
+
+
+func _build_effect_lines(item: ItemDefinition) -> Array[String]:
+	var lines: Array[String] = []
+	for effect: Effect in item.effects:
+		var level_range := ""
+		if effect.min_active_level > 1 or effect.max_active_level != null:
+			var effective_max: Variant = effect.max_active_level
+			var max_level: int = effective_max if effective_max != null else item.max_level
+			level_range = " (Lv%d-%d)" % [effect.min_active_level, max_level]
+		for outcome: Outcome in effect.outcomes:
+			var line := _describe_outcome(effect, outcome)
+			if not level_range.is_empty():
+				line += level_range
+			lines.append(line)
+	return lines
+
+
+func _describe_outcome(effect: Effect, outcome: Outcome) -> String:
+	if outcome.type == &"modify_stat":
+		var stat: StringName = outcome.parameters[&"stat_key"]
+		var value: float = outcome.parameters[&"value"]
+		var operation: StringName = outcome.parameters[&"operation"]
+		var prefix := "+" if operation == &"add" and value > 0 else ""
+		return "%s %s%s %s" % [effect.trigger.type, prefix, value, stat]
+	return "%s: %s" % [effect.trigger.type, outcome.type]
 
 
 func _on_friendship_point_balance_booster_pressed(input: SpinBox) -> void:

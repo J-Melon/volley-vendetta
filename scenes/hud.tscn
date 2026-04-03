@@ -74,6 +74,8 @@ text = "AUTO (X% Friendship Points)"
 horizontal_alignment = 1
 
 [node name="DevItemUI" type="VBoxContainer" parent="." unique_id=2133504667]
+offset_left = 10.0
+offset_top = 10.0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("2_oo0fn")

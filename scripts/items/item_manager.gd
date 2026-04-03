@@ -8,6 +8,7 @@ var items: Array[ItemDefinition] = [
 	preload("res://resources/items/grip_tape.tres"),
 	preload("res://resources/items/training_ball.tres"),
 	preload("res://resources/items/court_lines.tres"),
+	preload("res://resources/items/double_knot.tres"),
 ]
 
 var _progression: ProgressionData
