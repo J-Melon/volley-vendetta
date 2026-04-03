@@ -48,19 +48,14 @@ func reset_speed() -> void:
 	_apply_speed()
 
 
-func _on_item_level_changed(item_key: String) -> void:
-	if item_key == "ball_speed_min":
-		var previous_min_speed := _min_speed
-		_min_speed = _item_manager.get_stat(&"ball_speed_min")
-		_max_speed = _min_speed + _item_manager.get_stat(&"ball_speed_max_range")
-		speed += _min_speed - previous_min_speed
-		_apply_speed()
-	elif item_key == "ball_speed_max_range":
-		_max_speed = _min_speed + _item_manager.get_stat(&"ball_speed_max_range")
-		speed = minf(speed, _max_speed)
-		_apply_speed()
-	elif item_key == "ball_speed_increment":
-		_speed_increment = _item_manager.get_stat(&"ball_speed_increment")
+func _on_item_level_changed(_item_key: String) -> void:
+	var previous_min_speed := _min_speed
+	_min_speed = _item_manager.get_stat(&"ball_speed_min")
+	_max_speed = _min_speed + _item_manager.get_stat(&"ball_speed_max_range")
+	_speed_increment = _item_manager.get_stat(&"ball_speed_increment")
+	speed += _min_speed - previous_min_speed
+	speed = minf(speed, _max_speed)
+	_apply_speed()
 
 
 func _apply_speed() -> void:

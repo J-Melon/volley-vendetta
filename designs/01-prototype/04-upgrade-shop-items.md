@@ -701,7 +701,7 @@ Base cost: 30 FP | Scaling: 1.5
 
 ---
 
-### Warm-Up Ball
+### Training Ball
 
 Practice ball + always warm | Bright orange practice ball, slightly soft, always warm to the touch no matter how long it sits.
 

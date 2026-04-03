@@ -21,8 +21,8 @@ func before_each() -> void:
 		. items
 		. assign(
 			[
-				preload("res://resources/items/ball_speed_min.tres"),
-				preload("res://resources/items/ball_speed_max_range.tres"),
+				preload("res://resources/items/training_ball.tres"),
+				preload("res://resources/items/court_lines.tres"),
 			]
 		)
 	)
@@ -78,7 +78,7 @@ func test_min_speed_purchase_instantly_increases_speed() -> void:
 	var speed_before_purchase: float = _ball.speed
 	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
 	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
 	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
@@ -89,7 +89,7 @@ func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 	var speed_before_purchase: float = _ball.speed
 	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
 	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
 	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
@@ -97,7 +97,7 @@ func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 
 func test_min_speed_purchase_also_raises_max_speed() -> void:
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
 	var expected_max: float = _effective_max_speed()
 	_ball.speed = expected_max - 1.0
 	_ball.increase_speed()
@@ -107,5 +107,5 @@ func test_min_speed_purchase_also_raises_max_speed() -> void:
 func test_max_speed_purchase_clamps_speed_when_above_new_max() -> void:
 	_ball.speed = _effective_max_speed()
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_max_range")
+	_manager.purchase("court_lines")
 	assert_true(_ball.speed <= _effective_max_speed())

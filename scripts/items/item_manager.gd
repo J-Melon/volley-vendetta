@@ -5,9 +5,9 @@ signal item_level_changed(item_key: String)
 
 var items: Array[ItemDefinition] = [
 	preload("res://resources/items/ankle_weights.tres"),
-	preload("res://resources/items/paddle_size.tres"),
-	preload("res://resources/items/ball_speed_min.tres"),
-	preload("res://resources/items/ball_speed_max_range.tres"),
+	preload("res://resources/items/grip_tape.tres"),
+	preload("res://resources/items/training_ball.tres"),
+	preload("res://resources/items/court_lines.tres"),
 ]
 
 var _progression: ProgressionData

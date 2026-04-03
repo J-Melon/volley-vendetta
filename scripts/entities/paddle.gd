@@ -66,11 +66,9 @@ func get_speed() -> float:
 	return _paddle_speed
 
 
-func _on_item_level_changed(item_key: String) -> void:
-	if item_key == "paddle_size":
-		_apply_size()
-	elif item_key == "paddle_speed":
-		_paddle_speed = _item_manager.get_stat(&"paddle_speed")
+func _on_item_level_changed(_item_key: String) -> void:
+	_apply_size()
+	_paddle_speed = _item_manager.get_stat(&"paddle_speed")
 
 
 func _apply_size() -> void:
