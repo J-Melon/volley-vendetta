@@ -1,4 +1,4 @@
-default_install_hook_types: [pre-commit, prepare-commit-msg]
+default_install_hook_types: [pre-commit]
 default_stages: [pre-commit]
 
 repos:
@@ -29,10 +29,3 @@ repos:
         pass_filenames: false
         files: '\.gd$'
         exclude: '^addons/'
-      - id: ticket-prefix
-        name: Prepend Linear ticket number to commit message
-        language: script
-        entry: scripts/git/prepend_ticket_prefix.sh
-        stages: [prepare-commit-msg]
-        pass_filenames: false
-        always_run: true
