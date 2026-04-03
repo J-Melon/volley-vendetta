@@ -77,7 +77,7 @@ func _ball_setup() -> void:
 	speed = _min_speed
 	lock_rotation = true
 	linear_damp = 0.0
-	linear_velocity = Vector2(400.0, 200.0).normalized() * speed
+	linear_velocity = Vector2(_min_speed, _min_speed * 0.5).normalized() * speed
 	contact_monitor = true
 	max_contacts_reported = 1
 	body_entered.connect(_on_body_entered)
