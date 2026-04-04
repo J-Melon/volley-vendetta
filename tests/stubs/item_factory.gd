@@ -26,7 +26,7 @@ static func create_manager(
 static func create(
 	item_key: String, stat_key: StringName, operation: StringName, value: float
 ) -> ItemDefinition:
-	var outcome := ModifyStatOutcome.new()
+	var outcome := StatOutcome.new()
 	outcome.stat_key = stat_key
 	outcome.operation = operation
 	outcome.value = value

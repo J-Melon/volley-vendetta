@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dbqsqxhdwee6s" path="res://scripts/items/effect/trigger.gd" id="3_trigger"]
 [ext_resource type="Script" uid="uid://ctw4pntulfr8u" path="res://scripts/items/effect/outcome.gd" id="4_outcome"]
 [ext_resource type="Script" uid="uid://buncwlrnw4fu2" path="res://scripts/items/effect/outcomes/oscillate_stat_outcome.gd" id="5_osc"]
-[ext_resource type="Script" uid="uid://bcksl8dhxerhh" path="res://scripts/items/effect/outcomes/modify_stat_until_miss_outcome.gd" id="6_miss"]
+[ext_resource type="Script" uid="uid://d1al3xboi8anu" path="res://scripts/items/effect/outcomes/stat_until_miss_outcome.gd" id="6_miss"]
 
 [sub_resource type="Resource" id="oscillate_outcome"]
 script = ExtResource("5_osc")

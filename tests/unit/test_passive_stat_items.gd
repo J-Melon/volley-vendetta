@@ -18,12 +18,14 @@ func _create_manager(item: ItemDefinition) -> Node:
 
 
 func _stat_key(item: ItemDefinition) -> StringName:
-	var outcome: ModifyStatOutcome = item.effects[0].outcomes[0]
+	var outcome: StatOutcome = item.effects[0].outcomes[0]
 	return outcome.stat_key
 
 
 func _value_per_level(item: ItemDefinition) -> float:
-	var outcome: ModifyStatOutcome = item.effects[0].outcomes[0]
+	var outcome: StatOutcome = item.effects[0].outcomes[0]
+	if outcome.range_stat_key:
+		return outcome.value * GameRules.BASE_STATS[outcome.range_stat_key]
 	return outcome.value
 
 
@@ -54,9 +56,10 @@ func test_applies_stat_at_level_one() -> void:
 		var delta := _value_per_level(item)
 		manager._progression.friendship_point_balance = 100000
 		manager.purchase(item.key)
-		assert_eq(
+		assert_almost_eq(
 			manager.get_stat(stat),
 			GameRules.BASE_STATS[stat] + delta,
+			0.01,
 			"%s should add %s to %s at level 1" % [item.key, delta, stat],
 		)
 
@@ -71,8 +74,9 @@ func test_stacks_linearly_across_levels() -> void:
 		manager.purchase(item.key)
 		manager.purchase(item.key)
 		manager.purchase(item.key)
-		assert_eq(
+		assert_almost_eq(
 			manager.get_stat(stat),
 			GameRules.BASE_STATS[stat] + (delta * 3),
+			0.01,
 			"%s should stack linearly at level 3" % item.key,
 		)

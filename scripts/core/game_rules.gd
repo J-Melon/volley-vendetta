@@ -12,4 +12,5 @@ const BASE_STATS: Dictionary = {
 	&"return_angle_influence": 0.0,
 	&"kit_slots": 3.0,
 	&"ball_speed_offset": 0.0,
+	&"arena_height": 986.0,
 }

@@ -5,12 +5,13 @@
 [ext_resource type="Script" uid="uid://ypinkudmmgdn" path="res://scripts/items/effect/condition.gd" id="2_qurvf"]
 [ext_resource type="Script" uid="uid://dbqsqxhdwee6s" path="res://scripts/items/effect/trigger.gd" id="3_trigger"]
 [ext_resource type="Script" uid="uid://ctw4pntulfr8u" path="res://scripts/items/effect/outcome.gd" id="4_outcome"]
-[ext_resource type="Script" uid="uid://c506qegvo1tad" path="res://scripts/items/effect/outcomes/modify_stat_outcome.gd" id="5_mod"]
+[ext_resource type="Script" uid="uid://dhv8qa7d0py3f" path="res://scripts/items/effect/outcomes/stat_outcome.gd" id="5_stat"]
 
 [sub_resource type="Resource" id="outcome_1"]
-script = ExtResource("5_mod")
+script = ExtResource("5_stat")
 stat_key = &"paddle_size"
-value = 10.0
+value = 0.05
+range_stat_key = &"arena_height"
 
 [sub_resource type="Resource" id="trigger_1"]
 script = ExtResource("3_trigger")

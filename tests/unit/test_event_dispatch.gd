@@ -20,7 +20,7 @@ func _make_item(item_key: String, effects: Array[Effect]) -> ItemDefinition:
 
 
 func _make_until_miss_effect(stat_key: StringName, operation: StringName, value: float) -> Effect:
-	var outcome := ModifyStatUntilMissOutcome.new()
+	var outcome := StatUntilMissOutcome.new()
 	outcome.stat_key = stat_key
 	outcome.operation = operation
 	outcome.value = value
@@ -134,7 +134,7 @@ func test_miss_event_clears_until_miss_modifiers() -> void:
 
 
 func test_miss_preserves_permanent_modifiers() -> void:
-	var always_outcome := ModifyStatOutcome.new()
+	var always_outcome := StatOutcome.new()
 	always_outcome.stat_key = &"ball_speed_max_range"
 	always_outcome.operation = &"add"
 	always_outcome.value = 50.0

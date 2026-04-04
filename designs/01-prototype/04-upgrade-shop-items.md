@@ -148,7 +148,7 @@ Optional. If omitted the outcome always fires when the trigger does. Multiple co
 
 | Outcome | Description | Parameters |
 |---|---|---|
-| `modify_stat` | Add a delta to a stat key. Permanent while owned | `key`, `delta` |
+| `stat` | Add or multiply a stat key. Permanent while owned. Optional `range_stat_key` makes the value a ratio of another stat | `key`, `value`, `operation`, `range_stat_key` (optional) |
 | `multiply_stat_temporary` | Multiply a stat key by a factor for a duration or until a state exits | `key`, `multiplier`, `duration_seconds` or `until_state_exits(state)` |
 | `spawn_ball` | Add an additional ball to the game | none |
 | `clear_extra_balls` | Remove all balls except the original | none |
@@ -161,8 +161,8 @@ Optional. If omitted the outcome always fires when the trigger does. Multiple co
 | `increment_degradation` | Add to an item's hidden degradation counter | `amount` |
 | `share_stats_with_partner` | Partner receives all stat buffs the player has | none |
 | `momentum_boost` | Temporary buff to both paddles | `stats[]`, `duration_seconds` |
-| `oscillate_stat` | Continuously ramp a stat up and down in unpredictable waves | `key`, `amplitude` |
-| `modify_stat_until_miss` | Add a delta to a stat key until the next miss. Stacks if triggered multiple times | `key`, `delta` |
+| `oscillate_stat` | Continuously ramp a stat up and down in unpredictable waves. Amplitude is a ratio of `range_stat_key` | `key`, `amplitude`, `range_stat_key` |
+| `stat_until_miss` | Add a delta to a stat key until the next miss. Stacks if triggered multiple times. Optional `range_stat_key` makes the value a ratio | `key`, `value`, `operation`, `range_stat_key` (optional) |
 | `roll_table` | Pick a random outcome from a set of equally weighted effects and execute it | `outcomes[]` |
 | `set_ball_speed` | Immediately set ball to a specific speed | `value` |
 
@@ -213,6 +213,7 @@ All values items can target via `modify_stat` or `modify_stat_temporary`.
 | `ball_magnetism` | Pull strength toward paddle when ball is near | 0.0 | force |
 | `return_angle_influence` | Bias toward favorable return angles on hit | 0.0 | factor (0-1) |
 | `ball_speed_offset` | Applied as a delta to current ball speed each frame, clamped to min/max | 0.0 | px/s |
+| `arena_height` | Vertical play area between top and bottom walls | 986.0 | px |
 
 `ball_speed_max_range` is not the absolute ceiling. Ceiling = `ball_speed_min + ball_speed_max_range`. At base values: 700 px/s.
 
@@ -576,7 +577,7 @@ Effect 2
 Effect 3 (broken state)
   trigger: always
   condition: degradation_at(100)
-  outcome: modify_stat(friendship_points_per_hit, -debuff)
+  outcome: stat(friendship_points_per_hit, -debuff)
 ```
 
 Base cost: 90 FP | Scaling: 1.5
@@ -606,11 +607,11 @@ At level 3, the partner receives all your stat buffs. Edge hits (clutch saves at
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(ball_magnetism, delta) [both paddles, scales with level]
+  outcome: stat(ball_magnetism, delta) [both paddles, scales with level]
 
 Effect 2 (level 2+)
   trigger: always
-  outcome: modify_stat(return_angle_influence, delta) [both paddles]
+  outcome: stat(return_angle_influence, delta) [both paddles]
 
 Effect 3 (level 3)
   trigger: always
@@ -646,11 +647,11 @@ The whistle sets the tempo. Ball speed oscillates in waves: ramping up and down 
 ```
 Effect 1
   trigger: always
-  outcome: oscillate_stat(ball_speed_offset, amplitude scales with level)
+  outcome: oscillate_stat(ball_speed_offset, 25% of ball_speed_max_range, scales with level)
 
 Effect 2
   trigger: on_max_speed_reached
-  outcome: modify_stat_until_miss(ball_speed_max_range, delta scales with level) [uncapped, stacks]
+  outcome: stat_until_miss(ball_speed_max_range, +25 per level) [uncapped, stacks]
 ```
 
 Base cost: 85 FP | Scaling: 1.5
@@ -684,7 +685,7 @@ Increases paddle movement speed per level. Max level 10.
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(paddle_speed, +50 per level)
+  outcome: stat(paddle_speed, +50 per level)
 ```
 
 Base cost: 30 FP | Scaling: 1.5
@@ -701,16 +702,16 @@ Sports tape + sticky residue | Roll of white grip tape, half used, end stuck to 
 | Power revealed | "Hard to miss now" |
 | Post-Break | "Held it together" |
 
-Increases paddle collision size per level. Max level 10.
+Increases paddle collision size as a percentage of the arena height per level. Max level 10.
 
 | Level | Effect |
 |---|---|
-| 1-10 | +10 paddle size per level |
+| 1-10 | +5% of arena height to paddle size per level |
 
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(paddle_size, +10 per level)
+  outcome: stat(paddle_size, +5% of arena_height per level)
 ```
 
 Base cost: 30 FP | Scaling: 1.5
@@ -736,7 +737,7 @@ Raises the ball's starting speed per level. Max level 10.
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(ball_speed_min, +30 per level)
+  outcome: stat(ball_speed_min, +30 per level)
 ```
 
 Base cost: 40 FP | Scaling: 1.6
@@ -762,7 +763,7 @@ Raises the ball speed ceiling by increasing the max range above the minimum. Max
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(ball_speed_max_range, +50 per level)
+  outcome: stat(ball_speed_max_range, +50 per level)
 ```
 
 Base cost: 40 FP | Scaling: 1.6
