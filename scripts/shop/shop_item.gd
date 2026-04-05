@@ -31,6 +31,7 @@ func _build_visuals() -> void:
 		return
 	if item_definition.icon != null:
 		icon_sprite.texture = item_definition.icon
+		icon_sprite.modulate = Color.from_hsv(randf(), 0.6, 1.0)
 	tooltip.show_item(item_definition.display_name, _get_cost_text())
 	tooltip.hide_tooltip()
 
