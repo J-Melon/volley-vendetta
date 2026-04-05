@@ -5,10 +5,12 @@ extends GutTest
 
 var _items: Array[ItemDefinition] = [
 	preload("res://resources/items/ankle_weights.tres"),
-	preload("res://resources/items/grip_tape.tres"),
 	preload("res://resources/items/training_ball.tres"),
 	preload("res://resources/items/court_lines.tres"),
 ]
+
+var _grip_tape: ItemDefinition = preload("res://resources/items/grip_tape.tres")
+var _wrist_brace: ItemDefinition = preload("res://resources/items/wrist_brace.tres")
 
 
 func _create_manager(item: ItemDefinition) -> Node:
@@ -80,3 +82,85 @@ func test_stacks_linearly_across_levels() -> void:
 			0.01,
 			"%s should stack linearly at level 3" % item.key,
 		)
+
+
+# --- percentage items ---
+func test_grip_tape_increases_paddle_size_on_purchase() -> void:
+	var manager := _create_manager(_grip_tape)
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_grip_tape.key)
+	assert_gt(
+		manager.get_stat(&"paddle_size"),
+		GameRules.BASE_STATS[&"paddle_size"],
+		"grip_tape should increase paddle_size above base",
+	)
+
+
+func test_grip_tape_grows_with_level() -> void:
+	var manager := _create_manager(_grip_tape)
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_grip_tape.key)
+	var size_at_level_one: float = manager.get_stat(&"paddle_size")
+	manager.purchase(_grip_tape.key)
+	assert_gt(
+		manager.get_stat(&"paddle_size"),
+		size_at_level_one,
+		"grip_tape should increase paddle_size further at higher levels",
+	)
+
+
+func test_equal_percentage_modifiers_cancel_out() -> void:
+	var manager: Node = ItemFactory.create_manager(self, _grip_tape.key)
+	manager.items.assign([_grip_tape, _wrist_brace])
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_grip_tape.key)
+	manager.purchase(_wrist_brace.key)
+	assert_almost_eq(
+		manager.get_stat(&"paddle_size"),
+		GameRules.BASE_STATS[&"paddle_size"],
+		0.01,
+		"equal percentage modifiers should cancel to base",
+	)
+
+
+# --- cursed item ---
+func test_wrist_brace_has_negative_effect_value() -> void:
+	var size_outcome: StatOutcome = _wrist_brace.effects[1].outcomes[0]
+	assert_eq(size_outcome.stat_key, &"paddle_size")
+	assert_lt(size_outcome.value, 0.0, "cursed effect should have a negative value")
+
+
+func test_wrist_brace_reduces_paddle_size_on_purchase() -> void:
+	var manager := _create_manager(_wrist_brace)
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_wrist_brace.key)
+	assert_lt(
+		manager.get_stat(&"paddle_size"),
+		GameRules.BASE_STATS[&"paddle_size"],
+		"wrist_brace should reduce paddle_size below base",
+	)
+
+
+func test_wrist_brace_increases_ball_speed_increment_on_purchase() -> void:
+	var manager := _create_manager(_wrist_brace)
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_wrist_brace.key)
+	assert_gt(
+		manager.get_stat(&"ball_speed_increment"),
+		GameRules.BASE_STATS[&"ball_speed_increment"],
+		"wrist_brace should increase ball_speed_increment above base",
+	)
+
+
+func test_wrist_brace_cursed_penalty_scales_with_level() -> void:
+	var manager := _create_manager(_wrist_brace)
+	manager._progression.friendship_point_balance = 100000
+	manager.purchase(_wrist_brace.key)
+	var size_at_level_one: float = manager.get_stat(&"paddle_size")
+	manager.purchase(_wrist_brace.key)
+	var size_at_level_two: float = manager.get_stat(&"paddle_size")
+	assert_lt(
+		size_at_level_two,
+		size_at_level_one,
+		"cursed penalty should increase (paddle shrinks further) with level",
+	)

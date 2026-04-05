@@ -11,6 +11,7 @@ var items: Array[ItemDefinition] = [
 	preload("res://resources/items/double_knot.tres"),
 	preload("res://resources/items/spare.tres"),
 	preload("res://resources/items/cadence.tres"),
+	preload("res://resources/items/wrist_brace.tres"),
 ]
 
 var _progression: ProgressionData
@@ -53,6 +54,11 @@ func get_stat(key: StringName) -> float:
 ## Returns the stat value excluding temporary (until-miss) modifiers
 func get_permanent_stat(key: StringName) -> float:
 	return _effect_manager.get_permanent_stat(key)
+
+
+## Returns the summed percentage offset for a stat (e.g. 0.8 means +80%)
+func get_percentage_offset(key: StringName) -> float:
+	return _effect_manager.get_percentage_offset(key)
 
 
 ## Returns whether a named game state is currently active

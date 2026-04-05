@@ -10,8 +10,8 @@
 [sub_resource type="Resource" id="outcome_1"]
 script = ExtResource("5_stat")
 stat_key = &"paddle_size"
-value = 0.05
-range_stat_key = &"arena_height"
+operation = &"percentage"
+value = 1.4
 
 [sub_resource type="Resource" id="trigger_1"]
 script = ExtResource("3_trigger")

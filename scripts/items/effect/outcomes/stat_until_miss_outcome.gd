@@ -12,7 +12,9 @@ func apply(effect_state: EffectState, source_key: String, level: int) -> void:
 	modifier.source_key = source_key
 	modifier.stat_key = stat_key
 	modifier.operation = StatModifier.OPERATION_BY_NAME[operation]
-	modifier.value = _effective_value(effect_state, level)
+	modifier.value = scaled_value(value, level)
+	if range_stat_key:
+		modifier.range_stat_key = range_stat_key
 	effect_state.add_until_miss_modifier(modifier)
 
 

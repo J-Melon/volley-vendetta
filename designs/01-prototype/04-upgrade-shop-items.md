@@ -148,7 +148,7 @@ Optional. If omitted the outcome always fires when the trigger does. Multiple co
 
 | Outcome | Description | Parameters |
 |---|---|---|
-| `stat` | Add or multiply a stat key. Permanent while owned. Optional `range_stat_key` makes the value a ratio of another stat | `key`, `value`, `operation`, `range_stat_key` (optional) |
+| `stat` | Add or multiply a stat key. Permanent while owned. Optional `range_stat_key` makes the value a ratio of another stat | `key`, `value`, `operation` (`add`/`multiply`/`percentage`), `range_stat_key` (optional) |
 | `multiply_stat_temporary` | Multiply a stat key by a factor for a duration or until a state exits | `key`, `multiplier`, `duration_seconds` or `until_state_exits(state)` |
 | `spawn_ball` | Add an additional ball to the game | none |
 | `clear_extra_balls` | Remove all balls except the original | none |
@@ -205,7 +205,8 @@ All values items can target via `modify_stat` or `modify_stat_temporary`.
 | Key | Target | Base value | Unit |
 |---|---|---|---|
 | `paddle_speed` | Paddle movement speed | 500.0 | px/s |
-| `paddle_size` | Paddle collision height | 50.0 | px |
+| `paddle_size` | Paddle collision height, clamped to `[paddle_size_min, arena_height]` | 50.0 | px |
+| `paddle_size_min` | Minimum paddle size floor | 50.0 | px |
 | `ball_speed_min` | Ball starting/reset speed | 400.0 | px/s |
 | `ball_speed_max_range` | Speed ceiling offset added to min | 300.0 | px/s |
 | `ball_speed_increment` | Speed increase per paddle hit | 15.0 | px/s |
@@ -218,6 +219,12 @@ All values items can target via `modify_stat` or `modify_stat_temporary`.
 `ball_speed_max_range` is not the absolute ceiling. Ceiling = `ball_speed_min + ball_speed_max_range`. At base values: 700 px/s.
 
 `ball_speed_offset` is the target for oscillation effects (e.g. Cadence). It modulates current speed directly without affecting the min floor, so min speed upgrades are always respected.
+
+#### Modifier operations
+
+Three operations, applied in order: **add** (flat delta), **percentage** (summed into one multiplier), **multiply** (applied sequentially).
+
+Percentage modifiers sum additively before applying: two +50% modifiers give +100% (x2.0), not +50% then +50% (x2.25). This prevents exponential stacking and means a -140% modifier perfectly cancels a +140% modifier. The formula is `result *= (1.0 + sum_of_all_percentage_offsets)`.
 
 <details>
 <summary>Ideas</summary>
@@ -702,16 +709,16 @@ Sports tape + sticky residue | Roll of white grip tape, half used, end stuck to 
 | Power revealed | "Hard to miss now" |
 | Post-Break | "Held it together" |
 
-Increases paddle collision size as a percentage of the arena height per level. Max level 10.
+Increases paddle collision size as a percentage of current paddle size per level. Paddle is clamped between `paddle_size_min` and `arena_height`. Max level 10.
 
 | Level | Effect |
 |---|---|
-| 1-10 | +5% of arena height to paddle size per level |
+| 1-10 | +140% paddle size per level |
 
 ```
 Effect 1
   trigger: always
-  outcome: stat(paddle_size, +5% of arena_height per level)
+  outcome: percentage(paddle_size, +140% per level)
 ```
 
 Base cost: 30 FP | Scaling: 1.5
@@ -770,6 +777,38 @@ Base cost: 40 FP | Scaling: 1.6
 
 ---
 
+### Wrist Brace
+
+Wrist brace + locked stiff | Rigid plastic brace, velcro frayed, joint locked at a fixed angle. It wasn't always this tight.
+
+| State | Description |
+|---|---|
+| Default | "Can't bend it" |
+| Power revealed | "Doesn't give" |
+| Post-Break | "Locked for good" |
+
+Cursed item. The locked joint stabilizes your swing, transferring more force per hit. But the rigidity restricts your range, narrowing the effective paddle surface. The same stiffness that gives you power takes away reach.
+
+At equal levels with Grip Tape, the paddle size effects cancel out completely. The player gets the ball speed increment for free but no paddle growth. Levelling one ahead of the other tips the balance: Grip Tape ahead means a bigger paddle with faster hits, Wrist Brace ahead means a clamped paddle with much faster hits.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +8 ball speed increment per level, -140% paddle size per level [cursed] |
+
+```
+Effect 1
+  trigger: always
+  outcome: stat(ball_speed_increment, +8 per level)
+
+Effect 2
+  trigger: always
+  outcome: percentage(paddle_size, -140% per level) [cursed]
+```
+
+Base cost: 35 FP | Scaling: 1.5
+
+---
+
 ## Implementation notes
 
 ### Implemented (SH-41, SH-43)
@@ -779,6 +818,8 @@ Base cost: 40 FP | Scaling: 1.6
 - Named game states tracked in `EffectState` via `set_state()`/`clear_state()`/`is_state_active()`.
 - Ball reads speed limits every physics frame via `BallEffectProcessor._sync_speed_limits()`, enabling dynamic stat changes (oscillation, ceiling raises) to take effect immediately.
 - `GameRules.BALL_SPEED_MIN` and `BALL_SPEED_MAX` constants removed; replaced by stat-driven values.
+- Percentage modifier operation: values are summed into a single offset, then applied as `result *= (1.0 + total_offset)`. Evaluation order: add, then percentage, then multiply. Used by Grip Tape and Wrist Brace for paddle size scaling.
+- `paddle_size_min` base stat (50.0) clamps the paddle so percentage reductions cannot shrink it below a playable size.
 
 ### Remaining
 

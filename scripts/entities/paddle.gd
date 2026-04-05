@@ -75,7 +75,11 @@ func _apply_size() -> void:
 	if _collision_shape == null:
 		return
 
-	var new_size: float = _item_manager.get_stat(&"paddle_size")
+	var arena_height: float = _item_manager.get_stat(&"arena_height")
+	var paddle_size_min: float = _item_manager.get_stat(&"paddle_size_min")
+	var new_size: float = clampf(
+		_item_manager.get_stat(&"paddle_size"), paddle_size_min, arena_height
+	)
 
 	_collision_shape.size.y = new_size
 

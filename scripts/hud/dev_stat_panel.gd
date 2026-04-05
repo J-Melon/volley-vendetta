@@ -90,5 +90,11 @@ func _refresh() -> void:
 		else:
 			var diff: float = current_value - base_value
 			var sign_prefix: String = "+" if diff > 0 else ""
-			label.text = "%s: %.1f (%s%.1f)" % [stat_key, current_value, sign_prefix, diff]
-			label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))
+			var percentage_offset: float = ItemManager.get_percentage_offset(stat_key)
+			var text := "%s: %.1f (%s%.1f)" % [stat_key, current_value, sign_prefix, diff]
+			if not is_zero_approx(percentage_offset):
+				var pct_prefix: String = "+" if percentage_offset > 0 else ""
+				text += " [%s%.0f%%]" % [pct_prefix, percentage_offset * 100]
+			label.text = text
+			var color := Color(1.0, 0.5, 0.5) if diff < 0 else Color(0.6, 1.0, 0.6)
+			label.add_theme_color_override("font_color", color)
