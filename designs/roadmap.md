@@ -24,6 +24,7 @@ timeline
 
     v0.2-0.3 Alpha ~ 3.1 months (36pts)
         : Asset Integration
+        : Tile Layout
         : World and Narrative
         : The Event
         : Art Direction
@@ -124,9 +125,9 @@ Done when the repo and itch page are publicly accessible under the org, the hist
 
 ## v0.2-0.3 Alpha
 
-Writing first, then art. World and Narrative and The Event must be settled before Art Direction begins so the artist knows who these characters are, what world they inhabit, and what the tone needs to carry. Once writing is locked, art follows: Art Direction sets the rules, then characters, animation, arena, and ball. No placeholders remain by the end.
+Writing first, then art. World and Narrative and The Event must be settled before Art Direction begins so the artist knows who these characters are, what world they inhabit, and what the tone needs to carry. Once writing is locked, art follows: Art Direction sets the rules, then characters, animation, arena, and ball. No placeholders remain by the end. Tech delivers the full tiling layout system: the game viewport dynamically shares screen space with panels (shop, kit, compendium) instead of overlaying them.
 
-Done when the game has a coherent visual identity grounded in the narrative.
+Done when the game has a coherent visual identity grounded in the narrative and the tiling layout is fully functional.
 
 
 ## v0.4-0.5 Beta

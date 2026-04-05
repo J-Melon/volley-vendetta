@@ -15,6 +15,7 @@ timeline
 
     v0.2-0.3 Alpha ~ 0.5 months (5pts)
         : Asset Integration
+        : Tile Layout
 
     v0.4-0.5 Beta ~ 1.1 months (11pts)
         : Character Systems
@@ -65,6 +66,8 @@ timeline
 ## v0.2-0.3 Alpha
 
 **Asset Integration** replaces all placeholder art with the assets delivered by Art: character sprites and expressions, idle/hit/miss animations, arena, and ball. Depends on Character Art and Character Animation being delivered first. Done when no placeholder assets remain in the running game.
+
+**Tile Layout** implements the full tiling window layout for fullscreen and portable mode. The game is the primary tile; secondary tiles (shop, kit/locker, compendium) declare their preferred size and the layout compresses the game viewport to accommodate them. Inspired by Hyprland's dwindle layout: split direction based on aspect ratio, multiple tiles as siblings. Includes tweened transitions and responsive game viewport scaling. Prototype uses a simplified version (one tile, fixed ratio, no tween); this project delivers the real thing.
 
 ## v0.4-0.5 Beta
 
