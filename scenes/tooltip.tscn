@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://bo7g4jvqblgue"]
+
+[ext_resource type="Script" uid="uid://dqi21u2ks283c" path="res://scripts/shop/shop_tooltip.gd" id="1_4vl6i"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7dicn"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.85)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="Tooltip" type="Node2D" unique_id=577699881 node_paths=PackedStringArray("name_label", "cost_label")]
+z_index = 100
+script = ExtResource("1_4vl6i")
+name_label = NodePath("Panel/HBoxContainer/NameLabel")
+cost_label = NodePath("Panel/HBoxContainer/CostLabel")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1928726747]
+theme_override_styles/panel = SubResource("StyleBoxFlat_7dicn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=1665688782]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Panel/HBoxContainer" unique_id=910385990]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 14
+text = "Item Name"
+
+[node name="CostLabel" type="Label" parent="Panel/HBoxContainer" unique_id=1500849457]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 14
+text = "0 FP"
+horizontal_alignment = 2
+clip_text = true

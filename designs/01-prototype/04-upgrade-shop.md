@@ -39,7 +39,23 @@ The interaction is diegetic drag-and-drop: the player moves items from the frien
 
 ## Shop display (Act 1)
 
-The shop shows 5 item slots at a time. The player sees the item name, description, and FP cost (presented as friendship required to take it). There is no mechanical description. The player discovers what an item does by owning it.
+The shop shows 5 item slots at a time. Items are diegetic objects in the friend's room. There is no mechanical description. The player discovers what an item does by owning it.
+
+### Weight of the ask
+
+The cost of an item is never shown as a number. The player reads the weight of the ask through diegetic cues that reflect the friend's fixed attachment to each object.
+
+**Presentation:** each item has a fixed display style based on its cost. Valued items sit in a display case, on a cloth, or wrapped. Cheap items are loose, bare, tossed in a pile. These are static properties of the item, not dynamic; the friend's attachment to their favourite lamp does not change because the player earned more friendship.
+
+**Affordability:** when the player hovers over an item, the friend reacts. If the player has enough friendship, the friend relaxes or gestures toward the box: go ahead, take it. If not, the friend shifts protectively, a hand moves toward the item, body language tightens. The player reads whether they can take something before committing to the drag. Full friend reactions are an art pass task.
+
+**Nudging:** unaffordable items are inside a display case. The case is closed and the item is not interactive. As the player's friendship grows, items transition from cased to uncased: the friend has become comfortable enough to take it out and let the player have it. Affordable items sit freely on the surface, full colour, and respond to hover. The player sees at a glance which items are within reach: if it's behind glass, you're not close enough yet.
+
+**Taking:** dragging an affordable item to the box succeeds. The friend's reaction scales with the item's value: a wave-off for cheap items, a pause and a nod for expensive ones. Dragging an unaffordable item is blocked; the item does not leave its position.
+
+**Prototype:** items are sorted left-to-right by cost (cheapest near the box, most expensive far from it). Affordable items sit freely; unaffordable items have a display case scene layered over them (a separate node, not a sprite modification). Labels show name and cost as temporary stand-ins until art replaces them. Friend reactions use a simple sprite swap (neutral, approving, uncomfortable) in place of full animation.
+
+### Taking items
 
 Items are taken directly from the clearance by dragging them into the box. Taken items are added to the player's inventory immediately and their effects apply from that moment. Each item can only be taken once. Owned items are excluded from the rotation.
 

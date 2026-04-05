@@ -16,11 +16,15 @@ class TestShopItemDisplay:
 		add_child_autofree(_item)
 
 	func test_displays_item_name() -> void:
-		assert_eq(_item.name_label.text, _definition.display_name)
+		assert_eq(_item.tooltip.name_label.text, _definition.display_name)
 
-	func test_displays_cost_as_friendship_points() -> void:
-		var expected_cost: int = ItemManager.calculate_cost(_definition.key)
-		assert_eq(_item.cost_label.text, "%d FP" % expected_cost)
+	func test_displays_cost_or_taken() -> void:
+		var current_level: int = ItemManager.get_level(_definition.key)
+		if current_level >= _definition.max_level:
+			assert_eq(_item.tooltip.cost_label.text, "Taken")
+		else:
+			var expected_cost: int = ItemManager.calculate_cost(_definition.key)
+			assert_eq(_item.tooltip.cost_label.text, "%d FP" % expected_cost)
 
 	func test_shows_taken_when_maxed() -> void:
 		var original_level: int = ItemManager.get_level(_definition.key)
@@ -28,16 +32,14 @@ class TestShopItemDisplay:
 		ItemManager.add_friendship_points(100000)
 		for level: int in levels_needed:
 			ItemManager.purchase(_definition.key)
-		assert_eq(_item.cost_label.text, "Taken")
+		assert_eq(_item.tooltip.cost_label.text, "Taken")
 		# Restore state
 		for level: int in levels_needed:
 			ItemManager.remove_level(_definition.key)
 		ItemManager.subtract_friendship_points(100000)
 
-	func test_no_crash_without_setup() -> void:
-		var bare_item: ShopItem = ShopItemScene.instantiate()
-		add_child_autofree(bare_item)
-		assert_eq(bare_item.name_label.text, "Item Name")
+	func test_tooltip_hidden_by_default() -> void:
+		assert_false(_item.tooltip.visible)
 
 
 class TestShopPanelLayout:

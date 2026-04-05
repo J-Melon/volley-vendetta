@@ -51,3 +51,26 @@ horizontal_alignment = 1
 
 [node name="@Camera2D@22912" type="Camera2D" parent="." unique_id=2026972221]
 anchor_mode = 0
+
+[node name="Table" type="Node2D" parent="." unique_id=585037634]
+
+[node name="TableFront" type="ColorRect" parent="Table" unique_id=1949802055]
+offset_left = 10.0
+offset_top = 320.0
+offset_right = 490.0
+offset_bottom = 450.0
+color = Color(0.35, 0.2, 0.1, 1)
+
+[node name="TableTop" type="ColorRect" parent="Table" unique_id=954984958]
+offset_left = 10.0
+offset_top = 280.0
+offset_right = 490.0
+offset_bottom = 320.0
+color = Color(0.55, 0.35, 0.2, 1)
+
+[node name="TableEdge" type="ColorRect" parent="Table" unique_id=1518714397]
+offset_left = 10.0
+offset_top = 318.0
+offset_right = 490.0
+offset_bottom = 322.0
+color = Color(0.65, 0.45, 0.25, 1)

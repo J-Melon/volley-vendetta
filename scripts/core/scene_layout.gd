@@ -30,6 +30,7 @@ func open_secondary(scene: PackedScene) -> void:
 	var viewport := SubViewport.new()
 	viewport.name = "SecondaryViewport"
 	viewport.handle_input_locally = false
+	viewport.physics_object_picking = true
 	_secondary_viewport_container.add_child(viewport)
 
 	_secondary_scene = scene.instantiate()
@@ -45,6 +46,10 @@ func open_secondary(scene: PackedScene) -> void:
 	viewport.size = Vector2i(panel_width, window_height)
 
 	viewport.add_child(_secondary_scene)
+
+	## Enable stretch after layout settles so the SVC forwards input correctly.
+	await get_tree().process_frame
+	_secondary_viewport_container.stretch = true
 
 
 func close_secondary() -> void:

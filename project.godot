@@ -26,6 +26,11 @@ ProgressionManager="*res://scripts/progression/progression_manager.gd"
 
 file_logging/enable_file_logging=true
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/gdfxr/plugin.cfg", "res://addons/godotiq/plugin.cfg", "res://addons/gut/plugin.cfg")
