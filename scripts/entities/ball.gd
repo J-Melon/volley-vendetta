@@ -69,7 +69,8 @@ func _emit_max_speed_if_changed() -> void:
 func _setup_effect_processor() -> void:
 	effect_processor = BallEffectProcessor.new()
 	effect_processor.name = "BallEffectProcessor"
-	effect_processor._item_manager = _item_manager
+	effect_processor.ball = self
+	effect_processor.item_manager = _item_manager
 	add_child(effect_processor)
 
 
