@@ -4,10 +4,14 @@ signal friendship_point_balance_changed(balance: int)
 signal item_level_changed(item_key: String)
 
 var items: Array[ItemDefinition] = [
-	preload("res://resources/items/paddle_speed.tres"),
-	preload("res://resources/items/paddle_size.tres"),
-	preload("res://resources/items/ball_speed_min.tres"),
-	preload("res://resources/items/ball_speed_max_range.tres"),
+	preload("res://resources/items/ankle_weights.tres"),
+	preload("res://resources/items/grip_tape.tres"),
+	preload("res://resources/items/training_ball.tres"),
+	preload("res://resources/items/court_lines.tres"),
+	preload("res://resources/items/double_knot.tres"),
+	preload("res://resources/items/spare.tres"),
+	preload("res://resources/items/cadence.tres"),
+	preload("res://resources/items/wrist_brace.tres"),
 ]
 
 var _progression: ProgressionData
@@ -19,6 +23,7 @@ func _ready() -> void:
 		_progression = SaveManager.get_progression_data()
 	if _effect_manager == null:
 		_effect_manager = EffectManager.new()
+		_effect_manager.name = "EffectManager"
 
 	add_child(_effect_manager)
 	_register_existing_items()
@@ -31,9 +36,29 @@ func _register_existing_items() -> void:
 			_effect_manager.register_source(item, level)
 
 
+## Dispatches a game event to the effect system for causality processing
+func process_event(event_type: StringName) -> void:
+	_effect_manager.process_event(event_type)
+
+
+## Advances continuous effects like oscillation
+func process_frame(delta: float) -> void:
+	_effect_manager.process_frame(delta)
+
+
 ## Returns the resolved stat value after all active modifiers
 func get_stat(key: StringName) -> float:
 	return _effect_manager.get_stat(key)
+
+
+## Returns the stat value excluding temporary (until-miss) modifiers
+func get_base_stat(key: StringName) -> float:
+	return _effect_manager.get_base_stat(key)
+
+
+## Returns the summed percentage offset for a stat (e.g. 0.8 means +80%)
+func get_percentage_offset(key: StringName) -> float:
+	return _effect_manager.get_percentage_offset(key)
 
 
 ## Returns whether a named game state is currently active
@@ -95,6 +120,10 @@ func remove_level(item_key: String) -> void:
 
 	var current_level := get_level(item_key)
 	if current_level > 0:
+		var item := _get_item(item_key)
+		var refund := int(item.base_cost * pow(item.cost_scaling, current_level - 1))
+		_progression.friendship_point_balance += refund
+		friendship_point_balance_changed.emit(_progression.friendship_point_balance)
 		_set_level(item_key, current_level - 1)
 		SaveManager.save()
 

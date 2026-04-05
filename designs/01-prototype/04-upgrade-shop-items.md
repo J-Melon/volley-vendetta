@@ -20,6 +20,19 @@ Every item effect is: **trigger + condition + outcome**.
 
 A passive stat modifier is a causality effect with trigger `always`. There is no separate system.
 
+### Level scaling
+
+Each outcome has a `level_scaling` property (default 1.0) that controls how its value grows across item levels. The formula is:
+
+```
+effective_value = base_value * (1.0 + level_scaling * (level - 1))
+```
+
+Level 1 always applies the base value. `level_scaling` controls growth per additional level:
+- `1.0` (default): linear scaling (x1, x2, x3)
+- `0.5`: half growth (x1, x1.5, x2)
+- `0.0`: no scaling, same value at all levels
+
 ---
 
 ### Triggers
@@ -135,7 +148,7 @@ Optional. If omitted the outcome always fires when the trigger does. Multiple co
 
 | Outcome | Description | Parameters |
 |---|---|---|
-| `modify_stat` | Add a delta to a stat key. Permanent while owned | `key`, `delta` |
+| `stat` | Add or multiply a stat key. Permanent while owned. Optional `range_stat_key` makes the value a ratio of another stat | `key`, `value`, `operation` (`add`/`multiply`/`percentage`), `range_stat_key` (optional) |
 | `multiply_stat_temporary` | Multiply a stat key by a factor for a duration or until a state exits | `key`, `multiplier`, `duration_seconds` or `until_state_exits(state)` |
 | `spawn_ball` | Add an additional ball to the game | none |
 | `clear_extra_balls` | Remove all balls except the original | none |
@@ -148,8 +161,8 @@ Optional. If omitted the outcome always fires when the trigger does. Multiple co
 | `increment_degradation` | Add to an item's hidden degradation counter | `amount` |
 | `share_stats_with_partner` | Partner receives all stat buffs the player has | none |
 | `momentum_boost` | Temporary buff to both paddles | `stats[]`, `duration_seconds` |
-| `oscillate_stat` | Continuously ramp a stat up and down in unpredictable waves | `key`, `wave_range` |
-| `modify_stat_until_miss` | Add a delta to a stat key until the next miss. Stacks if triggered multiple times | `key`, `delta` |
+| `oscillate_stat` | Continuously ramp a stat up and down in unpredictable waves. Amplitude is a ratio of `range_stat_key` | `key`, `amplitude`, `range_stat_key` |
+| `stat_until_miss` | Add a delta to a stat key until the next miss. Stacks if triggered multiple times. Optional `range_stat_key` makes the value a ratio | `key`, `value`, `operation`, `range_stat_key` (optional) |
 | `roll_table` | Pick a random outcome from a set of equally weighted effects and execute it | `outcomes[]` |
 | `set_ball_speed` | Immediately set ball to a specific speed | `value` |
 
@@ -192,15 +205,26 @@ All values items can target via `modify_stat` or `modify_stat_temporary`.
 | Key | Target | Base value | Unit |
 |---|---|---|---|
 | `paddle_speed` | Paddle movement speed | 500.0 | px/s |
-| `paddle_size` | Paddle collision height | 50.0 | px |
-| `ball_speed_min` | Ball starting/reset speed | 500.0 | px/s |
-| `ball_speed_max_range` | Speed ceiling offset added to min | 600.0 | px/s |
+| `paddle_size` | Paddle collision height, clamped to `[paddle_size_min, arena_height]` | 50.0 | px |
+| `paddle_size_min` | Minimum paddle size floor | 50.0 | px |
+| `ball_speed_min` | Ball starting/reset speed | 400.0 | px/s |
+| `ball_speed_max_range` | Speed ceiling offset added to min | 300.0 | px/s |
 | `ball_speed_increment` | Speed increase per paddle hit | 15.0 | px/s |
 | `friendship_points_per_hit` | FP awarded per paddle hit | 1 | FP |
 | `ball_magnetism` | Pull strength toward paddle when ball is near | 0.0 | force |
 | `return_angle_influence` | Bias toward favorable return angles on hit | 0.0 | factor (0-1) |
+| `ball_speed_offset` | Applied as a delta to current ball speed each frame, clamped to min/max | 0.0 | px/s |
+| `arena_height` | Vertical play area between top and bottom walls | 986.0 | px |
 
-`ball_speed_max_range` is not the absolute ceiling. Ceiling = `ball_speed_min + ball_speed_max_range`. At base values: 1100 px/s.
+`ball_speed_max_range` is not the absolute ceiling. Ceiling = `ball_speed_min + ball_speed_max_range`. At base values: 700 px/s.
+
+`ball_speed_offset` is the target for oscillation effects (e.g. Cadence). It modulates current speed directly without affecting the min floor, so min speed upgrades are always respected.
+
+#### Modifier operations
+
+Three operations, applied in order: **add** (flat delta), **percentage** (summed into one multiplier), **multiply** (applied sequentially).
+
+Percentage modifiers sum additively before applying: two +50% modifiers give +100% (x2.0), not +50% then +50% (x2.25). This prevents exponential stacking and means a -140% modifier perfectly cancels a +140% modifier. The formula is `result *= (1.0 + sum_of_all_percentage_offsets)`.
 
 <details>
 <summary>Ideas</summary>
@@ -302,9 +326,9 @@ Lost ball + gunpowder | Worn ball dusted lightly in gunpowder, slightly singed a
 
 | State | Description |
 |---|---|
-| Default | "Nobody trained it." |
-| After frenzy triggers once | "Fast. Too fast." |
-| Post-Break | "It was always going to do that." |
+| Default | "Nobody trained it" |
+| After frenzy triggers once | "Fast. Too fast" |
+| Post-Break | "It was always going to do that" |
 
 | Level | Extra balls (cap) | Frenzy trigger |
 |---|---|---|
@@ -340,8 +364,8 @@ Referee card + shifting colour | Battered card, creased at the corners, colour d
 
 | State | Description |
 |---|---|
-| Default | "Looks official." |
-| After first colour change | "That wasn't green." |
+| Default | "Looks official" |
+| After first colour change | "That wasn't green" |
 | Post-Break | "Why wasn't I there?" |
 
 Every n-th hit, the card flips to a random colour. Each colour sets the FP-per-hit multiplier until the next flip. Every flip also deflects the ball to a random angle. The player learns colours through play, not a legend.
@@ -371,9 +395,9 @@ Medicine ball + dense metal | Small, impossibly heavy, dull grey surface with no
 
 | State | Description |
 |---|---|
-| Default | "Don't try to move it." |
+| Default | "Don't try to move it" |
 | After first gravity-warped hit | "Why does my hand look weird?" |
-| Post-Break | "Still there." |
+| Post-Break | "Still there" |
 
 A gravity well sits on the court, curving ball trajectory toward it. Hits on faster balls earn bonus FP. At max level, the well surges when the ball passes behind a paddle.
 
@@ -408,9 +432,9 @@ Training cone + melted base | Court | Standard orange cone, base slightly warped
 
 | State | Description |
 |---|---|
-| Default | "There's always one left over." |
-| After equipping 4th kit item | "Wasn't supposed to need it." |
-| Post-Break | "Nobody noticed it was missing." |
+| Default | "There's always one left over" |
+| After equipping 4th kit item | "Wasn't supposed to need it" |
+| Post-Break | "Nobody noticed it was missing" |
 
 Court item. Appears on the court in the background. Grants +1 kit slot. The bonus slot appears on the floor next to the kit bag in the kit UI, visually distinct from the base bag slots.
 
@@ -432,9 +456,9 @@ Betting slip + race already ran | Crumpled slip, printed odds faded, creased fro
 
 | State | Description |
 |---|---|
-| Default | "Haven't checked yet." |
-| After first roll resolves | "It was already decided." |
-| Post-Break | "Held onto it this whole time." |
+| Default | "Haven't checked yet" |
+| After first roll resolves | "It was already decided" |
+| Post-Break | "Held onto it this whole time" |
 
 Each rally starts a hidden timer (random delay). If the timer fires before you miss, the slip rolls and an effect triggers. If you miss first, the race never finishes. Higher levels add outcomes to the table and tighten the delay window. All outcomes are equally weighted.
 
@@ -472,16 +496,16 @@ Mirror + no end | Small rectangular locker mirror, scratched frame. Looks normal
 | State | Description |
 |---|---|
 | Default | "How deep does it go?" |
-| Power revealed | "It's fine." |
-| Post-Break | "Counted every one." |
+| Power revealed | "It's fine" |
+| Post-Break | "Counted every one" |
 
 **Broken:**
 
 | State | Description |
 |---|---|
-| Default (just broke) | "Too late." |
-| Power revealed (curse felt, or Tinkerer levels it) | "Sharper than before." |
-| Post-Break | "Some things don't heal." |
+| Default (just broke) | "Too late" |
+| Power revealed (curse felt, or Tinkerer levels it) | "Sharper than before" |
+| Post-Break | "Some things don't heal" |
 
 Passive FP multiplier that scales with hidden crack count. Each miss adds a crack. The player never sees the number. More cracks = more fractal reflections = higher multiplier. At 100 cracks the mirror breaks and becomes a cursed item with a slight debuff (tuning target). The broken state persists until dealt with.
 
@@ -508,7 +532,7 @@ Effect 2
 Effect 3 (broken state)
   trigger: always
   condition: degradation_at(100)
-  outcome: modify_stat(friendship_points_per_hit, -debuff)
+  outcome: stat(friendship_points_per_hit, -debuff)
 ```
 
 Base cost: 90 FP | Scaling: 1.5
@@ -521,9 +545,9 @@ Friendship bracelet + double knotted | Woven bracelet, faded colours, knotted tw
 
 | State | Description |
 |---|---|
-| Default | "Made two." |
-| After magnetism pull felt | "Closer than before." |
-| Post-Break | "Still wearing it." |
+| Default | "Made two" |
+| After magnetism pull felt | "Closer than before" |
+| Post-Break | "Still wearing it" |
 
 Buffs both paddles equally. The connection strengthens with each level.
 
@@ -538,11 +562,11 @@ At level 3, the partner receives all your stat buffs. Edge hits (clutch saves at
 ```
 Effect 1
   trigger: always
-  outcome: modify_stat(ball_magnetism, delta) [both paddles, scales with level]
+  outcome: stat(ball_magnetism, delta) [both paddles, scales with level]
 
 Effect 2 (level 2+)
   trigger: always
-  outcome: modify_stat(return_angle_influence, delta) [both paddles]
+  outcome: stat(return_angle_influence, delta) [both paddles]
 
 Effect 3 (level 3)
   trigger: always
@@ -563,8 +587,8 @@ Whistle + out of tune | Standard coach's whistle, brass tarnished, plays a note 
 
 | State | Description |
 |---|---|
-| Default | "Sounds wrong." |
-| After first ceiling raise | "Don't stop. Won't stop." |
+| Default | "Sounds wrong" |
+| After first ceiling raise | "Don't stop. Won't stop" |
 | Post-Break | "Was anyone listening?" |
 
 The whistle sets the tempo. Ball speed oscillates in waves: ramping up and down unpredictably. When the ball reaches max speed, the ceiling raises and speed keeps climbing.
@@ -578,22 +602,174 @@ The whistle sets the tempo. Ball speed oscillates in waves: ramping up and down 
 ```
 Effect 1
   trigger: always
-  outcome: oscillate_stat(ball_speed_min, wave_range scales with level)
+  outcome: oscillate_stat(ball_speed_offset, 25% of ball_speed_max_range, scales with level)
 
 Effect 2
   trigger: on_max_speed_reached
-  outcome: modify_stat_until_miss(ball_speed_max_range, delta scales with level) [uncapped, stacks]
+  outcome: stat_until_miss(ball_speed_max_range, +25 per level) [uncapped, stacks]
 ```
 
 Base cost: 85 FP | Scaling: 1.5
 
 ---
 
-## Notes for SH-41 (Item system core)
+## Simple stat items
 
-- `friendship_points_per_hit` must be exposed as a query. Currently hardcoded as `1` in `game.gd:_on_paddle_hit()`.
-- `ball_speed_increment` must be exposed as a query. Currently hardcoded as `GameRules.BALL_SPEED_INCREMENT` in `ball.gd:increase_speed()`.
-- Causality items require ItemManager to subscribe to game signals and evaluate owned items on each trigger. Temporary outcomes need an expiry model (timer or per-frame tick).
-- Named game states (for `set_game_state`, `game_state_is`) need a lightweight state registry in EffectState.
+Passive stat modifiers. No triggers, no conditions, no twist. These exist so the shop has straightforward purchases available early: the player picks one, feels the difference immediately, and understands the economy before encountering causality items.
+
+These are not build-around items. They are reliable, boring, and useful. The kind of thing you buy because you need it, not because it excites you. They round out a kit without competing for attention.
+
+---
+
+### Ankle Weights
+
+Leg weights + worn elastic | Scuffed ankle weights, elastic fraying, sand shifting inside. They've been used every day for a long time.
+
+| State | Description |
+|---|---|
+| Default | "Heavy steps" |
+| Power revealed | "Didn't notice the difference until I took them off" |
+| Post-Break | "Still wearing them" |
+
+Increases paddle movement speed per level. Max level 10.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +50 paddle speed per level |
+
+```
+Effect 1
+  trigger: always
+  outcome: stat(paddle_speed, +50 per level)
+```
+
+Base cost: 30 FP | Scaling: 1.5
+
+---
+
+### Grip Tape
+
+Sports tape + sticky residue | Roll of white grip tape, half used, end stuck to itself. Leaves marks on everything it touches.
+
+| State | Description |
+|---|---|
+| Default | "Covers more than you think" |
+| Power revealed | "Hard to miss now" |
+| Post-Break | "Held it together" |
+
+Increases paddle collision size as a percentage of current paddle size per level. Paddle is clamped between `paddle_size_min` and `arena_height`. Max level 10.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +140% paddle size per level |
+
+```
+Effect 1
+  trigger: always
+  outcome: percentage(paddle_size, +140% per level)
+```
+
+Base cost: 30 FP | Scaling: 1.5
+
+---
+
+### Training Ball
+
+Practice ball + always warm | Bright orange practice ball, slightly soft, always warm to the touch no matter how long it sits.
+
+| State | Description |
+|---|---|
+| Default | "Already moving" |
+| Power revealed | "Starts fast. Stays fast" |
+| Post-Break | "Never cooled down" |
+
+Raises the ball's starting speed per level. Max level 10.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +30 ball speed min per level |
+
+```
+Effect 1
+  trigger: always
+  outcome: stat(ball_speed_min, +30 per level)
+```
+
+Base cost: 40 FP | Scaling: 1.6
+
+---
+
+### Court Lines
+
+Chalk line + no end | Piece of court chalk, worn to a nub. The lines it draws keep going past where you stopped.
+
+| State | Description |
+|---|---|
+| Default | "Wider than it looks" |
+| Power revealed | "The ceiling keeps moving" |
+| Post-Break | "Drew them everywhere" |
+
+Raises the ball speed ceiling by increasing the max range above the minimum. Max level 10.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +50 ball speed max range per level |
+
+```
+Effect 1
+  trigger: always
+  outcome: stat(ball_speed_max_range, +50 per level)
+```
+
+Base cost: 40 FP | Scaling: 1.6
+
+---
+
+### Wrist Brace
+
+Wrist brace + locked stiff | Rigid plastic brace, velcro frayed, joint locked at a fixed angle. It wasn't always this tight.
+
+| State | Description |
+|---|---|
+| Default | "Can't bend it" |
+| Power revealed | "Doesn't give" |
+| Post-Break | "Locked for good" |
+
+Cursed item. The locked joint stabilizes your swing, transferring more force per hit. But the rigidity restricts your range, narrowing the effective paddle surface. The same stiffness that gives you power takes away reach.
+
+At equal levels with Grip Tape, the paddle size effects cancel out completely. The player gets the ball speed increment for free but no paddle growth. Levelling one ahead of the other tips the balance: Grip Tape ahead means a bigger paddle with faster hits, Wrist Brace ahead means a clamped paddle with much faster hits.
+
+| Level | Effect |
+|---|---|
+| 1-10 | +8 ball speed increment per level, -140% paddle size per level [cursed] |
+
+```
+Effect 1
+  trigger: always
+  outcome: stat(ball_speed_increment, +8 per level)
+
+Effect 2
+  trigger: always
+  outcome: percentage(paddle_size, -140% per level) [cursed]
+```
+
+Base cost: 35 FP | Scaling: 1.5
+
+---
+
+## Implementation notes
+
+### Implemented (SH-41, SH-43)
+
+- All stat keys exposed via `GameRules.BASE_STATS` and queried through `ItemManager.get_stat()`.
+- Event dispatch: `ItemManager.process_event()` fires registered effects with matching triggers. Game.gd wires ball signals (`at_max_speed_changed`, `missed`) to dispatch `on_max_speed_reached` and `on_miss`.
+- Named game states tracked in `EffectState` via `set_state()`/`clear_state()`/`is_state_active()`.
+- Ball reads speed limits every physics frame via `BallEffectProcessor._sync_speed_limits()`, enabling dynamic stat changes (oscillation, ceiling raises) to take effect immediately.
+- `GameRules.BALL_SPEED_MIN` and `BALL_SPEED_MAX` constants removed; replaced by stat-driven values.
+- Percentage modifier operation: values are summed into a single offset, then applied as `result *= (1.0 + total_offset)`. Evaluation order: add, then percentage, then multiply. Used by Grip Tape and Wrist Brace for paddle size scaling.
+- `paddle_size_min` base stat (50.0) clamps the paddle so percentage reductions cannot shrink it below a playable size.
+
+### Remaining
+
+- Causality items need temporary outcome expiry (timer or per-frame tick) for `multiply_stat_temporary`.
 - Multi-ball requires a ball spawner and a reference list of active balls in the scene. `clear_extra_balls` removes all but the original.
-- `GameRules.BALL_SPEED_MIN` (400.0) and `GameRules.BALL_SPEED_MAX` (700.0) are unused. Remove in SH-41.

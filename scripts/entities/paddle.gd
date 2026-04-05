@@ -66,18 +66,20 @@ func get_speed() -> float:
 	return _paddle_speed
 
 
-func _on_item_level_changed(item_key: String) -> void:
-	if item_key == "paddle_size":
-		_apply_size()
-	elif item_key == "paddle_speed":
-		_paddle_speed = _item_manager.get_stat(&"paddle_speed")
+func _on_item_level_changed(_item_key: String) -> void:
+	_apply_size()
+	_paddle_speed = _item_manager.get_stat(&"paddle_speed")
 
 
 func _apply_size() -> void:
 	if _collision_shape == null:
 		return
 
-	var new_size: float = _item_manager.get_stat(&"paddle_size")
+	var arena_height: float = _item_manager.get_stat(&"arena_height")
+	var paddle_size_min: float = _item_manager.get_stat(&"paddle_size_min")
+	var new_size: float = clampf(
+		_item_manager.get_stat(&"paddle_size"), paddle_size_min, arena_height
+	)
 
 	_collision_shape.size.y = new_size
 

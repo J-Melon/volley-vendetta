@@ -23,8 +23,8 @@ func before_each() -> void:
 		. items
 		. assign(
 			[
-				preload("res://resources/items/ball_speed_min.tres"),
-				preload("res://resources/items/ball_speed_max_range.tres"),
+				preload("res://resources/items/training_ball.tres"),
+				preload("res://resources/items/court_lines.tres"),
 			]
 		)
 	)
