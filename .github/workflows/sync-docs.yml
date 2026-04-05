@@ -168,23 +168,28 @@ jobs:
               await syncFile(file);
             }
 
-            // Set default sort on the database view to Order ascending
-            const dbViews = await notion.request({
-              path: `databases/${databaseId}/views`,
-              method: 'GET'
-            });
-            if (dbViews.results && dbViews.results.length > 0) {
-              const viewId = dbViews.results[0].id;
-              await notion.request({
-                path: `views/${viewId}`,
-                method: 'PUT',
-                body: {
-                  viewSortsRequest: [
-                    { property: 'Order', direction: 'ascending' }
-                  ]
-                }
+            // Set default view sort to Order ascending
+            // NOTE: Views API is not part of Notion's stable public API; may break without notice
+            try {
+              const dbViews = await notion.request({
+                path: `databases/${databaseId}/views`,
+                method: 'GET'
               });
-              console.log('Set default view sort to Order ascending');
+              if (dbViews.results && dbViews.results.length > 0) {
+                const viewId = dbViews.results[0].id;
+                await notion.request({
+                  path: `views/${viewId}`,
+                  method: 'PUT',
+                  body: {
+                    viewSortsRequest: [
+                      { property: 'Order', direction: 'ascending' }
+                    ]
+                  }
+                });
+                console.log('Set default view sort to Order ascending');
+              }
+            } catch (err) {
+              console.warn('Could not set view sort:', err.message);
             }
           }
 
