@@ -6,7 +6,7 @@ const BAR_OVERFLOW_COLOR := Color(1.0, 0.5, 0.2)
 const BAR_BACKGROUND_COLOR := Color(0.15, 0.15, 0.15, 0.6)
 const PERMANENT_MAX_MARKER_COLOR := Color(1.0, 1.0, 1.0, 0.4)
 
-var _current_speed := 0.0
+var current_speed := 0.0
 var _min_speed: float = GameRules.BASE_STATS[&"ball_speed_min"]
 var _max_speed: float = (
 	GameRules.BASE_STATS[&"ball_speed_min"] + GameRules.BASE_STATS[&"ball_speed_max_range"]
@@ -16,7 +16,7 @@ var _permanent_max_speed: float = _max_speed
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		_current_speed = 550.0
+		current_speed = 550.0
 
 
 func _draw() -> void:
@@ -26,7 +26,7 @@ func _draw() -> void:
 	if speed_range <= 0.0:
 		return
 
-	var fill_ratio: float = clampf((_current_speed - _min_speed) / speed_range, 0.0, 1.0)
+	var fill_ratio: float = clampf((current_speed - _min_speed) / speed_range, 0.0, 1.0)
 	var permanent_ratio: float = clampf((_permanent_max_speed - _min_speed) / speed_range, 0.0, 1.0)
 
 	_draw_fill(fill_ratio, permanent_ratio)
@@ -43,7 +43,7 @@ func _draw_fill(fill_ratio: float, permanent_ratio: float) -> void:
 		return
 
 	var ceiling_raised: bool = _max_speed > _permanent_max_speed
-	var speed_past_permanent: bool = _current_speed > _permanent_max_speed
+	var speed_past_permanent: bool = current_speed > _permanent_max_speed
 
 	if ceiling_raised and speed_past_permanent:
 		var permanent_x: float = size.x * permanent_ratio
@@ -74,7 +74,7 @@ func _draw_permanent_max_marker(permanent_ratio: float) -> void:
 func update_speed(
 	current_speed: float, min_speed: float, max_speed: float, permanent_max_speed: float
 ) -> void:
-	_current_speed = current_speed
+	self.current_speed = current_speed
 	_min_speed = min_speed
 	_max_speed = max_speed
 	_permanent_max_speed = permanent_max_speed

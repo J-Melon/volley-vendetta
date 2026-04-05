@@ -24,10 +24,3 @@ func describe() -> String:
 	if range_stat_key:
 		return "%s%.0f%% of %s to %s (until miss)" % [prefix, value * 100, range_stat_key, stat_key]
 	return "%s%s %s (until miss)" % [prefix, value, stat_key]
-
-
-func _effective_value(effect_state: EffectState, level: int) -> float:
-	var base_value: float = scaled_value(value, level)
-	if range_stat_key:
-		return base_value * effect_state.get_base_stat(range_stat_key)
-	return base_value

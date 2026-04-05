@@ -5,7 +5,7 @@ var ball: Ball
 var paddles: Array[Node2D] = []
 var item_manager: Node
 
-var _speed_offset := 0.0
+var _previous_offset := 0.0
 
 
 func _ready() -> void:
@@ -19,18 +19,17 @@ func process_frame(delta: float) -> void:
 
 
 func _sync_speed_limits() -> void:
+	var base_speed: float = ball.speed - _previous_offset
+
 	var new_min: float = item_manager.get_stat(&"ball_speed_min")
 	if not is_equal_approx(new_min, ball.min_speed):
-		ball.speed += new_min - ball.min_speed
+		base_speed += new_min - ball.min_speed
 		ball.min_speed = new_min
 	ball.max_speed = ball.min_speed + item_manager.get_stat(&"ball_speed_max_range")
 	ball.speed_increment = item_manager.get_stat(&"ball_speed_increment")
 
-	var new_offset: float = item_manager.get_stat(&"ball_speed_offset")
-	ball.speed += new_offset - _speed_offset
-	_speed_offset = new_offset
-
-	ball.speed = clampf(ball.speed, ball.min_speed, ball.max_speed)
+	_previous_offset = item_manager.get_stat(&"ball_speed_offset")
+	ball.speed = clampf(base_speed + _previous_offset, ball.min_speed, ball.max_speed)
 
 
 func process_hit() -> void:

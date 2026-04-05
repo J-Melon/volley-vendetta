@@ -50,6 +50,10 @@ func register_source(source: ItemDefinition, level: int) -> void:
 		if effect.trigger.type == &"always":
 			_apply_effect(effect, source_key, level)
 		else:
+			assert(
+				not _has_temporary_outcome_on_miss(effect),
+				"%s: on_miss + temporary modifier will be immediately cleared" % source_key,
+			)
 			(
 				_event_effects
 				. append(
@@ -60,6 +64,15 @@ func register_source(source: ItemDefinition, level: int) -> void:
 					}
 				)
 			)
+
+
+func _has_temporary_outcome_on_miss(effect: Effect) -> bool:
+	if effect.trigger.type != &"on_miss":
+		return false
+	for outcome in effect.outcomes:
+		if outcome is StatUntilMissOutcome:
+			return true
+	return false
 
 
 func _clear_source(source_key: String) -> void:

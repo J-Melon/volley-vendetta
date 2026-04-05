@@ -60,12 +60,12 @@ func test_upgrades_do_not_show_marker() -> void:
 # --- overflow fill ---
 func test_overflow_fill_when_speed_past_permanent_max() -> void:
 	_bar.update_speed(725.0, 400.0, 750.0, 700.0)
-	assert_true(_bar._current_speed > _bar._permanent_max_speed)
+	assert_true(_bar.current_speed > _bar._permanent_max_speed)
 
 
 func test_no_overflow_fill_when_speed_below_permanent_max() -> void:
 	_bar.update_speed(650.0, 400.0, 750.0, 700.0)
-	assert_false(_bar._current_speed > _bar._permanent_max_speed)
+	assert_false(_bar.current_speed > _bar._permanent_max_speed)
 
 
 # --- helpers ---
@@ -73,7 +73,7 @@ func _fill_ratio() -> float:
 	var speed_range: float = _bar._max_speed - _bar._min_speed
 	if speed_range <= 0.0:
 		return 0.0
-	return clampf((_bar._current_speed - _bar._min_speed) / speed_range, 0.0, 1.0)
+	return clampf((_bar.current_speed - _bar._min_speed) / speed_range, 0.0, 1.0)
 
 
 func _permanent_ratio() -> float:
