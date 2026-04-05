@@ -21,8 +21,8 @@ func before_each() -> void:
 		. items
 		. assign(
 			[
-				preload("res://resources/items/ball_speed_min.tres"),
-				preload("res://resources/items/ball_speed_max_range.tres"),
+				preload("res://resources/items/training_ball.tres"),
+				preload("res://resources/items/court_lines.tres"),
 			]
 		)
 	)
@@ -73,12 +73,13 @@ func test_reset_speed_preserves_direction() -> void:
 	assert_gt(_ball.linear_velocity.y, 0.0)
 
 
-# --- item level changes ---
-func test_min_speed_purchase_instantly_increases_speed() -> void:
+# --- item level changes (applied on next physics frame via effect processor) ---
+func test_min_speed_purchase_increases_speed() -> void:
 	var speed_before_purchase: float = _ball.speed
 	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
+	_ball._physics_process(0.016)
 	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
 	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
@@ -86,10 +87,12 @@ func test_min_speed_purchase_instantly_increases_speed() -> void:
 
 func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 	_ball.speed = _manager.get_stat(&"ball_speed_min") + 200.0
+	_ball.effect_processor.sync_base_speed()
 	var speed_before_purchase: float = _ball.speed
 	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
+	_ball._physics_process(0.016)
 	var min_after_purchase: float = _manager.get_stat(&"ball_speed_min")
 	var expected_speed: float = speed_before_purchase + (min_after_purchase - min_before_purchase)
 	assert_almost_eq(_ball.speed, expected_speed, 0.01)
@@ -97,7 +100,8 @@ func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 
 func test_min_speed_purchase_also_raises_max_speed() -> void:
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_min")
+	_manager.purchase("training_ball")
+	_ball._physics_process(0.016)
 	var expected_max: float = _effective_max_speed()
 	_ball.speed = expected_max - 1.0
 	_ball.increase_speed()
@@ -107,5 +111,42 @@ func test_min_speed_purchase_also_raises_max_speed() -> void:
 func test_max_speed_purchase_clamps_speed_when_above_new_max() -> void:
 	_ball.speed = _effective_max_speed()
 	_manager._progression.friendship_point_balance = 10000
-	_manager.purchase("ball_speed_max_range")
+	_manager.purchase("court_lines")
+	_ball._physics_process(0.016)
 	assert_true(_ball.speed <= _effective_max_speed())
+
+
+# --- speed offset oscillation ---
+func test_oscillation_never_drops_below_min_speed() -> void:
+	var effect := _make_oscillation_effect(2.0)
+	var item := ItemDefinition.new()
+	item.key = "big_oscillation"
+	item.max_level = 1
+	item.effects = [effect]
+	_manager.items.append(item)
+	_manager._progression.friendship_point_balance = 10000
+	_manager.purchase("big_oscillation")
+
+	var min_speed: float = _manager.get_stat(&"ball_speed_min")
+	for frame_index in range(300):
+		_ball._physics_process(0.016)
+		assert_true(
+			_ball.speed >= min_speed,
+			"Ball speed %f should never drop below min %f" % [_ball.speed, min_speed],
+		)
+
+
+func _make_oscillation_effect(amplitude: float) -> Effect:
+	var outcome := OscillateStatOutcome.new()
+	outcome.stat_key = &"ball_speed_offset"
+	outcome.amplitude = amplitude
+	outcome.range_stat_key = &"ball_speed_max_range"
+
+	var trigger := Trigger.new()
+	trigger.type = &"always"
+
+	var effect := Effect.new()
+	effect.trigger = trigger
+	effect.outcomes = [outcome]
+	effect.min_active_level = 1
+	return effect

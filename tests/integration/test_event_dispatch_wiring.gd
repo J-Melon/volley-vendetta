@@ -1,14 +1,13 @@
 extends GutTest
 
-# Verifies that a miss after a streak resets all observable state atomically.
-# Uses real instances wired via signals, no private method calls.
+# Verifies that game.gd dispatches ball events to the effect system.
+# Uses Cadence as the test item since it consumes both on_max_speed_reached and on_miss.
 
 var _game: Node2D
 var _ball: Ball
 var _paddle: Paddle
 var _manager: Node
 var _mock_storage: SaveStorage
-var _last_count := -1
 
 
 func before_each() -> void:
@@ -19,16 +18,7 @@ func before_each() -> void:
 	_manager = load("res://scripts/items/item_manager.gd").new()
 	_manager._progression = ProgressionData.new(_mock_storage)
 	_manager._effect_manager = EffectManager.new()
-	(
-		_manager
-		. items
-		. assign(
-			[
-				preload("res://resources/items/training_ball.tres"),
-				preload("res://resources/items/court_lines.tres"),
-			]
-		)
-	)
+	_manager.items.assign([preload("res://resources/items/cadence.tres")])
 	add_child_autofree(_manager)
 
 	_ball = load("res://scripts/entities/ball.gd").new()
@@ -54,32 +44,44 @@ func before_each() -> void:
 	add_child_autofree(_ball)
 	add_child_autofree(_paddle)
 	add_child_autofree(_game)
-	_game.volley_count_changed.connect(func(count): _last_count = count)
 	_ball.gravity_scale = 0.0
 	_ball.linear_velocity = Vector2(_manager.get_stat(&"ball_speed_min"), 0.0)
 
 
-func _build_streak(hits: int) -> void:
-	for i in hits:
+func _purchase_cadence() -> void:
+	_manager._progression.friendship_point_balance = 100000
+	_manager.purchase("cadence")
+
+
+func _hit_until_max_speed() -> void:
+	while _ball.speed < _ball.max_speed:
 		_paddle.on_ball_hit()
 		_paddle.tracker._process(HitTracker.COOLDOWN)
 
 
-func test_ball_speed_resets_after_miss() -> void:
-	_build_streak(2)
+# --- on_max_speed_reached wiring ---
+func test_ceiling_raises_when_ball_reaches_max_speed() -> void:
+	_purchase_cadence()
+	var base_range: float = GameRules.BASE_STATS[&"ball_speed_max_range"]
+
+	_hit_until_max_speed()
+
+	assert_gt(
+		_manager.get_stat(&"ball_speed_max_range"),
+		base_range,
+		"ball_speed_max_range should increase after ball hits ceiling",
+	)
+
+
+# --- on_miss wiring ---
+func test_ceiling_raise_resets_on_miss() -> void:
+	_purchase_cadence()
+	_hit_until_max_speed()
+
 	_ball.missed.emit()
-	assert_almost_eq(_ball.speed, _manager.get_stat(&"ball_speed_min"), 0.01)
 
-
-func test_hud_resets_after_miss() -> void:
-	_build_streak(2)
-	_ball.missed.emit()
-	assert_eq(_last_count, 0)
-
-
-func test_pitch_resets_on_first_hit_after_miss() -> void:
-	_build_streak(2)
-	_ball.missed.emit()
-	_paddle.tracker._process(HitTracker.COOLDOWN)
-	_paddle.on_ball_hit()
-	assert_almost_eq(_paddle.hit_sound.pitch_scale, 1.05, 0.001)
+	assert_eq(
+		_manager.get_stat(&"ball_speed_max_range"),
+		GameRules.BASE_STATS[&"ball_speed_max_range"],
+		"ball_speed_max_range should reset to base after miss",
+	)

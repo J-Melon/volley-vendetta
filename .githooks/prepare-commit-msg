@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec scripts/git/prepend_ticket_prefix.sh "$@"
+exec ./prepend_ticket_prefix.sh "$@"
