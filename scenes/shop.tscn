@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://hvh6q02lrntj"]
 
-[ext_resource type="Script" uid="uid://chtpmloao3llh" path="res://scripts/hud/clearance_panel.gd" id="1_lx5au"]
+[ext_resource type="Script" uid="uid://chtpmloao3llh" path="res://scripts/hud/shop_panel.gd" id="1_lx5au"]
 
 [node name="Shop" type="PanelContainer" unique_id=638185813 node_paths=PackedStringArray("friendship_label")]
 script = ExtResource("1_lx5au")

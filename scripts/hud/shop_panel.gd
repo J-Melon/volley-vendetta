@@ -1,4 +1,4 @@
-class_name ClearancePanel
+class_name ShopPanel
 extends PanelContainer
 
 @export var preferred_width: int = 400
@@ -6,6 +6,10 @@ extends PanelContainer
 
 
 func _ready() -> void:
+	var stylebox := StyleBoxFlat.new()
+	stylebox.bg_color = Color(0.15, 0.25, 0.35)
+	add_theme_stylebox_override("panel", stylebox)
+
 	ItemManager.friendship_point_balance_changed.connect(_on_friendship_point_balance_changed)
 	_update_friendship_label(ItemManager.get_friendship_point_balance())
 
