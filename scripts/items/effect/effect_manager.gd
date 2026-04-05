@@ -54,16 +54,8 @@ func register_source(source: ItemDefinition, level: int) -> void:
 				not _has_temporary_outcome_on_miss(effect),
 				"%s: on_miss + temporary modifier will be immediately cleared" % source_key,
 			)
-			(
-				_event_effects
-				. append(
-					{
-						"effect": effect,
-						"source_key": source_key,
-						"level": level,
-					}
-				)
-			)
+			var entry := {"effect": effect, "source_key": source_key, "level": level}
+			_event_effects.append(entry)
 
 
 func _has_temporary_outcome_on_miss(effect: Effect) -> bool:

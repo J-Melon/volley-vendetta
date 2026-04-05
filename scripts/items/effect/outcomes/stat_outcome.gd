@@ -19,11 +19,18 @@ func apply(effect_state: EffectState, source_key: String, level: int) -> void:
 
 
 func describe() -> String:
-	var prefix := "+" if value > 0 else ""
-	if operation == &"percentage":
-		return "%s%.0f%% %s" % [prefix, value * 100, stat_key]
-	if operation != &"add" or value <= 0:
-		prefix = ""
-	if range_stat_key:
-		return "%s%.0f%% of %s to %s" % [prefix, value * 100, range_stat_key, stat_key]
-	return "%s%s %s" % [prefix, value, stat_key]
+	var positive_prefix := "+" if value > 0 else ""
+	match operation:
+		&"percentage":
+			return "%s%.0f%% %s" % [positive_prefix, value * 100, stat_key]
+		&"add":
+			if range_stat_key:
+				return (
+					"%s%.0f%% of %s to %s"
+					% [positive_prefix, value * 100, range_stat_key, stat_key]
+				)
+			return "%s%s %s" % [positive_prefix, value, stat_key]
+		_:
+			if range_stat_key:
+				return "%.0f%% of %s to %s" % [value * 100, range_stat_key, stat_key]
+			return "%s %s" % [value, stat_key]

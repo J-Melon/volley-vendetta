@@ -87,6 +87,7 @@ func test_min_speed_purchase_increases_speed() -> void:
 
 func test_min_speed_purchase_increases_speed_above_new_min() -> void:
 	_ball.speed = _manager.get_stat(&"ball_speed_min") + 200.0
+	_ball.effect_processor.sync_base_speed()
 	var speed_before_purchase: float = _ball.speed
 	var min_before_purchase: float = _manager.get_stat(&"ball_speed_min")
 	_manager._progression.friendship_point_balance = 10000

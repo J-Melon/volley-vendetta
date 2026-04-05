@@ -120,6 +120,10 @@ func remove_level(item_key: String) -> void:
 
 	var current_level := get_level(item_key)
 	if current_level > 0:
+		var item := _get_item(item_key)
+		var refund := int(item.base_cost * pow(item.cost_scaling, current_level - 1))
+		_progression.friendship_point_balance += refund
+		friendship_point_balance_changed.emit(_progression.friendship_point_balance)
 		_set_level(item_key, current_level - 1)
 		SaveManager.save()
 

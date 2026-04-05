@@ -27,9 +27,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if linear_velocity == Vector2.ZERO:
 		return
-	if effect_processor != null:
-		effect_processor.process_frame(delta)
-		_emit_max_speed_if_changed()
+	effect_processor.process_frame(delta)
+	_emit_max_speed_if_changed()
 	linear_velocity = linear_velocity.normalized() * speed
 
 
@@ -38,8 +37,7 @@ func _on_body_entered(body: Node) -> void:
 		missed.emit()
 	elif body.has_method("on_ball_hit"):
 		body.on_ball_hit()
-		if effect_processor != null:
-			effect_processor.process_hit()
+		effect_processor.process_hit()
 
 
 func increase_speed() -> void:
@@ -55,6 +53,7 @@ func reset_speed() -> void:
 
 
 func _apply_speed() -> void:
+	effect_processor.sync_base_speed()
 	linear_velocity = linear_velocity.normalized() * speed
 	_emit_max_speed_if_changed()
 
@@ -76,6 +75,7 @@ func _setup_effect_processor() -> void:
 
 func _ball_setup() -> void:
 	speed = min_speed
+	effect_processor.sync_base_speed()
 	lock_rotation = true
 	linear_damp = 0.0
 	linear_velocity = Vector2(min_speed, min_speed * 0.5).normalized() * speed

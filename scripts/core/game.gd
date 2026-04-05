@@ -65,6 +65,9 @@ func _on_ball_at_max_speed_changed(is_at_max: bool) -> void:
 
 
 func _on_ball_missed() -> void:
+	# process_event before reset_speed: temporary modifiers clear first,
+	# then reset uses the post-clear min_speed. Reversing this order would
+	# reset to a stale min before modifiers are removed.
 	_item_manager.process_event(&"on_miss")
 	_volley_count = 0
 	_friendship_point_accumulator = 0.0
