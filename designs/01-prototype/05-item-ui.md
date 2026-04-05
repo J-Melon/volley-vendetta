@@ -19,10 +19,29 @@ Items are diegetic objects. They exist as physical cards or objects in the world
 
 ---
 
-## Open questions for spike
+## In-panel drag-and-drop
 
-- Control nodes (UI drag/drop) vs Node2D (world-space diegetic)?
-- How does the shop fit — are items dragged from a shop area into the kit?
+The clear-out, kit, and locker all use Control node drag-and-drop within a single UI panel. This is standard Godot UI: draggable Control nodes dropped onto slot targets. No spike needed.
+
+- Clear-out: drag items from the friend's things into the box to take them
+- Kit/locker: drag items between kit slots and locker slots to equip/unequip
+
+---
+
+## Desktop experience: cross-window drag-and-drop
+
+The game runs as multiple OS windows on desktop. The open question is how to drag items between separate windows (e.g. dragging an item from a locker window into a kit window).
+
+A fullscreen mode is also planned to support portable devices (e.g. Steam Deck), where multiple OS windows are not available. The cross-window drag solution must have a fullscreen equivalent.
+
+This is the scope of SH-51.
+
+---
+
+## Open questions
+
+- Cross-window drag: OS-level drag, shared viewport, or something else?
+- How does cross-window drag translate to fullscreen mode on portables?
 - What happens visually when a slot is full (swap vs reject)?
 - How does item level and degradation state show on the card?
 - Can items be dragged during a rally, or only between rounds?
