@@ -24,9 +24,11 @@ timeline
         : Menus & Settings
         : Milestones
         : Compendium
+        : Balance Pass
 
     Beta
         : Break Implementation
+        : Prestige Design
         : Prestige System
         : Phase System
         : Post-Break
@@ -36,6 +38,7 @@ timeline
         : Vending Machine
         : Visual Effects
         : UI Polish
+        : UX Design
 
     v1 Full Release
         : Platform Polish
@@ -82,9 +85,13 @@ timeline
 
 **Compendium** implements the reference screen for mastered items and partners.
 
+**Balance Pass** tunes item costs, the ball scaling curve, and time-to-milestones. Can only be done once the pre-break item set and partner roster are in.
+
 ## Beta
 
 **Break Implementation** wires the full break sequence together: the resistance mechanic, the cut to black, the fullscreen expansion, the reveal sequence, and the return to the game window.
+
+**Prestige Design** specifies the full prestige system: what resets, what carries over, and how prestige differs across phases.
 
 **Prestige System** implements the reset loop and post-prestige state. Prestige triggers at each phase transition and runs continuously in post-game.
 
@@ -101,6 +108,8 @@ timeline
 **Visual Effects** adds hit sparks, streak glow, and miss reactions.
 
 **UI Polish** adds HUD animations, streak indicators, and score transitions.
+
+**UX Design** defines how the player moves through the game: flows, navigation, idle transitions, and shop UX.
 
 ## v1 Full Release
 
