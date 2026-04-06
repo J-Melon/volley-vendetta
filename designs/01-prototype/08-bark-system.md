@@ -31,13 +31,19 @@ Bark data lives on the `Partner` resource as authored data, not in code. Each pa
 
 ```
 BarkPool:
-  trigger: StringName           # effect system trigger type or "on_timer" (fires periodically)
-  context: Dictionary           # optional conditions that narrow when this pool is active
-  lines: Array[String]          # the lines
-  chance: float                 # probability of firing when triggered (0.0 - 1.0)
-  cooldown: float               # minimum seconds between barks from this pool
-  priority: int                 # higher priority pools are checked first
+  trigger: StringName                          # effect system trigger type or "on_timer"
+  context: Dictionary                          # optional conditions that narrow when this pool is active
+  lines: Dictionary[StringName, Array[String]]  # phase key → lines (e.g. &"pre_break", &"post_break")
+  chance: float                                # probability of firing when triggered (0.0 - 1.0)
+  cooldown: float                              # minimum seconds between barks from this pool
+  priority: int                                # higher priority pools are checked first
 ```
+
+The bark system queries the current game phase from `ProgressionData.current_phase` and reads lines from the matching key. If a pool has no lines for the current phase, it falls back to the earliest defined phase. This means lines carry forward by default: a pool that only defines `&"pre_break"` lines uses those lines in all phases until overridden.
+
+The phase vocabulary is owned by the Progression Manager, which updates `current_phase` on phase transitions. For prototype, the phase is always `&"pre_break"`.
+
+Recency tracking resets on phase change.
 
 Multiple pools can share the same trigger with different contexts. The system checks pools in priority order (highest first) and fires the first one whose context matches and whose chance roll succeeds. Equal-priority pools are checked in insertion order (the order they are defined on the partner resource).
 
@@ -133,9 +139,11 @@ The bark system is data-driven. Adding a new partner's barks means authoring poo
 
 No per-partner code. No bark scripts. The system evaluates pools and selects lines. Partners differ in what they say, when they say it, and how often they speak. That is enough.
 
-### Post-break line swapping
+### Phase-based line sets
 
-Each pool can define two sets of lines: pre-break and post-break. The bark system checks whether the break has occurred and draws from the corresponding set. The pools, triggers, contexts, chances, and cooldowns stay the same. Only the lines change. This means personality is consistent across the break; the weight of what's said is what shifts.
+Each pool's `lines` dictionary is keyed by game phase. The bark system queries the current phase and draws from the matching set. Pools, triggers, contexts, chances, and cooldowns stay the same across phases. Only the lines change. This means personality is consistent; the weight of what's said is what shifts.
+
+If the game phase structure changes (e.g. adding intermediate phases), new keys are added to the dictionary. The bark system does not know or care what the phases are called or how many there are. It matches on the current phase string and falls back to the earliest defined key if no match is found.
 
 ---
 
@@ -150,5 +158,6 @@ Each pool can define two sets of lines: pre-break and post-break. The bark syste
 - Pool cooldown and global cooldown interact correctly: a bark blocked by global cooldown does not consume the pool's cooldown
 - A pool with unmet context conditions is skipped
 - Silence is the most common outcome for any given trigger
-- Post-break line sets are used after the break, pre-break sets before
-- Line set swap happens cleanly mid-session if the break occurs during play
+- Lines are drawn from the current game phase's set
+- Phase change mid-session resets recency tracking and switches to the new phase's lines
+- A pool with no lines for the current phase falls back to the earliest defined phase
