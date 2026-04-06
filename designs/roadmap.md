@@ -35,6 +35,7 @@ timeline
 
     Beta
         : The Break
+        : Badge Activation
         : Prestige System
         : Phase System
         : Post-Break

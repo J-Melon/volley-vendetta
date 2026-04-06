@@ -2,7 +2,7 @@
 
 ## Overview
 
-Total writing scope for all item and character content across the full game. Prototype authors Act 1 content only. All other acts are authored during their respective phases once The Event is decided.
+Total writing scope for item and character content across the full game. Prototype authors 8 pre-break items. The full pre-break set ships in Alpha. Post-break items ship in Beta.
 
 ---
 
@@ -11,8 +11,8 @@ Total writing scope for all item and character content across the full game. Pro
 **Per item (5 lines):**
 - Display name: 1 line
 - Description: 2 lines
-- Tinkerer upgrade dialogue (→ level 2): 1 line
-- Tinkerer upgrade dialogue (→ max): 1 line
+- Tinkerer upgrade dialogue (-> level 2): 1 line
+- Tinkerer upgrade dialogue (-> max): 1 line
 
 **Per synergy (4 lines):**
 - Name: 1 line
@@ -29,18 +29,22 @@ Total writing scope for all item and character content across the full game. Pro
 | Synergies | 25 | 4 | 100 |
 | Synergy failure dialogue (notable pairs) | ~490 | 1 | 490 |
 | Tinkerer entry dialogue (relationship beats) | ~10 | 2 | 20 |
-| Shopkeeper entry dialogue (Act 1 closing arc) | ~8 | 2 | 16 |
+| Shopkeeper entry dialogue (closing arc) | ~8 | 2 | 16 |
 | **Total** | | | **~876** |
 
 ---
 
-## Failure dialogue rate
+## Partner barks
 
-With ~490 failure lines covering ~490 of the 1,200 non-synergy pairs, the base discovery rate for custom failure dialogue is **40.8%** per attempt.
+Separate from item writing. Each partner has ~100 lines per phase across 5 pools. See `01-prototype/12-bark-system.md` for the system design and Martha's lines as a reference.
 
-In practice, with ~12 items owned at any time (C(12,2) = 66 accessible pairs), approximately 27 of those pairs carry custom failure text. Hit rate on accessible non-synergy attempts: **~43%**.
+| Content | Per partner | Total (estimated 5 pre-break + 3 post-break partners) |
+|---|---|---|
+| Pre-break barks | ~100 | ~800 |
+| Post-break barks | ~100 | ~800 |
+| Peace barks | ~100 | ~800 |
 
-Failure dialogue lines should be concentrated on the most narratively loaded pairs -- items that seem like they should go together, items whose relationship reveals something about the characters. Players who try thematic combinations will hit custom text more often than the aggregate rate suggests.
+Partner bark totals are rough estimates. The actual count depends on the final roster size.
 
 ---
 
@@ -48,15 +52,15 @@ Failure dialogue lines should be concentrated on the most narratively loaded pai
 
 | Phase | Content authored |
 |---|---|
-| Prototype | 24 Act 1 items (120 lines) + 10 synergies (40 lines) + Act 1 failure dialogue subset (~120 lines) = **~280 lines** |
-| Post-Break | Act 2, 3, and Peace items and synergies + remaining failure dialogue |
-| Content Updates | Any additional failure dialogue for new item pairs |
-| Post-v1 | New items and synergies from future updates |
+| Prototype | 8 pre-break items (40 lines) + Martha's barks (100 lines) = **~140 lines** |
+| Alpha | Remaining pre-break items + pre-break synergies + pre-break failure dialogue + pre-break partner barks + shopkeeper/tinkerer dialogue |
+| Beta | Post-break items and synergies + post-break partner barks + badge flavour text shifts |
+| Content Updates | Additional failure dialogue, copy pass |
 
 ---
 
 ## Notes
 
-- Failure dialogue is the primary narrative delivery mechanism for the Tinkerer outside of levelling. These lines should be written with the same signal-layer discipline as item descriptions: surface read plausible, deeper read available.
-- Tinkerer entry dialogue tracks relationship level and grows incrementally across visits. It is not tied to specific items or acts but to the cumulative history of visits.
-- Shopkeeper entry dialogue tracks the closing arc across Act 1 story beats. Eight beats is an estimate; the exact number follows from narrative design.
+- Failure dialogue is the primary narrative delivery mechanism for the Tinkerer outside of levelling. These lines should be carefully written: surface read plausible, deeper read available.
+- Tinkerer entry dialogue tracks relationship level and grows across visits. Not tied to specific items but to cumulative visit history.
+- Shopkeeper entry dialogue tracks the closing arc across pre-break progression beats.

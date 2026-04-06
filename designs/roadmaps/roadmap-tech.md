@@ -28,6 +28,7 @@ timeline
 
     Beta
         : Break Implementation
+        : Badge Activation
         : Prestige Design
         : Prestige System
         : Phase System
@@ -89,7 +90,7 @@ timeline
 
 ## Beta
 
-**Break Implementation** wires the full break sequence together: the resistance mechanic, the cut to black, the fullscreen expansion, the reveal sequence, and the return to the game window.
+**Break Implementation** wires the full break sequence: the resistance mechanic, the cut to black, the fullscreen expansion, the playable hometown scene (2D walk and interact), and the return to the game window.
 
 **Prestige Design** specifies the full prestige system: what resets, what carries over, and how prestige differs across phases.
 
@@ -97,7 +98,9 @@ timeline
 
 **Phase System** tracks which phase the player is in and routes the correct barks, art, and target number accordingly.
 
-**Post-Break** implements the post-break state: shifted bark line sets, visual changes, post-break items and partners, the game continuing with the player knowing the truth.
+**Badge Activation** implements the post-break milestone system: narrative items slot into pre-break badges, activating challenges that gate post-break progression.
+
+**Post-Break** implements the post-break state: shifted bark line sets, visual changes, post-break items via rummaging, new partners, and the rival's return as final partner.
 
 **Peace** implements the post-game state: free play, palette change, music shift, continuous prestige. The story is over and the game is yours.
 
