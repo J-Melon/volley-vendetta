@@ -26,6 +26,7 @@ timeline
         : Arena Design
         : Pre-Break Item Set
         : Pre-Break Partner Roster
+        : The Rival
         : Audio & Music
         : Menus & Settings
         : Milestones
@@ -94,7 +95,7 @@ Done when you'd give it to someone who's never heard of the game and they'd play
 
 ## Alpha
 
-Pre-break up and running. Writing locks the narrative and characters. Art direction sets the visual rules, then real art replaces first-pass assets as each piece of content ships. Arena design works out all arenas. The pre-break item set and partner roster ship here, each partner bringing their own art, animation, and barks. Audio and music fill out the world. Milestones land. World and Narrative includes the high-level break design so Beta can implement without waiting. Balance pass tunes it all. Writing lands alongside the content it supports rather than as separate deliverables.
+Pre-break up and running. Writing locks the narrative and characters. Art direction sets the visual rules, then real art replaces first-pass assets as each piece of content ships. Arena design works out all arenas. The pre-break item set and partner roster ship here, each partner bringing their own art, animation, and barks. The rival appears mid pre-break as a milestone gate, introducing battle mode. Audio and music fill out the world. Milestones land. World and Narrative includes the high-level break design so Beta can implement without waiting. Balance pass tunes it all. Writing lands alongside the content it supports rather than as separate deliverables.
 
 Done when the pre-break game is finished: real art, real sound, pre-break roster, pre-break item set, milestones, the clue ladder in place, and the break designed.
 
