@@ -4,110 +4,119 @@
 timeline
     title Tech Roadmap
 
-    Prototype ~ 3.1 months (31pts)
+    Prototype
         : HUD Pass
         : Ball Scaling
         : Progression System
-        : Upgrade Mechanics
+        : Upgrade Shop
+        : The Tinkerer
+        : Locker and Kit
         : Idle Play
         : First Partner Unlock
         : Desktop Experience
-
-    v0.2-0.3 Alpha ~ 0.5 months (5pts)
-        : Asset Integration
-
-    v0.4-0.5 Beta ~ 1.1 months (11pts)
-        : Character Systems
         : Onboarding
-        : Audio Integration
+        : Make Fun Pass
+        : Open Source Release
 
-    Content Updates ~ 4.0 months (40pts)
-        : Upgrades
-        : World Record
-        : Visual Effects
-        : Reaction Portrait Panel
-        : Background & Foreground
-        : Milestones
+    Alpha
+        : Pre-Break Item Set
+        : Pre-Break Partner Roster
         : Menus & Settings
-        : UI Polish
+        : Milestones
+        : Compendium
+        : Balance Pass
 
-    Post-Break ~ 3.0 months (30pts)
+    Beta
         : Break Implementation
+        : Prestige Design
         : Prestige System
-        : Act System
-        : Act 3 Mechanics
-        : Peace Transition
-        : Milestone Badge Variants
+        : Phase System
+        : Post-Break
+        : Peace
 
-    v1 Full Release ~ 0.8 months (8pts)
+    Content Updates
+        : Vending Machine
+        : Visual Effects
+        : UI Polish
+        : UX Design
+
+    v1 Full Release
         : Platform Polish
         : QA & Stability
+        : Steam Achievements
+        : Cloud Saves
 ```
-
-**Total: ~12.5 months (125pts)**
 
 ## Prototype
 
-**HUD Pass** refactors the VolleyTracker and wires up the volley counter with a reset on miss and a high score display. The numbers the player watches should always feel responsive and accurate.
+**HUD Pass** refactors the VolleyTracker and wires up the volley counter with a reset on miss and a high score display.
 
-**Ball Scaling** makes the ball speed up as a streak grows, creating a natural difficulty curve. Includes the paddle hit sound, the first piece of audio feedback in the game.
+**Ball Scaling** makes the ball speed up as a streak grows, creating a natural difficulty curve. Includes the paddle hit sound.
 
-**Progression System** is the core economy: earning FP from volleys, three upgrades (paddle speed, paddle size, ball start speed), and save/load persistence. This is the largest prototype task and gates everything that follows. Done when upgrades survive a session close and reopen.
+**Progression System** is the core economy: earning FP from volleys, items that make the paddle better, and save/load persistence.
 
-**Upgrade Mechanics** implements the mechanical effects of all upgrades per the design spec. Each tier must produce a change the player can feel. Tuned until the progression loop is satisfying before moving on; this is not just wiring, it is feel work.
+**Upgrade Shop** implements the player-facing shop: a rotating selection of items the player can browse and purchase with FP.
 
-**Idle Play** makes the paddles play on their own when the player isn't touching the controls. The game needs to be worth watching, not just worth playing.
+**The Tinkerer** implements item levelling and item destruction.
 
-**First Partner Unlock** lets the player spend FP to recruit their first partner, replacing the wall as the thing on the other side of the net. This is the first moment the game's cast exists in the world.
+**Locker and Kit** implements the item inventory system: equip items to active kit slots, passive FP from the locker.
 
-**Desktop Experience** ships a borderless small window that sits always-on-top with minimal UI. Linux is the primary target; Windows should be working too. Done when you can leave it on your desktop during a working session without it being intrusive.
+**Idle Play** makes the paddles play on their own when the player isn't touching the controls.
 
-## v0.2-0.3 Alpha
+**First Partner Unlock** lets the player spend FP to recruit Martha, adding a second paddle and the bark system.
 
-**Asset Integration** replaces all placeholder art with the assets delivered by Art: character sprites and expressions, idle/hit/miss animations, arena, and ball. Depends on Character Art and Character Animation being delivered first. Done when no placeholder assets remain in the running game.
+**Desktop Experience** ships a borderless small window that sits always-on-top with minimal UI. Includes the scene layout: game as primary scene, panels (shop, kit, compendium) as secondary scenes that compress the game viewport.
 
-## v0.4-0.5 Beta
+**Onboarding** implements the first-run experience: gets the player into their first volley without a tutorial.
 
-**Character Systems** implements the paddle's personality layer: reactions, expressions, and a state machine that drives character behaviour in response to streaks, misses, and milestones. The paddle needs to feel like it has opinions.
+**Make Fun Pass** is a structured playtest and tuning pass. No new features; find what feels bad, fix it.
 
-**Onboarding** implements the first-run experience designed by Onboarding Design: how the game introduces itself, surfaces the dream, and gets the player into their first volley without a tutorial.
+**Open Source Release** moves the project off personal accounts. Repo and itch.io transfer to the Shuck Games org, history scrubbed, preview builds working.
 
-**Audio Integration** wires up the audio and music assets delivered by Sound: hit sounds, miss sounds, streak milestone cue, menu theme, and gameplay loop. Depends on Audio Basic and Music Basic being delivered first.
+## Alpha
+
+**Pre-Break Item Set** implements all pre-break pool items beyond the prototype set. Post-break items ship as part of the Post-Break Phase in Beta.
+
+**Pre-Break Partner Roster** wires up partner effects, barks, and art for all pre-break partners. Each partner ships as a complete package. Post-break partners ship as part of the Post-Break Phase in Beta.
+
+**Menus & Settings** covers the pause menu, settings screen, volume controls, and controls rebinding.
+
+**Milestones** implements streak and record milestones, badges, the collection UI, and rewards.
+
+**Compendium** implements the reference screen for mastered items and partners.
+
+**Balance Pass** tunes item costs, the ball scaling curve, and time-to-milestones. Can only be done once the pre-break item set and partner roster are in.
+
+## Beta
+
+**Break Implementation** wires the full break sequence together: the resistance mechanic, the cut to black, the fullscreen expansion, the reveal sequence, and the return to the game window.
+
+**Prestige Design** specifies the full prestige system: what resets, what carries over, and how prestige differs across phases.
+
+**Prestige System** implements the reset loop and post-prestige state. Prestige triggers at each phase transition and runs continuously in post-game.
+
+**Phase System** tracks which phase the player is in and routes the correct barks, art, and target number accordingly.
+
+**Post-Break** implements the post-break state: shifted bark line sets, visual changes, post-break items and partners, the game continuing with the player knowing the truth.
+
+**Peace** implements the post-game state: free play, palette change, music shift, continuous prestige. The story is over and the game is yours.
 
 ## Content Updates
 
-**Upgrades** implements the full upgrade tree beyond the prototype's three: all tiers, all effects, wired to the economy.
+**Vending Machine** implements consumable item purchases.
 
-**World Record** wires up partner abilities and dialogue and implements the partner unlock flow for the full roster. By the end of this task the game should have all partners recruitable and reactive.
+**Visual Effects** adds hit sparks, streak glow, and miss reactions.
 
-**Visual Effects** adds hit sparks, streak glow, and miss reactions. These are the moment-to-moment feedback layer that makes the volley feel alive.
+**UI Polish** adds HUD animations, streak indicators, and score transitions.
 
-**Reaction Portrait Panel** implements the panel system that slides in when a partner reacts: triggers from character state, pulls the correct portrait crop, handles transitions. Depends on Reaction Portrait Panel art assets.
-
-**Background & Foreground** implements the parallax layer system for the atmospheric depth art delivers. Handles scroll rates, layering, and performance.
-
-**Milestones** implements streak milestones and record milestones, the collection UI, and the FP or narrative rewards that trigger on each one. Milestone numbers must match the values defined by writing; they encode The Event.
-
-**Menus & Settings** covers the pause menu, settings screen, volume controls, and controls rebinding. The game should be controllable by someone who has never played it before.
-
-**UI Polish** adds HUD animations, streak indicators, and score transitions. The difference between a game that feels finished and one that doesn't is usually here.
-
-## Post-Break
-
-**Break Implementation** wires the full Break sequence together: the resistance mechanic as the count approaches record-1, the cut to black, the fullscreen expansion, the reveal sequence, and the return to the game window. This task depends on all other Break disciplines being complete before it begins.
-
-**Prestige System** implements the reset loop, multipliers, and post-prestige state for all three acts. The mechanical reset must produce different narrative states depending on which prestige the player is on: Act 1, 2, and 3 should feel distinct even if the loop is the same.
-
-**Act System** tracks which act the player is in and routes the correct dialogue, art, and target number accordingly. Acts 1, 2, and 3 each have a different record target (record-1, record, past the record) and different narrative state. This system is what makes the prestige loop feel distinct across acts rather than just mechanical.
-
-**Act 3 Mechanics** implements whatever Act 3 Mechanics Design specifies. Scope is undefined until that design is complete; this ticket is a placeholder that will be broken down once the design lands.
-
-**Peace Transition** implements the shift to the Peace post-game state: applies the visual palette change, swaps to the Peace music track, and routes partner dialogue to the Peace writing pass. Depends on Peace Art, Peace Audio, and Peace Writing all being delivered.
-
-**Milestone Badge Variants** wires up the art and text swapping for badges across acts. In Act 1 badges read as sports achievements. Post-Break they carry a second meaning. The system needs to serve both readings from the same badge collection.
+**UX Design** defines how the player moves through the game: flows, navigation, idle transitions, and shop UX.
 
 ## v1 Full Release
 
-**Platform Polish** handles window management edge cases on Linux and Windows before launch. Mac is not in scope for v1.
+**Platform Polish** handles window management edge cases on Linux and Windows.
 
-**QA & Stability** is a dedicated bug fixing, optimisation, and error handling pass before launch. Not a phase for new features.
+**QA & Stability** is a dedicated bug fixing, optimisation, and error handling pass.
+
+**Steam Achievements** wires up the Steam achievement system.
+
+**Cloud Saves** implements Steam cloud save sync.
