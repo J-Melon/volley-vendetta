@@ -59,7 +59,7 @@ A partner is a named character who plays on the right side of the net. For proto
 Partner state tracked in `ProgressionData`:
 - `unlocked_partners: Array[String]`: list of partner keys the player has recruited. Empty at start.
 - `active_partner: String`: the currently active partner key. Empty string means no partner (wall mode).
-- `partner_volley_totals: Dictionary[String, int]`: cumulative volleys played while each partner is active. Used for compendium mastery (see `07-item-compendium.md`). The compendium entry for a partner unlocks when their volley count reaches a threshold. Same threshold for all partners, tuning target for Make Fun pass.
+- `partner_volley_totals: Dictionary[String, int]`: cumulative volleys played while each partner is active. Used for compendium mastery (see `07-item-compendium.md`). The compendium entry for a partner unlocks when their volley total reaches a threshold. Same threshold for all partners; starting point is 500 volleys, tuning target for Make Fun pass.
 
 The `Partner` resource (as defined in the effect system design) provides `effects: Effect[]`. The partner is registered as an effect source with `EffectManager` when active, exactly like items are. This means partner effects flow through the same stat resolution, trigger evaluation, and outcome routing as item effects. Partners do not have a relationship level; progression moments are driven by story beats.
 
@@ -111,7 +111,7 @@ Effect 1
 
 **Effect 2: Half streak (on miss)**
 
-When the player misses, the streak drops to half (rounded down) instead of resetting to zero. Ball speed also halves proportionally instead of fully resetting. Martha doesn't prevent the miss. She makes it so you don't lose everything.
+When either side misses, the streak drops to half (rounded down) instead of resetting to zero. Ball speed also halves proportionally instead of fully resetting. Martha doesn't prevent the miss. She makes it so you don't lose everything. This applies to both player misses and Martha misses: she softens the blow regardless of whose fault it was.
 
 No item touches streak continuity. This is unique to Martha and changes how the game feels fundamentally. Before Martha, every miss is a full reset. After Martha, misses are setbacks, not catastrophes. The better you're doing, the more Martha matters: half of 10 is 5, half of 100 is 50.
 
@@ -225,7 +225,7 @@ Pool 4: Return after idle
     - "Been keeping your spot warm"
     - "Thought you'd gone for good"
     - "Welcome back"
-    - "There she is"
+    - "There you are again"
     - "Usual, is it?"
     - "Right on time"
     - "I saved you the good one"
@@ -273,7 +273,7 @@ Pool 5: Idle chatter
     - "I wonder what's on telly tonight"
 ```
 
-100 lines across 5 pools (15 + 15 + 20 + 20 + 30). Player miss and Martha miss are separate. Idle chatter is the largest pool: Martha filling comfortable silences with small talk about nothing, the way she would at the newsagent.
+100 lines across 5 pools (15 + 15 + 20 + 20 + 30). Player miss and Martha miss are separate. Idle chatter is the largest pool: Martha filling comfortable silences with small talk about nothing, the way she would at the newsagent. The system-wide global cooldown (15-20s starting point, see `08-bark-system.md`) applies across all pools, preventing barks from different triggers firing in rapid succession.
 
 #### Post-break barks
 

@@ -39,7 +39,7 @@ BarkPool:
   priority: int                 # higher priority pools are checked first
 ```
 
-Multiple pools can share the same trigger with different contexts. The system checks pools in priority order and fires the first one whose context matches and whose chance roll succeeds.
+Multiple pools can share the same trigger with different contexts. The system checks pools in priority order (highest first) and fires the first one whose context matches and whose chance roll succeeds. Equal-priority pools are checked in insertion order (the order they are defined on the partner resource).
 
 ### Context conditions
 
@@ -143,7 +143,12 @@ Each pool can define two sets of lines: pre-break and post-break. The bark syste
 
 - A bark fires only when the trigger matches, context passes, cooldown has elapsed, and chance roll succeeds
 - No line repeats within a session until all lines in the pool have been used
+- When all lines in a pool have been used, the pool's history resets and lines become eligible again
 - Higher priority pools are checked before lower priority ones
+- Equal-priority pools with the same trigger are checked in insertion order
 - Global cooldown prevents barks from different pools firing in rapid succession
+- Pool cooldown and global cooldown interact correctly: a bark blocked by global cooldown does not consume the pool's cooldown
 - A pool with unmet context conditions is skipped
 - Silence is the most common outcome for any given trigger
+- Post-break line sets are used after the break, pre-break sets before
+- Line set swap happens cleanly mid-session if the break occurs during play
