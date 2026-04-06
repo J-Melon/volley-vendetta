@@ -17,5 +17,5 @@ Discipline-specific breakdowns of the main roadmap. See [roadmaps/INDEX.md](road
 |---|---|---|
 | Prototype | [01-prototype/](01-prototype/INDEX.md) | Public demo on itch.io |
 | Alpha | [02-alpha/](02-alpha/INDEX.md) | Pre-break content-complete |
-| Beta | (no docs yet) | Full game structure, all phases playable |
+| Beta | [03-beta/](03-beta/INDEX.md) | Full game structure, all phases playable |
 | Content Updates | [04-content/](04-content/INDEX.md) | Supplementary content |

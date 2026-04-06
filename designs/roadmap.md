@@ -35,6 +35,7 @@ timeline
 
     Beta
         : The Break
+        : Badge Activation
         : Prestige System
         : Phase System
         : Post-Break
@@ -60,6 +61,7 @@ timeline
     Future Updates
         : Additional Partners
         : Additional Items
+        : Regret
         : Cosmetics
         : Tray Support
         : Mac Support
@@ -123,4 +125,4 @@ Done when you'd be happy putting it on Steam and telling people to play it.
 
 ## Future Updates
 
-Post-launch content: additional partners, additional items, achievements, cosmetics, tray support, Mac support, voice acting, multiplayer.
+Post-launch content: additional partners and items for the main game, Regret (an alternate post-game with its own partners, items, effects, and tone; the player chooses to enter the game from the perspective of someone who didn't move on), achievements, cosmetics, tray support, Mac support, voice acting, multiplayer.
