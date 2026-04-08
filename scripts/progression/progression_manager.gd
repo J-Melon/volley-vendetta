@@ -29,7 +29,7 @@ func _on_friendship_point_balance_changed(_balance: int) -> void:
 func _check_shop_unlock() -> void:
 	if _progression.shop_unlocked:
 		return
-	if _progression.friendship_point_balance >= SHOP_UNLOCK_THRESHOLD:
+	if _progression.total_friendship_points_earned >= SHOP_UNLOCK_THRESHOLD:
 		_progression.shop_unlocked = true
 		SaveManager.save()
 		shop_unlocked_changed.emit(true)

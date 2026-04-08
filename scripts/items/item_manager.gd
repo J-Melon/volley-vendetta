@@ -115,6 +115,7 @@ func get_friendship_point_balance() -> int:
 ## Adds friendship points and emits balance changed signal
 func add_friendship_points(points: int) -> void:
 	_progression.friendship_point_balance += points
+	_progression.total_friendship_points_earned += points
 	friendship_point_balance_changed.emit(_progression.friendship_point_balance)
 
 

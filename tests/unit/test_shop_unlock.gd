@@ -42,6 +42,22 @@ class TestShopUnlock:
 		_item_manager.add_friendship_points(10)
 		assert_signal_not_emitted(_progression_manager, "shop_unlocked_changed")
 
+	func test_shop_unlocks_when_total_earned_reaches_threshold_even_after_spending() -> void:
+		var threshold: int = _progression_manager.SHOP_UNLOCK_THRESHOLD
+		_item_manager.add_friendship_points(threshold - 10)
+		_item_manager.subtract_friendship_points(threshold - 20)
+		assert_false(_progression_manager.is_shop_unlocked(), "not yet at threshold total")
+		_item_manager.add_friendship_points(15)
+		assert_true(
+			_progression_manager.is_shop_unlocked(),
+			"cumulative earnings crossed threshold after spending"
+		)
+
+	func test_spending_does_not_reduce_total_earned() -> void:
+		_item_manager.add_friendship_points(100)
+		_item_manager.subtract_friendship_points(100)
+		assert_eq(_item_manager._progression.total_friendship_points_earned, 100)
+
 
 class TestShopPersistence:
 	extends GutTest
