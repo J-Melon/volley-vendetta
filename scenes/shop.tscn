@@ -49,9 +49,6 @@ layout_mode = 2
 text = "Friendship: 0"
 horizontal_alignment = 1
 
-[node name="@Camera2D@22912" type="Camera2D" parent="." unique_id=2026972221]
-anchor_mode = 0
-
 [node name="Table" type="Node2D" parent="." unique_id=585037634]
 
 [node name="TableFront" type="ColorRect" parent="Table" unique_id=1949802055]

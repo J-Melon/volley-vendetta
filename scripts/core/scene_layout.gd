@@ -40,14 +40,14 @@ func open_secondary(scene: PackedScene) -> void:
 	secondary_container.custom_minimum_size.x = panel_width
 	secondary_container.visible = true
 
-	## Set viewport size explicitly using the known window height.
-	## stretch=true will sync to the correct size once layout settles.
+	# Set viewport size explicitly using the known window height.
+	# stretch=true will sync to the correct size once layout settles.
 	var window_height: int = int(get_viewport().get_visible_rect().size.y)
 	viewport.size = Vector2i(panel_width, window_height)
 
 	viewport.add_child(_secondary_scene)
 
-	## Enable stretch after layout settles so the SVC forwards input correctly.
+	# Enable stretch after layout settles so the SVC forwards input correctly.
 	await get_tree().process_frame
 	_secondary_viewport_container.stretch = true
 

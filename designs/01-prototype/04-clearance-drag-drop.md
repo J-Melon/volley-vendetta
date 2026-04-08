@@ -5,7 +5,9 @@ Implementation design for the Act 1 clearance interaction: a Control-based drag 
 
 **Dependencies:** Upgrade Shop (04-upgrade-shop), Item UI (05-item-ui), Scene Layout (08-scene-layout)
 
-**Unlocks:** SH-32 acceptance criteria 6, 7, 8 (drag-and-drop, drag gating, purchase on drop)
+**Unlocks:** SH-32 acceptance criteria 6, 7, 8 (drag-and-drop, drag gating, purchase on drop). Tracked in SH-66.
+
+**Status:** This document describes the **target** state. The shop as shipped in SH-32 is still Node2D-rooted with a Parallax2D background and a Camera2D. The Control restructure, the `ClearanceBox`, the drag-and-drop wiring, the `take_to_locker` method, the display case overlay, and the friend's pick slot styling are all the responsibility of SH-66. Nothing described below has been built yet.
 
 ---
 

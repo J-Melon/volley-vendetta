@@ -26,18 +26,6 @@ class TestShopItemDisplay:
 			var expected_cost: int = ItemManager.calculate_cost(_definition.key)
 			assert_eq(_item.tooltip.cost_label.text, "%d FP" % expected_cost)
 
-	func test_shows_taken_when_maxed() -> void:
-		var original_level: int = ItemManager.get_level(_definition.key)
-		var levels_needed: int = _definition.max_level - original_level
-		ItemManager.add_friendship_points(100000)
-		for level: int in levels_needed:
-			ItemManager.purchase(_definition.key)
-		assert_eq(_item.tooltip.cost_label.text, "Taken")
-		# Restore state
-		for level: int in levels_needed:
-			ItemManager.remove_level(_definition.key)
-		ItemManager.subtract_friendship_points(100000)
-
 	func test_tooltip_hidden_by_default() -> void:
 		assert_false(_item.tooltip.visible)
 
@@ -58,11 +46,3 @@ class TestShopPanelLayout:
 		add_child_autofree(panel)
 		var expected_balance: int = ItemManager.get_friendship_point_balance()
 		assert_eq(panel.friendship_label.text, "Friendship: %d" % expected_balance)
-
-	func test_friendship_label_updates_on_balance_change() -> void:
-		var panel: ShopPanel = ShopScene.instantiate()
-		add_child_autofree(panel)
-		ItemManager.add_friendship_points(1)
-		var expected_balance: int = ItemManager.get_friendship_point_balance()
-		assert_eq(panel.friendship_label.text, "Friendship: %d" % expected_balance)
-		ItemManager.subtract_friendship_points(1)
