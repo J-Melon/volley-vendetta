@@ -1,13 +1,17 @@
 class_name ShopPanel
 extends Node2D
 
-const SLOTS: int = 5
+const DEFAULT_CONFIG: ShopConfig = preload("res://resources/shop_config.tres")
+const ShopItemScene: PackedScene = preload("res://scenes/shop_item.tscn")
 const COUNTERTOP_Y: float = 290.0
 const ITEM_MARGIN: float = 50.0
-const ShopItemScene: PackedScene = preload("res://scenes/shop_item.tscn")
 
-@export var preferred_width: int = 500
+@export var config: ShopConfig = DEFAULT_CONFIG
 @export var friendship_label: Label
+
+var preferred_width: int:
+	get:
+		return config.preferred_width if config != null else DEFAULT_CONFIG.preferred_width
 
 var _item_container: Node2D
 
@@ -29,7 +33,7 @@ func _spawn_items() -> void:
 	if visible_items.is_empty():
 		return
 
-	var available_width: float = preferred_width - ITEM_MARGIN * 2.0
+	var available_width: float = config.preferred_width - ITEM_MARGIN * 2.0
 	var spacing: float = available_width / maxf(visible_items.size() - 1, 1)
 
 	for index: int in visible_items.size():
@@ -47,7 +51,7 @@ func _get_visible_items() -> Array[ItemDefinition]:
 	for definition: ItemDefinition in ItemManager.items:
 		if ItemManager.get_level(definition.key) < definition.max_level:
 			available.append(definition)
-		if available.size() >= SLOTS:
+		if available.size() >= config.display_slots:
 			break
 	return available
 

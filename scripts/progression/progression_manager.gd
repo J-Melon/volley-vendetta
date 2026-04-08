@@ -2,14 +2,17 @@ extends Node
 
 signal shop_unlocked_changed(is_unlocked: bool)
 
-const SHOP_UNLOCK_THRESHOLD: int = 50
+const DEFAULT_CONFIG: ProgressionConfig = preload("res://resources/progression_config.tres")
 
 var _progression: ProgressionData
+var _config: ProgressionConfig
 
 
 func _ready() -> void:
 	if _progression == null:
 		_progression = SaveManager.get_progression_data()
+	if _config == null:
+		_config = DEFAULT_CONFIG
 
 	ItemManager.friendship_point_balance_changed.connect(_on_friendship_point_balance_changed)
 
@@ -29,7 +32,7 @@ func _on_friendship_point_balance_changed(_balance: int) -> void:
 func _check_shop_unlock() -> void:
 	if _progression.shop_unlocked:
 		return
-	if _progression.total_friendship_points_earned >= SHOP_UNLOCK_THRESHOLD:
+	if _progression.total_friendship_points_earned >= _config.shop_unlock_threshold:
 		_progression.shop_unlocked = true
 		SaveManager.save()
 		shop_unlocked_changed.emit(true)

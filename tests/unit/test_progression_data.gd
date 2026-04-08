@@ -95,11 +95,6 @@ func test_total_friendship_points_earned_round_trips() -> void:
 	assert_eq(restored.total_friendship_points_earned, 1234)
 
 
-func test_from_dict_falls_back_to_balance_for_legacy_saves() -> void:
-	var restored := ProgressionData.from_dict({"friendship_point_balance": 75})
-	assert_eq(restored.total_friendship_points_earned, 75)
-
-
 func test_clear_resets_total_friendship_points_earned() -> void:
 	_data.total_friendship_points_earned = 500
 	_data.clear()

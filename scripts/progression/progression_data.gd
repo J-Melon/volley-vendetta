@@ -61,12 +61,10 @@ func to_dict() -> Dictionary:
 static func from_dict(data: Dictionary) -> ProgressionData:
 	var progression := ProgressionData.new()
 	progression.friendship_point_balance = data.get("friendship_point_balance", 0)
-	progression.total_friendship_points_earned = data.get(
-		"total_friendship_points_earned", data.get("friendship_point_balance", 0)
-	)
+	progression.total_friendship_points_earned = data.get("total_friendship_points_earned", 0)
 	progression.item_levels = _to_typed_dict(data.get("item_levels", {}))
 	progression.personal_volley_best = data.get("personal_volley_best", 0)
-	progression.shop_unlocked = data.get("shop_unlocked", data.get("clearance_unlocked", false))
+	progression.shop_unlocked = data.get("shop_unlocked", false)
 
 	return progression
 
