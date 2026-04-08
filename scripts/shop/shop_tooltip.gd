@@ -3,11 +3,14 @@ extends Node2D
 
 @export var name_label: Label
 @export var cost_label: Label
+@export var flavor_label: Label
 
 
-func show_item(display_name: String, cost_text: String) -> void:
+func show_item(display_name: String, cost_text: String, flavor_text: String) -> void:
 	name_label.text = display_name
 	cost_label.text = cost_text
+	flavor_label.text = flavor_text
+	flavor_label.visible = not flavor_text.is_empty()
 	visible = true
 
 

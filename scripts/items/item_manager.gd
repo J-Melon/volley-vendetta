@@ -36,6 +36,17 @@ func _register_existing_items() -> void:
 			_effect_manager.register_source(item, level)
 
 
+## Resyncs effect registrations and emits signals after progression data has been
+## reset externally (e.g. dev clear-save).
+func reload_from_progression() -> void:
+	for item in items:
+		_effect_manager.unregister_source(item)
+	_register_existing_items()
+	friendship_point_balance_changed.emit(_progression.friendship_point_balance)
+	for item in items:
+		item_level_changed.emit(item.key)
+
+
 ## Dispatches a game event to the effect system for causality processing
 func process_event(event_type: StringName) -> void:
 	_effect_manager.process_event(event_type)

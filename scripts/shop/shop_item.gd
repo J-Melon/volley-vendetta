@@ -1,7 +1,7 @@
 class_name ShopItem
 extends Node2D
 
-@export var icon_sprite: Sprite2D
+@export var art: Node2D
 @export var hit_area: Area2D
 @export var tooltip: ShopTooltip
 
@@ -29,10 +29,10 @@ func _process(_delta: float) -> void:
 func _build_visuals() -> void:
 	if item_definition == null:
 		return
-	if item_definition.icon != null:
-		icon_sprite.texture = item_definition.icon
-		icon_sprite.modulate = Color.from_hsv(randf(), 0.6, 1.0)
-	tooltip.show_item(item_definition.display_name, _get_cost_text())
+	if item_definition.art != null:
+		var art_instance: Node = item_definition.art.instantiate()
+		art.add_child(art_instance)
+	tooltip.show_item(item_definition.display_name, _get_cost_text(), _get_flavor_text())
 	tooltip.hide_tooltip()
 
 
@@ -52,6 +52,14 @@ func _get_cost_text() -> String:
 	if current_level >= item_definition.max_level:
 		return "Taken"
 	return "%d FP" % ItemManager.calculate_cost(item_definition.key)
+
+
+func _get_flavor_text() -> String:
+	if item_definition.descriptions.is_empty():
+		return ""
+	var current_level: int = ItemManager.get_level(item_definition.key)
+	var index: int = clamp(current_level, 0, item_definition.descriptions.size() - 1)
+	return item_definition.descriptions[index]
 
 
 func _update_cost() -> void:

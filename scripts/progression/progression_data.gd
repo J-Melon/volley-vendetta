@@ -9,6 +9,14 @@ var shop_unlocked := false
 var _storage: SaveStorage
 
 
+## Resets all progression fields to their defaults.
+func clear() -> void:
+	friendship_point_balance = 0
+	item_levels = {}
+	personal_volley_best = 0
+	shop_unlocked = false
+
+
 ## Saves game data to storeage (disk)
 func save_to_disk() -> bool:
 	return _storage.write(JSON.stringify(to_dict()))

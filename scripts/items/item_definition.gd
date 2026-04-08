@@ -4,8 +4,7 @@ extends Resource
 @export var key: String
 @export var type: StringName = &""
 @export var display_name: String
-## Placeholder 1-bit icons (CC0, nikoichu.itch.io/pixel-icons)
-@export var icon: Texture2D
+@export var art: PackedScene
 @export var descriptions: Array[String]
 @export var base_cost: int
 @export var cost_scaling := 1.6
