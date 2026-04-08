@@ -39,7 +39,7 @@ func _build_visuals() -> void:
 	tooltip.hide_tooltip()
 
 
-## Replace with friend reaction on art pass
+# todo: SH-66 replace with friend reaction animation on art pass
 func _on_hover_enter() -> void:
 	_hovered = true
 	tooltip.visible = true

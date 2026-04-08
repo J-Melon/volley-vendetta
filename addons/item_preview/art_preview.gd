@@ -74,11 +74,8 @@ func _apply_size(size_pixels: Vector2i) -> void:
 	size = Vector2(size_pixels)
 
 
-## Walks the instantiated item scene and computes an axis-aligned bounding box
-## covering its rendered content. Currently handles Sprite2D, AnimatedSprite2D,
-## Polygon2D, and Line2D. Anything else (MeshInstance2D, TileMap, nested custom
-## visuals) is ignored and falls through to the default zoom. Extend _get_node_rect
-## if an item shows up that needs to frame correctly.
+## Bounding box of rendered content. Handles Sprite2D, AnimatedSprite2D,
+## Polygon2D, Line2D; extend `_get_node_rect` for anything else that needs framing.
 func _compute_content_bounds(root: Node) -> Rect2:
 	var bounds := Rect2()
 	var has_any := false

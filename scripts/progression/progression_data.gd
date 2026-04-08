@@ -10,7 +10,8 @@ var shop_unlocked := false
 var _storage: SaveStorage
 
 
-## Resets all progression fields to their defaults.
+## Resets progression fields to defaults. Deliberately leaves `_storage` alone:
+## this is a data reset, not a storage disconnect; the caller decides whether to save.
 func clear() -> void:
 	friendship_point_balance = 0
 	total_friendship_points_earned = 0

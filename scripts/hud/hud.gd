@@ -17,7 +17,7 @@ func _ready() -> void:
 
 	ProgressionManager.shop_unlocked_changed.connect(_on_shop_unlocked_changed)
 	shop_button.visible = ProgressionManager.is_shop_unlocked()
-	shop_button.pressed.connect(func() -> void: shop_button_pressed.emit())
+	shop_button.pressed.connect(shop_button_pressed.emit)
 
 
 func update_volley_count(count: int) -> void:

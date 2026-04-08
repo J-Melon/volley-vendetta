@@ -3,13 +3,12 @@ extends Control
 
 const ShopScene: PackedScene = preload("res://scenes/shop.tscn")
 
-## Fallback width for secondary scenes that do not expose a `preferred_width`
-## property. Individual scenes override by declaring `@export var preferred_width: int`
-## on their root script.
+## Fallback width for secondary scenes that do not expose a `preferred_width`.
+## Individual scenes override by declaring `@export var preferred_width: int`.
 const DEFAULT_SECONDARY_WIDTH: int = 400
 
 @export var game_viewport: SubViewport
-@export var hud: CanvasLayer
+@export var game_root: Node
 @export var secondary_container: Control
 
 var _secondary_viewport_container: SubViewportContainer
@@ -19,8 +18,8 @@ var _secondary_scene: Node
 func _ready() -> void:
 	if game_viewport != null:
 		game_viewport.transparent_bg = false
-	if hud != null:
-		hud.shop_button_pressed.connect(_on_shop_button_pressed)
+	if game_root != null and game_root.has_signal("shop_button_pressed"):
+		game_root.shop_button_pressed.connect(_on_shop_button_pressed)
 	secondary_container.visible = false
 
 

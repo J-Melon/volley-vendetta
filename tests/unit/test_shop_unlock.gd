@@ -59,6 +59,17 @@ class TestShopUnlock:
 		_item_manager.subtract_friendship_points(100)
 		assert_eq(_item_manager._progression.total_friendship_points_earned, 100)
 
+	func test_refund_does_not_count_as_earning() -> void:
+		_item_manager.add_friendship_points(200)
+		var total_before: int = _item_manager._progression.total_friendship_points_earned
+		_item_manager._refund_friendship_points(50)
+		assert_eq(
+			_item_manager._progression.total_friendship_points_earned,
+			total_before,
+			"refunds must not inflate the cumulative earned counter"
+		)
+		assert_eq(_item_manager._progression.friendship_point_balance, 250, "balance should refund")
+
 
 class TestShopPersistence:
 	extends GutTest
@@ -77,3 +88,11 @@ class TestShopPersistence:
 		var progression_manager: Node = ProgressionManagerFactory.create_manager(self, item_manager)
 		item_manager.add_friendship_points(progression_manager._config.shop_unlock_threshold)
 		assert_true(item_manager._progression.shop_unlocked)
+
+	func test_deferred_unlock_signal_emitted_for_preunlocked_save() -> void:
+		var item_manager: Node = ItemFactory.create_manager(self)
+		item_manager._progression.shop_unlocked = true
+		var progression_manager: Node = ProgressionManagerFactory.create_manager(self, item_manager)
+		watch_signals(progression_manager)
+		await get_tree().process_frame
+		assert_signal_emitted_with_parameters(progression_manager, "shop_unlocked_changed", [true])

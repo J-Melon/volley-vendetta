@@ -1,3 +1,5 @@
+# todo: SH-66 Control rewrite pending. This whole file becomes Control-rooted
+# with a ClearanceBox drop target. See designs/01-prototype/04-clearance-drag-drop.md.
 class_name ShopPanel
 extends Node2D
 
@@ -22,8 +24,6 @@ func _ready() -> void:
 		_item_manager = ItemManager
 	_item_manager.friendship_point_balance_changed.connect(_on_friendship_point_balance_changed)
 	_update_friendship_label(_item_manager.get_friendship_point_balance())
-	var shop_camera: Camera2D = $Camera2D
-	shop_camera.make_current()
 	_spawn_items()
 
 
