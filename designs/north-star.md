@@ -1,97 +1,60 @@
 # Volley Vendetta - North Star
 
-## One-liner
-A cozy desktop idle game where your paddle trains to beat the world volley record, one bounce at a time. Or something like that.
+## What is this game?
 
-## Vibe
-Cozy on the surface, quietly competitive underneath. The game lives on your desktop while you work, gently bouncing away. Your paddle has a dream they won't shut up about: becoming the world volley champion. Warm and encouraging but with a scrappy underdog energy. Wholesome training arc as a desktop widget.
+An idle pong game that lives on your desktop. A small window, always there, gently bouncing away while you work. Your paddle has a dream: beat the world volley record. You train, buy items, recruit partners, and inch toward that number one bounce at a time.
 
-The vibe should feel slightly too deliberate. Like a room that's been tidied just before you arrived.
+Underneath: the game is personal. It's a story about someone who built a world to hide from something real. The partners are memories of people who mattered. The record is a number that means something specific. At some point, the game reveals the truth. The player keeps playing after that, but the game feels different because they know.
 
-## Target audience
-Casual players who want something pleasant running in the background during work. Low attention, high charm.
+## Who is it for?
+
+People who want something pleasant running in the background. Low attention, high charm. The kind of game you leave on your desktop during a working day and glance at between tasks.
+
+Over time, the same player might start noticing things. Why the names feel ordinary. Why the descriptions carry more weight than a pong game has earned. Some players will go deeper. Some won't, and that's fine. The game has to be good enough as just an idle pong game that someone who never thinks about the narrative still enjoys it. The deeper layer is there for the players who find it, not required for the ones who don't.
+
+## What do players take away?
+
+At first: a satisfying idle loop. Numbers went up, the paddle got better, the partners were charming, the record fell.
+
+For those who go deeper: something personal. The narrative doesn't undo the fun. Learning the truth doesn't punish the player for enjoying the game. The idle loop was always worth playing. The story gives it a reason to stay with you after you close it. The game should make the player feel something real without making them feel bad.
+
+The game should respect the player's time whether they engage with the narrative or not.
+
+## What kind of game are we building?
+
+**Desktop idle game.** Small borderless window, always-on-top by default but toggleable. Runs in the background. The game earns the right to live on your desktop by being unobtrusive and worth glancing at.
+
+**Pong, made fun.** The foundation is pong, but with modern game sensibilities: progression that makes you feel stronger, items that change how the game plays, partners who make the loop feel different. The question isn't "can pong be a real game?" It's "what if pong had the depth of a game people actually wanted to keep playing?"
+
+**Progression through items and partners.** Earn friendship points from volleys. Spend them on items that change how the game feels and partners who change who you're playing with. Every purchase should be felt, not just seen in a stat screen.
+
+**Narrative woven into the game.** The story lives in the details: the names, the descriptions, the things that don't quite fit a pong game. Partners express personality through barks, effects, and art. Key moments like partner introductions can have proper presentation with portraits and dialogue. But the deeper narrative is discovered by paying attention, not delivered through exposition.
+
+**A game that changes.** The game has phases. Each phase feels different without changing the core mechanics. Partners say different things, the visuals shift, the stakes are different. The game responds to what the player has seen.
 
 ## Core loop
-1. **Volley** - ball bounces between your paddle and a partner
-2. **Earn FP** - friendship points from each hit, bonuses for streaks
-3. **Train** - spend FP on self-improvement upgrades (speed, control, stamina)
-4. **Recruit partners** - unlock partners with unique abilities
-5. **Break records** - push toward the world volley record
 
-## The dream
-Your paddle has one goal: beat the world volley record. This is the throughline for the whole game. Every upgrade, every partner, every session inches closer to that number. When you finally hit it, something special happens.
+1. **Volley**: ball bounces between paddles
+2. **Earn**: friendship points from each hit
+3. **Spend**: items from the shop, partners to recruit
+4. **Progress**: streaks get longer, the record gets closer, partners make it better
 
-The record is a specific number. It was always a specific number. It's worth asking why.
+## Design principles
 
-## Characters
+- **Numbers go up.** The core fantasy of an idle game. FP, streaks, lifetime volleys. Always visible, always climbing.
+- **Come back to good news.** The player returns to rewards, not a reset. Being away should feel like the game kept going without them.
+- **Don't make it a chore.** Active play is fun, not mandatory. Idle play earns less but still earns. The player chooses how much attention to give.
+- **Pinch points, not paywalls.** Progression slows naturally. Breakthrough moments feel earned. Nothing is gated behind anything except playing.
+- **The warmth is real.** The cozy surface is not a lie. Learning the narrative should not make the player feel tricked for enjoying the game. The idle loop and the story both hold up on their own.
+- **Trust the player.** Don't explain. Don't signpost. Don't break the fourth wall. Let the player notice, wonder, and eventually understand. The game respects players who pay attention and doesn't punish players who don't.
 
-### Your paddle
-- Has personality, reacts to streaks, misses, milestones
-- Improvable through upgrades (self-improvement arc)
-- Expresses the dream through occasional quips and reactions
+## Tone
 
-### Partners
-- Each partner has a name, personality, and unique playstyle
-- Different abilities: faster returns, curve shots, combo multipliers
-- Unlocked with FP, recruiting them is part of the progression
-- Some are supportive, some are rivals, all are friends by the end
-
-## Upgrade pillars
-- **Self-improvement** - paddle speed, size, reflexes, stamina
-- **Partner training** - unlock and level up partners
-- **Record chasing** - milestones, streaks, challenges that push toward the world record
-
-## Idle design principles
-- **Numbers go up.** The core fantasy of an idle game is watching progress accumulate. FP per minute, streak records, lifetime volleys. These should always be visible and always climbing.
-- **Come back to good news.** When the player returns after being away, they should find rewards waiting. Offline FP, partner training progress, something that says "glad you're back."
-- **Don't make it a chore.** Avoid the login-spend-logout trap. Active play should feel rewarding, not mandatory. Jumping in to take control should be fun, not a resource optimization task.
-- **Layer systems over time.** Start simple (volley, earn, upgrade) and introduce new mechanics gradually. Partners, streaks, challenges, each layer adds depth without overwhelming early players.
-- **Pinch points, not paywalls.** Progression should slow naturally as upgrades get expensive. This creates satisfying breakthrough moments when the player finally affords that next tier. Never gate progress behind anything except playing.
-- **Multiple paths forward.** Players should have choices about what to upgrade next. Different strategies (faster paddle vs bigger paddle vs better partner) keep decisions interesting and encourage experimentation.
-
-## Desktop widget design
-- Small, unobtrusive window that sits on the desktop
-- Runs idle in the background, paddles play on their own
-- Player can jump in anytime to take control
-- Minimal UI, just the essentials visible, details on hover or click
-
-## Act structure and game modes
-
-Act 1 is the idle game described above: volley, earn FP, upgrade, recruit partners, chase the record. The desktop widget, the cozy surface, the scrappy underdog arc. This is the game the player thinks they are playing.
-
-Act 2 and Act 3 change the game mode. Still ball and paddle, but the objective shifts to serve what the narrative requires. The rival is the mode carrier: passive in Act 1, an active blocker in Act 2 (battle mode), an active helper in Act 3 (enemy mode). Peace unlocks all modes freely, including simultaneous instances.
-
-The exact mechanics of each mode are a Post-Break design decision. The constraint is that every mode must feel like a natural expression of what the story is doing, not a genre detour. FP is Act 1's incentive. Later acts may have different ones.
-
-The idle framing is Act 1's framing, not the game's framing. The game is about what the ball and paddle mean.
-
-## Endgame
-Beat the world volley record. The number should feel impossibly far at first and slowly become real through upgrades and partners. When you hit it, the game changes — not just mechanically. Post-record: the player knows something the paddle doesn't. See `02-beta/04-world-and-narrative.md` for the full narrative layer.
-
-Post-Break: the framing is different. What Act 2 and Act 3 require from the mechanics follows from what the story needs.
-
-## Soft launch thinking
-- Launch early in a limited way (itch.io preview channel) to test the economy and gather feedback
-- Player feedback is critical for tuning the FP curve and upgrade pacing
-- Iterate fast on what feels too slow or too fast before a wider release
-- Strong theming and art are what make an idle game stand out in a sea of clickers. Invest in the personality.
-
-## Difficulty philosophy
-- The game is hard to control at the start. Your paddle is slow, small, and clumsy. Keeping a streak going takes real effort.
-- Upgrades make it feel easier. Speed, size, reflexes, all make the paddle more responsive. The player should feel the difference.
-- Challenge scales with progress. The ball gets faster the longer a streak goes. Eventually it outpaces your current upgrades and the streak ends.
-- The wall you hit is determined by how upgraded you are. Upgrade more, streak goes further next time.
-- This creates the loop: struggle, upgrade, feel good, hit a new wall, upgrade again.
-- It should never feel unfair. When a streak ends the player should think "I need to upgrade" not "that was random."
+Cozy, never stressful. Earnest, never ironic. Personal, never melodramatic. Characters are warm and specific. Competition is self-driven. Small wins are celebrated. The game takes itself slightly more seriously than a pong game should, and that's intentional.
 
 ## Non-goals
-- Not a competitive multiplayer game
-- Not a full-screen experience demanding constant attention
-- No punishment for closing the game or stepping away
 
-## Tone guide
-- Cozy, never stressful
-- Characters are earnest and a little silly
-- Competition is self-driven, not hostile
-- Celebrate small wins, every streak matters
-- The warmth is genuine — it just isn't the whole story
+- Not a competitive multiplayer game (multiplayer is a future update, not the identity)
+- Not a game that demands constant attention. Fullscreen mode exists but the default is a small desktop window.
+- Not a game that punishes you for closing it or stepping away
+- Not devastating. The game is sad, but it earns the sadness and doesn't wallow in it. The reveal lands and the game moves forward.

@@ -1,67 +1,29 @@
 # Upgrade Shop
 
 ## Goal
-Design and implement the player-facing item acquisition UI: a friend's clearance where the player takes items by moving them into a box. The rotation system ensures the right items appear at the right moments without feeling scripted, and the clearance's visible state changes as the friend becomes more distant across Act 1.
+Design and implement the player-facing shop: a rotating selection of items the player can browse and purchase with FP. The rotation system ensures the right items appear at the right moments without feeling scripted.
 
 **Points:** 5
 **Dependencies:** Upgrade Mechanics (item data model), Progression System (FP economy)
-**Unlocks:** The Shopkeeper and the Tinkerer (character integration), UX Design (clearance UI pass)
+**Unlocks:** The Shopkeeper and the Tinkerer (character integration), UX Design (shop UI pass)
 
 ---
 
-## Act structure overview
+## Shop unlock
 
-How the player acquires items changes with each act. The shop is an Act 1 mechanic. Acts 2 and 3 have their own acquisition systems (see The Shopkeeper and the Tinkerer).
+The shop is not available from game start. It unlocks when the player hits a specific milestone. Before that point the player earns FP but has nowhere to spend it, which creates anticipation. The exact milestone is a narrative and balance decision (see Milestone Design).
 
-| Act | Acquisition method |
-|---|---|
-| Act 1 | Clearance: taking items from a friend who is moving away |
-| Act 2 | Rummaging: going through the friend's leftovers after they moved |
-| Act 3 | Partners: significant items gifted by partners |
+**Prototype:** The full milestone system is a Beta feature. For prototype, the shop unlocks at a hardcoded FP threshold. The threshold is a tuning target for the Make Fun pass; the default starting point is 50 FP. The shop panel is hidden and the HUD button is absent until this threshold is crossed.
 
----
+## Shop display
 
-## Clearance unlock
+The shop shows 5 item slots at a time. The player sees the item name, description, and FP cost. There is no mechanical description. The player discovers what an item does by owning it.
 
-The clearance is not available from game start. It unlocks when the player hits a specific milestone. Before that point the player earns FP but has nowhere to spend it, which creates anticipation. The exact milestone is a narrative and balance decision (see Milestone Design).
+Items can be purchased directly from the shop. Purchased items are added to the player's inventory immediately and their effects apply from that moment. Each item can only be purchased once. Owned items are excluded from the rotation.
 
-**Prototype:** The full milestone system is a Beta feature. For prototype, the clearance unlocks at a hardcoded FP threshold. The threshold is a tuning target for the Make Fun pass; the default starting point is 50 FP. The clearance panel is hidden and the HUD button is absent until this threshold is crossed.
+When a player destroys an item, a second chance version of that item enters the current act's pool -- same effects, a variant of the original name, same sprite with a shader applied (see Upgrade Mechanics: Item Variants). In Act 1 it re-enters the shop rotation normally. In Act 2 it surfaces through rummaging, which is narratively appropriate: you destroyed something and then find something like it while going through old boxes. If the second chance version is also destroyed, that item is removed from all pools permanently.
 
-## Narrative framing
-
-The shop is not presented as a shop. It is a friend's clearance: they are moving away and letting you take things from their stuff. The player does not buy items. They move things into a box to take with them. The friend is the shopkeeper character.
-
-FP is still spent per item, but the fiction is about the weight of the ask, not a transaction. A cheap item is easy to take; nobody thinks twice. An expensive one requires deeper trust: the player has to feel comfortable asking for it, and the friend has to feel comfortable letting it go. Mechanically the FP economy is unchanged (per-item costs, idle accumulation, Tinkerer levelling as the ongoing sink). The surface language shifts: "purchase" becomes "take", "cost" becomes the friendship it takes to ask, and the shop panel becomes the clearance scene with the box.
-
-The interaction is diegetic drag-and-drop: the player moves items from the friend's things into a box (see SH-51: diegetic drag-and-drop spike).
-
----
-
-## Shop display (Act 1)
-
-The shop shows 5 item slots at a time. Items are diegetic objects in the friend's room. There is no mechanical description. The player discovers what an item does by owning it.
-
-### Weight of the ask
-
-The cost of an item is never shown as a number. The player reads the weight of the ask through diegetic cues that reflect the friend's fixed attachment to each object.
-
-**Presentation:** each item has a fixed display style based on its cost. Valued items sit in a display case, on a cloth, or wrapped. Cheap items are loose, bare, tossed in a pile. These are static properties of the item, not dynamic; the friend's attachment to their favourite lamp does not change because the player earned more friendship.
-
-**Affordability:** when the player hovers over an item, the friend reacts. If the player has enough friendship, the friend relaxes or gestures toward the box: go ahead, take it. If not, the friend shifts protectively, a hand moves toward the item, body language tightens. The player reads whether they can take something before committing to the drag. Full friend reactions are an art pass task.
-
-**Nudging:** unaffordable items are inside a display case. The case is closed and the item is not interactive. As the player's friendship grows, items transition from cased to uncased: the friend has become comfortable enough to take it out and let the player have it. Affordable items sit freely on the surface, full colour, and respond to hover. The player sees at a glance which items are within reach: if it's behind glass, you're not close enough yet.
-
-**Taking:** dragging an affordable item to the box succeeds. The friend's reaction scales with the item's value: a wave-off for cheap items, a pause and a nod for expensive ones. Dragging an unaffordable item is blocked; the item does not leave its position.
-
-**Prototype:** items are sorted left-to-right by cost (cheapest near the box, most expensive far from it). Affordable items sit freely; unaffordable items have a display case scene layered over them (a separate node, not a sprite modification). Labels show name and cost as temporary stand-ins until art replaces them. Friend reactions use a simple sprite swap (neutral, approving, uncomfortable) in place of full animation.
-
-### Taking items
-
-Items are taken directly from the clearance by dragging them into the box. Taken items are added to the player's inventory immediately and their effects apply from that moment. Each item can only be taken once. Owned items are excluded from the rotation.
-
-When a player destroys an item, a second chance version of that item enters the current act's pool: same effects, a variant of the original name, same sprite with a shader applied (see Upgrade Mechanics: Item Variants). In Act 1 it re-enters the clearance rotation normally. In Act 2 it surfaces through rummaging the friend's leftovers, which is narratively appropriate: you got rid of something and then find something like it while going through what they left behind. If the second chance version is also destroyed, that item is removed from all pools permanently.
-
-The clearance is accessible from the HUD at any time. The game continues running behind it. No pause.
+The shop is accessible from the HUD at any time. The game continues running behind it. No pause.
 
 ---
 
@@ -78,11 +40,11 @@ Both conditions must be satisfied before the rotation changes. Opening and immed
 
 ## Idle economy and item cost
 
-**Open problem.** FP accumulates during idle play. If item costs are too low relative to idle FP rates, the player can passively afford items without engagement, draining the clearance without the decision-making that makes taking feel meaningful.
+**Open problem.** FP accumulates during idle play. If item costs are too low relative to idle FP rates, the player can passively afford items without engagement, draining the shop without the decision-making that makes purchasing feel meaningful.
 
-The rotation already limits access (the player can only take what is currently displayed), which helps. But item costs must be tuned high enough that idle FP represents meaningful progress toward taking an item, not trivial pocket change. This is a Make Fun pass tuning target.
+The rotation already limits access (the player can only buy what is currently displayed), which helps. But item costs must be tuned high enough that idle FP represents meaningful progress toward a purchase, not trivial pocket change. This is a Make Fun pass tuning target.
 
-One mitigation: levelling items at the Tinkerer is the primary ongoing FP sink. Taking a new item is a decision; levelling it to max is the sustained investment. If levelling costs are appropriately steep, the economy remains meaningful even when idle FP builds up.
+One mitigation: levelling items at the Tinkerer is the primary ongoing FP sink. Buying a new item is a decision; levelling it to max is the sustained investment. If levelling costs are appropriately steep, the economy remains meaningful even when idle FP builds up.
 
 ---
 
@@ -90,9 +52,9 @@ One mitigation: levelling items at the Tinkerer is the primary ongoing FP sink. 
 
 The shop rotation is not random: it is shaped by four layers that work together silently.
 
-### Layer 1: Act-gated pools
+### Layer 1: Phase-gated pools
 
-Items belong to one of four pools: `"act1"`, `"act2"`, `"act3"`, `"peace"`. Each pool unlocks at the start of its act. The rotation can only draw from unlocked pools. New pools entering the rotation makes the shop feel changed without the change being explicitly announced.
+Items belong to phase-gated pools (e.g. `"pre_break"`, `"post_break"`, `"post_game"`). Each pool unlocks at the start of its phase. The rotation can only draw from unlocked pools. New pools entering the rotation makes the shop feel changed without the change being explicitly announced.
 
 ### Layer 2: Paired gravity
 
@@ -102,15 +64,13 @@ The elevation lasts for three rotation cycles, then resets. If the player purcha
 
 In prototype, this layer is implemented but has no visible effect until synergy pairs are authored in Beta.
 
-### Layer 3: Friend's pick slot
+### Layer 3: Shopkeeper's pick slot
 
-One of the five slots is reserved as the friend's pick: something they set aside for you specifically. This slot is filled by authored selection rather than the weighted random pool. It is the primary channel for ensuring narratively significant items surface at the right moment.
+One of the five slots is reserved as the shopkeeper's pick. This slot draws from a separate narrative pool rather than the main gameplay pool. Narrative items are hand-ordered and paced to match the clue ladder: lighter items early, heavier items as progression deepens.
 
-Use the pick slot for:
-- Items that carry the heaviest signal layer and benefit from appearing at a specific story beat
-- One half of a synergy pair the player should have access to
+The main pool is gameplay items: stat modifiers, causality effects. The narrative pool is items with descriptions that carry clue weight, things that feel personal, things the shopkeeper is deliberately putting in front of the player. The player doesn't know the difference. They just notice that one slot sometimes has something that feels different.
 
-As the friend becomes more distant across Act 1, the pick slot is the first thing that changes. They stop setting things aside. The slot enters the general rotation. This is the earliest mechanical sign that something is shifting.
+As the shopkeeper becomes more distant across pre-break, the pick slot is the first thing that changes. The shopkeeper stops curating. The slot enters the main pool rotation. The narrative items stop appearing. The player loses something they didn't know they had.
 
 ### Layer 4: Discovery floor
 
@@ -120,11 +80,11 @@ This floor activates only if the normal rotation would otherwise produce a cycle
 
 ### Layer 5: Safety net item
 
-One item per act pool is designated as the safety net item. It never appears in normal rotation. It surfaces only when both conditions are true simultaneously: the player owns no items and the available pool is otherwise empty (all items owned, destroyed, or unavailable). It is a last resort, not a shortcut. Once taken it leaves the safety net slot and the player is back in the normal system.
+One item per phase pool is designated as the safety net item. It never appears in normal rotation. It surfaces only when both conditions are true simultaneously: the player owns no items and the available pool is otherwise empty (all items owned, destroyed, or unavailable). It is a last resort, not a shortcut. Once purchased it leaves the safety net slot and the player is back in the normal system.
 
-The safety net item should be cheap and mechanically neutral: something that gets the player moving again without being a meaningful upgrade.
+The safety net item should be cheap and mechanically neutral -- something that gets the player moving again without being a meaningful upgrade.
 
-When the pool is empty and the player has 2 or fewer items (but not yet zero), the Tinkerer or the friend delivers a condition-based hint nudging the player toward clearing their remaining items. See The Shopkeeper and the Tinkerer: Scorched Earth Hint.
+When the pool is empty and the player has 2 or fewer items (but not yet zero), the Tinkerer or Shopkeeper delivers a condition-based hint nudging the player toward clearing their remaining items. See The Shopkeeper and the Tinkerer: Scorched Earth Hint.
 
 ---
 
@@ -138,39 +98,6 @@ The real pacing lever is the rotation, not the ratio.
 
 ---
 
-## Clearance winding down (Act 1)
+## Narrative design
 
-As the friend becomes more distant, the clearance thins and eventually ends. The friend is moving away; there is less left to give. The sequence is tied to story beats, not timers:
-
-1. **Pick slot goes quiet.** The friend stops setting things aside for you. The slot enters general rotation. Still 5 items; the selection just feels less intentional.
-2. **Less stuff left.** Fewer new items appear. Repeats increase.
-3. **Slot count drops.** 5 → 4 → 3 items displayed.
-4. **They've gone.** The clearance is over. The friend has moved away.
-
-The winding down should be felt before it completes. When it finally ends it should not feel surprising.
-
----
-
-## Act 2: Rummaging
-
-The clearance is over. The friend has moved away. The player discovers Act 2 items by rummaging through what the friend left behind: things that did not fit in the move, things they chose not to take, things that were too heavy to carry for reasons that were not about weight. Going through them is holding on.
-
-Mechanically: the player initiates a rummage action (once per session, or on a timer, mirrors the clearance refresh model). Each rummage surfaces one item from the Act 2 pool. The item can be taken with FP or passed over. Passing does not mean it is gone; it may surface again in a future rummage.
-
-The Tinkerer is still available throughout Act 2 for levelling and synergy attempts.
-
----
-
-## Act 3: Partner gifts
-
-The clearance is long over. Partners give the player significant items as the act progresses: not as drops, but as deliberate gifts tied to relationship moments. These items still cost FP (the partner gives you the item, you give what it is worth to you and to them). The exchange is relational, not transactional.
-
-New synergies discovered in Act 3 are brought to the friend or Tinkerer once they have been won back. The act of bringing the item to them is part of the reconciliation, not separate from it.
-
----
-
-## Open questions
-
-- Rummage timer interval: once per session is the minimum. Does a background timer also apply as with the clearance? (Probably yes, for consistency.)
-- What does the clearance look like when it has fewer than 5 items as the friend winds down? (Gaps visible, or reflow? UX Design pass decision.)
-- How are partner gifts triggered in Act 3: milestone-gated, relationship-level-gated, or both?
+Shop closing, post-break item acquisition (rummaging), and post-game item acquisition (partner gifts) are covered in `02-alpha/07-shop-narrative.md`. These are narrative rework territory.
