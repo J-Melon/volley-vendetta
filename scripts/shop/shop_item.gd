@@ -1,13 +1,12 @@
 class_name ShopItem
-extends Node2D
+extends Control
 
-@export var art: Node2D
-@export var hit_area: Area2D
 @export var tooltip: ShopTooltip
+@export var art_viewport: SubViewport
+@export var display_case: Control
 
 var item_definition: ItemDefinition
 var _item_manager: Node
-var _hovered := false
 
 
 func setup(definition: ItemDefinition) -> void:
@@ -17,43 +16,63 @@ func setup(definition: ItemDefinition) -> void:
 func _ready() -> void:
 	if _item_manager == null:
 		_item_manager = ItemManager
+	if item_definition == null:
+		return
 	_build_visuals()
+	_refresh_owned_visibility()
+	_refresh_display_case()
 	_item_manager.friendship_point_balance_changed.connect(_on_friendship_point_balance_changed)
 	_item_manager.item_level_changed.connect(_on_item_level_changed)
-	hit_area.mouse_entered.connect(_on_hover_enter)
-	hit_area.mouse_exited.connect(_on_hover_exit)
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
 
 
-func _process(_delta: float) -> void:
-	if _hovered:
-		tooltip.follow_mouse(get_global_mouse_position())
+func can_be_taken() -> bool:
+	if item_definition == null:
+		return false
+	if _item_manager.get_level(item_definition.key) >= 1:
+		return false
+	return (
+		_item_manager.get_friendship_point_balance()
+		>= _item_manager.calculate_cost(item_definition.key)
+	)
+
+
+func build_drag_payload() -> ItemDefinition:
+	return item_definition
+
+
+func build_drag_preview() -> Control:
+	# todo: SH-66 wire item_drag_preview.tscn in Phase 3
+	return null
+
+
+func _get_drag_data(_pos: Vector2) -> Variant:
+	if not can_be_taken():
+		return null
+	var preview: Control = build_drag_preview()
+	if preview != null:
+		set_drag_preview(preview)
+	return build_drag_payload()
 
 
 func _build_visuals() -> void:
-	if item_definition == null:
-		return
 	if item_definition.art != null:
 		var art_instance: Node = item_definition.art.instantiate()
-		art.add_child(art_instance)
+		art_viewport.add_child(art_instance)
 	tooltip.show_item(item_definition.display_name, _get_cost_text(), _get_flavor_text())
 	tooltip.hide_tooltip()
 
 
-# todo: SH-66 replace with friend reaction animation on art pass
-func _on_hover_enter() -> void:
-	_hovered = true
-	tooltip.visible = true
+func _refresh_owned_visibility() -> void:
+	visible = _item_manager.get_level(item_definition.key) == 0
 
 
-func _on_hover_exit() -> void:
-	_hovered = false
-	tooltip.hide_tooltip()
+func _refresh_display_case() -> void:
+	display_case.visible = not can_be_taken()
 
 
 func _get_cost_text() -> String:
-	var current_level: int = _item_manager.get_level(item_definition.key)
-	if current_level >= item_definition.max_level:
-		return "Taken"
 	return "%d FP" % _item_manager.calculate_cost(item_definition.key)
 
 
@@ -65,14 +84,19 @@ func _get_flavor_text() -> String:
 	return item_definition.descriptions[index]
 
 
-func _update_cost() -> void:
-	tooltip.update_cost(_get_cost_text())
+func _on_mouse_entered() -> void:
+	tooltip.visible = true
+
+
+func _on_mouse_exited() -> void:
+	tooltip.hide_tooltip()
 
 
 func _on_friendship_point_balance_changed(_balance: int) -> void:
-	_update_cost()
+	_refresh_display_case()
 
 
 func _on_item_level_changed(item_key: String) -> void:
 	if item_key == item_definition.key:
-		_update_cost()
+		_refresh_owned_visibility()
+		_refresh_display_case()

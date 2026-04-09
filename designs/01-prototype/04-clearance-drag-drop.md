@@ -1,13 +1,13 @@
 # Clearance Drag and Drop
 
 ## Goal
-Implementation design for the Act 1 clearance interaction: a Control-based drag and drop flow where the player moves items from the friend's things into a box to take them. Covers the structural shape of `shop.tscn`, the draggable `ShopItem` Control, the `ClearanceBox` drop target, and the new `ItemManager.take_to_locker()` path that routes taken items into the locker without registering their effects.
+Implementation design for the Act 1 clearance interaction: a Control-based drag and drop flow where the player moves items from the friend's things into a box to take them. Covers the structural shape of `shop.tscn`, the draggable `ShopItem` Control, the `ClearanceBox` drop target, and the new `ItemManager.take()` acquisition primitive that marks an item as owned without registering its effects.
 
 **Dependencies:** Upgrade Shop (04-upgrade-shop), Item UI (05-item-ui), Scene Layout (08-scene-layout)
 
 **Unlocks:** SH-32 acceptance criteria 6, 7, 8 (drag-and-drop, drag gating, purchase on drop). Tracked in SH-66.
 
-**Status:** This document describes the **target** state. The shop as shipped in SH-32 is still Node2D-rooted with a Parallax2D background and a Camera2D. The Control restructure, the `ClearanceBox`, the drag-and-drop wiring, the `take_to_locker` method, the display case overlay, and the friend's pick slot styling are all the responsibility of SH-66. Nothing described below has been built yet.
+**Status:** This document describes the **target** state. The shop as shipped in SH-32 is still Node2D-rooted with a Parallax2D background and a Camera2D. The Control restructure, the `ClearanceBox`, the drag-and-drop wiring, the `take` method, the display case overlay, and the friend's pick slot styling are all the responsibility of SH-66. Nothing described below has been built yet.
 
 ---
 
@@ -28,7 +28,7 @@ The player interacts with the clearance by dragging items from a display row int
 ### Pick up
 A draggable item responds to mouse-down with a drag start. Godot's Control drag and drop protocol handles the rest (cursor preview, hover feedback, cancellation).
 
-The original item stays in its slot during the drag. It does not lift off or disappear. A translucent preview follows the cursor. On successful drop it disappears (taken) and the slot either shows "Taken" or the item disappears entirely depending on rotation state.
+The original item stays in its slot during the drag. It does not lift off or disappear. A translucent preview follows the cursor. On successful drop the `ShopItem` hides itself in place and the slot becomes an empty gap.
 
 ### Carry
 The drag preview is a small rendering of the item's art scene, centred under the cursor, slightly translucent. It is built by the same SubViewport rendering path used by the inspector plugin and the `ShopItem` Control itself.
@@ -42,7 +42,7 @@ The box has three visual states:
 - **Invalid hover**: not triggered in prototype, because unaffordable items cannot start a drag in the first place (see below)
 
 ### Release
-On successful drop, the box calls `ItemManager.take_to_locker(item_definition.key)`. The taken item goes into the player's locker (it is now owned) but its effects do not apply until the player equips it into the kit. Per 04-kit-and-locker, the kit is the active loadout and only kit items fire their causality and stat effects. The clearance is the acquisition surface, not the equip surface: taking is "I want to keep this" and equipping happens later in the kit/locker UI.
+On successful drop, the box calls `ItemManager.take(item_definition.key)`. The item is now owned, but its effects do not apply until the player equips it into the kit. Per 04-kit-and-locker, the kit is the active loadout and only kit items fire their causality and stat effects. The clearance is the acquisition surface, not the equip surface: taking is "I want to keep this" and equipping happens later in the kit/locker UI. Where the item lives between acquisition and equip (the locker, in prototype) is the responsibility of the kit/locker UI, not of `take` itself.
 
 The box emits an `item_taken(definition)` signal for future UI reactions (sound, flash, friend reaction animation).
 
@@ -68,7 +68,7 @@ The display case has only two states in prototype: present or absent. It snaps i
 
 **When an item is already taken:**
 - `ItemManager.item_level_changed` fires.
-- The `ShopItem` stays visible with a dimmed appearance; hovering it shows "Taken" in place of the cost inside the tooltip.
+- The `ShopItem` hides itself in place. The slot stays at the same index (so the friend's pick slot does not shift) but renders nothing and accepts no input. There is no "Taken" label and no tooltip.
 
 ---
 
@@ -90,7 +90,7 @@ Shop (Control, script = shop_panel.gd)
 
 The Parallax2D background and Camera2D are removed. The Node2D `Table` is removed. The shop fills whatever Control space `SceneLayout` allocates to it. A `ColorRect` stands in as a plain backdrop until art replaces it. The `ClearanceBox` sits below the items row for prototype, spanning the full width so the player drags downward into it; exact placement is subject to change on the art pass.
 
-The middle slot (index 2 of 0-4) is visually distinguished as the friend's pick slot: a subtly different frame or background stylebox on the `ShopItem`. The rotation system that actually fills this slot with authored picks is out of scope for SH-32 (the prototype spawning logic continues to treat it as any other slot), but the visual cue lands now so the player sees one slot as more considered than the others from day one.
+The middle slot (index 2 of 0-4) is visually distinguished as the friend's pick slot: a subtly different frame or background stylebox on the `ShopItem`. The rotation system that actually fills this slot with authored picks is out of scope for SH-66 (the prototype spawning logic continues to treat it as any other slot), but the visual cue lands now so the player sees one slot as more considered than the others from day one.
 
 The current `ShopPanel` script on the Node2D root is rewritten to extend Control instead. Its responsibilities remain: spawn items, update the friendship label, react to balance changes. It also flags the middle spawned item as the pick slot so the `ShopItem` applies the distinguished styling.
 
@@ -100,13 +100,12 @@ The current `ShopPanel` script on the Node2D root is rewritten to extend Control
 ShopItem (Control, script = shop_item.gd)
 ├── ArtViewportContainer (SubViewportContainer)
 │   └── ArtViewport (SubViewport)
-│       ├── Camera2D
 │       └── [instantiated item_definition.art at runtime]
 ├── DisplayCase (Control with stylebox border, hidden when affordable)
 └── Tooltip (instance of tooltip.tscn, hidden by default)
 ```
 
-The art stays as a Node2D scene (the per-item scenes under `res://scenes/items/`). It is rendered inside a SubViewport the same way the inspector plugin renders it. This is the canonical pattern: anywhere in the game that needs to show an item (shop, tooltip, future inventory, future collection screen), the item's Node2D art scene is rendered through a SubViewport owned by a Control wrapper.
+The art stays as a Node2D scene (the per-item scenes under `res://scenes/items/`). It is rendered inside a SubViewport the same way the inspector plugin renders it, except no `Camera2D` child: a SubViewport renders 2D content from the origin by default, and we just need a static fixed-size frame. If a particular item's art is not centred on its origin, the runtime `setup` adjusts the instantiated art's `position` to frame it inside the viewport. This is the canonical pattern: anywhere in the game that needs to show an item (shop, tooltip, future inventory, future collection screen), the item's Node2D art scene is rendered through a SubViewport owned by a Control wrapper.
 
 There are no labels on the `ShopItem` itself. Name, cost, and flavour text only appear in the hover tooltip (the existing `tooltip.tscn`, which already has `NameLabel`, `CostLabel`, and `FlavorLabel`). For prototype this is the sole text affordance for items. The player sees the art on the table; hovering reveals the details. This keeps the visual composition diegetic (no UI text floating over the friend's things) and consistent with the diegetic framing in 04-upgrade-shop.
 
@@ -168,7 +167,7 @@ Extends `PanelContainer`. Thin forwarders over the stable contract:
 - `_can_drop_data(pos, data)` → type-checks `data is ItemDefinition` and forwards to `can_accept`.
 - `_drop_data(pos, data)` → forwards to `accept`.
 - `can_accept(definition)` checks affordability and non-ownership.
-- `accept(definition)` calls `ItemManager.take_to_locker(key)` and emits `item_taken(definition)` on success.
+- `accept(definition)` calls `ItemManager.take(key)` and emits `item_taken(definition)` on success.
 
 The box never calls `ItemManager` directly from the Godot virtual methods; everything routes through `accept()` so tests and the future drag manager can drive it without a Viewport.
 
@@ -180,9 +179,9 @@ Unchanged in behaviour: spawns items, updates friendship label, exposes `preferr
 
 ## Take flow on drop
 
-On a successful drop, `ClearanceBox.accept()` calls `ItemManager.take_to_locker(key)`. That method deducts FP, marks the item as owned, emits `item_level_changed`, and saves. It does not register effects with `EffectManager`, so paddle and ball see no change until the player equips the item later.
+On a successful drop, `ClearanceBox.accept()` calls `ItemManager.take(key)`. That method deducts FP, marks the item as owned, emits `item_level_changed`, and saves. It does not register effects with `EffectManager`, so paddle and ball see no change until the player equips the item later.
 
-UI listeners react to the existing `friendship_point_balance_changed` and `item_level_changed` signals: `shop_panel` refreshes the friendship label, every `ShopItem` re-evaluates its display case visibility, and the taken item's tooltip swaps its cost for "Taken". `ClearanceBox` also emits `item_taken(definition)` for future polish hooks (sound, friend reaction).
+UI listeners react to the existing `friendship_point_balance_changed` and `item_level_changed` signals: `shop_panel` refreshes the friendship label, every `ShopItem` re-evaluates its display case visibility, and the taken item's `ShopItem` hides itself in place so its slot becomes an empty gap (no "Taken" label, no reflow of siblings). `ClearanceBox` also emits `item_taken(definition)` for future polish hooks (sound, friend reaction).
 
 ---
 
@@ -190,7 +189,7 @@ UI listeners react to the existing `friendship_point_balance_changed` and `item_
 
 The current `ItemManager.purchase(item_key)` conflates owning an item with equipping its effects. That is fine for the dev item panel (which wants both in one click) but wrong for the clearance: per 04-kit-and-locker, only equipped kit items fire effects, and equipping is a separate action the kit/locker UI owns.
 
-SH-32 adds a new `take_to_locker(item_key)` method that deducts FP, marks the item as owned, saves, and emits `item_level_changed`, but deliberately does **not** register effects with `EffectManager`. The clearance calls this instead of `purchase()`.
+SH-66 adds a new `take(item_key)` method that deducts FP, marks the item as owned, saves, and emits `item_level_changed`, but deliberately does **not** register effects with `EffectManager`. The clearance calls this instead of `purchase()`.
 
 The existing `purchase()` method stays unchanged so the dev panel and existing tests continue to work. The eventual kit/locker ticket will replace the dev panel's reliance on auto-equipping and `purchase()` can be deleted then.
 
@@ -212,7 +211,7 @@ Godot's built-in drag protocol handles cancellation silently: dropping outside a
 
 ## Extensibility: multi-window drag (SH-51 forward compatibility)
 
-SH-32 ships single-window drag and drop using Godot's built-in Control protocol. SH-51 introduces desktop mode where the clearance, kit, locker, and compendium can live in separate OS windows, and items must be draggable between them. This section explains why the current design does not directly support that, and what has to change when SH-51 arrives.
+SH-66 ships single-window drag and drop using Godot's built-in Control protocol. SH-51 introduces desktop mode where the clearance, kit, locker, and compendium can live in separate OS windows, and items must be draggable between them. This section explains why the current design does not directly support that, and what has to change when SH-51 arrives.
 
 ### Why Godot's built-in drag does not cross windows
 
@@ -228,7 +227,7 @@ A `DragManager` autoload that tracks drag state in screen coordinates, renders t
 
 Because the current design uses the forwarding pattern, the swap is mechanical: delete the Godot virtual methods, replace with `_gui_input` for drag start and `DragManager.register_drop_target` calls in `_ready`. The stable contract (`can_be_taken`, `build_drag_payload`, `build_drag_preview`, `can_accept`, `accept`) does not change. Nothing in the purchase flow, affordability logic, display case, signals, tests, or scene structure moves.
 
-### Trade-offs accepted by SH-32
+### Trade-offs accepted by SH-66
 
 - We commit to the forwarding pattern from day one, adding one level of indirection the single-window implementation does not strictly need. The cost is a handful of delegation methods; the payoff is that SH-51 does not require a shop rewrite.
 - We do not build a `DragManager` or abstract the drag preview mechanism now. The built-in Godot API is fine for one window; SH-51 introduces the abstraction when it is actually needed.
@@ -242,6 +241,58 @@ The same stable contract handles the future locker↔kit drag flow. A `LockerIte
 Nothing in `ShopItem` or `ClearanceBox` changes when the kit/locker ticket lands. The shared `item_drag_preview.tscn` is reused as the drag preview for every source. Source context (which slot did this come from?) does not need to live on the payload because `ItemManager` is the source of truth for current state: a drop target calls `equip_to_kit(key, slot)` and `ItemManager` handles any displacement or swap internally based on where it currently knows the item is.
 
 The only assumption this relies on is that `ItemManager` grows an `equip_to_kit` / `move_to_locker` pair (kit/locker ticket scope) and that those methods are state-aware enough to handle the full displacement logic without needing context from the drag source.
+
+---
+
+## Extensibility: direct-to-kit and direct-to-locker takes
+
+Once the kit and locker UI exist alongside the clearance, the player can drag a `ShopItem` straight onto a `KitSlot` or `LockerSlot` instead of routing through `ClearanceBox`. The clearance box stays as an explicit "deposit" affordance for players who prefer that gesture, or for layouts where the kit/locker UI is not currently visible, but it stops being the only path.
+
+### Why this works without changing `ShopItem`
+
+`ShopItem.build_drag_payload()` already returns a bare `ItemDefinition`. The payload carries no information about where the item came from, so any drop target that knows how to handle an `ItemDefinition` can accept it, regardless of source. The drag source has no opinion about which targets are valid; that lives entirely on the targets.
+
+### What the kit and locker drop targets do
+
+The acquisition step (taking the item out of the shop) and the placement step (putting it into a kit slot or locker slot) collapse into the drop target's `accept()` method. The target asks `ItemManager` whether the item is currently owned, and if not, calls `take(key)` first to acquire it, then proceeds with its normal placement logic:
+
+```gdscript
+# KitSlot.accept (illustrative)
+func accept(definition: ItemDefinition) -> void:
+    if ItemManager.get_level(definition.key) == 0:
+        if not ItemManager.take(definition.key):
+            return
+    ItemManager.equip_to_kit(definition.key, slot_index)
+```
+
+`LockerSlot.accept()` is even simpler: if not owned, call `take`; if already owned (dragged from kit), call `move_to_locker`. There is no separate "from shop" code path; the slot just reads current state from `ItemManager` and does the right thing.
+
+### Affordability gating
+
+`ShopItem.can_be_taken()` already refuses to start a drag for unaffordable items, so kit and locker slots will not see unaffordable payloads in normal play. Defensively, their `can_accept(definition)` should still check affordability when the item is unowned. To avoid duplicating the affordability rule across every drop target, `ItemManager` grows a small predicate:
+
+```gdscript
+# ItemManager
+func can_acquire(item_key: String) -> bool:
+    return get_level(item_key) == 0 and _progression.friendship_point_balance >= calculate_cost(item_key)
+```
+
+`ClearanceBox.can_accept`, `KitSlot.can_accept`, and `LockerSlot.can_accept` all call this when the item is unowned. The clearance box keeps its existing behaviour because `can_acquire` is exactly its current check, just named.
+
+### Friend's pick slot interaction
+
+The friend's pick slot is a property of the source (`ShopItem`), not the payload. Direct-to-kit and direct-to-locker takes do not change anything about how the pick slot is chosen, displayed, or refilled. The slot becomes empty after a successful take regardless of which target consumed it.
+
+### What this does not introduce
+
+- No new payload fields, no source context on the drag.
+- No changes to the stable contract on `ShopItem` or `ClearanceBox`.
+- No changes to `take`. It is the single acquisition primitive used by every target that needs to pull from the shop.
+- No atomicity requirement between `take` and `equip_to_kit`. If the equip step fails after a successful take, the item is owned but unequipped, which is a valid resting state and matches what the player would see if they had used the box. The kit/locker UI surfaces this state as "in the locker"; that framing is the kit/locker ticket's concern, not `take`'s.
+
+### Out of scope until the kit/locker ticket lands
+
+`KitSlot`, `LockerSlot`, `equip_to_kit`, `move_to_locker`, and `can_acquire` are all kit/locker ticket scope. SH-66 only ships `ClearanceBox` and `take`. This section exists so the kit/locker ticket can wire direct takes in without renegotiating the contract.
 
 ---
 
@@ -283,7 +334,7 @@ This is a rewrite of the shop's interior, not a fresh feature. Files affected:
 
 ---
 
-## Out of scope for SH-32
+## Out of scope for SH-66
 
 These live in the doc for context but are not in scope for this ticket:
 

@@ -140,6 +140,20 @@ func remove_level(item_key: String) -> void:
 		SaveManager.save()
 
 
+## Acquires an item without registering its effects. The item is owned but
+## inert until equipped into the kit. Returns true on success.
+func take(item_key: String) -> bool:
+	if get_level(item_key) >= 1:
+		return false
+	if _progression.friendship_point_balance < calculate_cost(item_key):
+		return false
+	subtract_friendship_points(calculate_cost(item_key))
+	_progression.item_levels[item_key] = 1
+	item_level_changed.emit(item_key)
+	SaveManager.save()
+	return true
+
+
 ## Returns points to the balance without counting them as newly earned.
 ## Used for undo flows (dev level removal, future kit swaps); not a public API.
 func _refund_friendship_points(points: int) -> void:

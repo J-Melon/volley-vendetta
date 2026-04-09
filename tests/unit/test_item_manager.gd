@@ -161,6 +161,66 @@ class TestRemoveLevel:
 		)
 
 
+class TestTake:
+	extends GutTest
+	const TEST_KEY := "test_speed"
+	var _manager: Node
+
+	func before_each() -> void:
+		_manager = ItemFactory.create_manager(self)
+
+	func test_take_returns_false_when_balance_too_low() -> void:
+		assert_false(_manager.take(TEST_KEY))
+
+	func test_take_returns_true_when_affordable() -> void:
+		_manager._progression.friendship_point_balance = 100
+		assert_true(_manager.take(TEST_KEY))
+
+	func test_take_marks_item_as_owned() -> void:
+		_manager._progression.friendship_point_balance = 100
+		_manager.take(TEST_KEY)
+		assert_eq(_manager.get_level(TEST_KEY), 1)
+
+	func test_take_deducts_cost_from_balance() -> void:
+		_manager._progression.friendship_point_balance = 300
+		_manager.take(TEST_KEY)
+		assert_eq(_manager.get_friendship_point_balance(), 200)
+
+	func test_take_returns_false_when_already_owned() -> void:
+		_manager._progression.friendship_point_balance = 1000
+		_manager.take(TEST_KEY)
+		assert_false(_manager.take(TEST_KEY))
+
+	func test_take_does_not_deduct_cost_when_already_owned() -> void:
+		_manager._progression.friendship_point_balance = 1000
+		_manager.take(TEST_KEY)
+		var balance_after_first_take: int = _manager.get_friendship_point_balance()
+		_manager.take(TEST_KEY)
+		assert_eq(_manager.get_friendship_point_balance(), balance_after_first_take)
+
+	func test_take_emits_item_level_changed() -> void:
+		_manager._progression.friendship_point_balance = 100
+		watch_signals(_manager)
+		_manager.take(TEST_KEY)
+		assert_signal_emitted_with_parameters(_manager, "item_level_changed", [TEST_KEY])
+
+	func test_take_emits_friendship_point_balance_changed() -> void:
+		_manager._progression.friendship_point_balance = 100
+		watch_signals(_manager)
+		_manager.take(TEST_KEY)
+		assert_signal_emitted(_manager, "friendship_point_balance_changed")
+
+	func test_take_does_not_apply_stat_effects() -> void:
+		var base_speed: float = GameRules.BASE_STATS[&"paddle_speed"]
+		_manager._progression.friendship_point_balance = 100
+		_manager.take(TEST_KEY)
+		assert_eq(
+			_manager.get_stat(&"paddle_speed"),
+			base_speed,
+			"take should not register the item's effects",
+		)
+
+
 class TestReloadFromProgression:
 	extends GutTest
 	const TEST_KEY := "test_speed"
