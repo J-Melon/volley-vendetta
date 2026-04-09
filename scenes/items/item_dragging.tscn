@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://c0wm0smi5xjeu"]
+
+[ext_resource type="Script" path="res://scripts/items/item_dragging.gd" id="1_lwckw"]
+
+[node name="ItemDragging" type="Control" unique_id=1808751934 node_paths=PackedStringArray("art_viewport", "art_viewport_container")]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_lwckw")
+art_viewport = NodePath("ArtViewportContainer/ArtViewport")
+art_viewport_container = NodePath("ArtViewportContainer")
+
+[node name="ArtViewportContainer" type="SubViewportContainer" parent="." unique_id=167663328]
+layout_mode = 0
+
+[node name="ArtViewport" type="SubViewport" parent="ArtViewportContainer" unique_id=2050231219]
+transparent_bg = true
+size = Vector2i(40, 40)

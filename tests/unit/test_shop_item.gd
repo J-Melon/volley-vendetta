@@ -111,6 +111,18 @@ class TestShopItemTakenState:
 		var item: ShopItem = _make_item(_definition)
 		assert_false(item.art_viewport_container.visible)
 
+	func test_drag_end_restores_art_when_drag_was_cancelled() -> void:
+		var item: ShopItem = _make_item(_definition)
+		item.art_viewport_container.visible = false
+		item._notification(Control.NOTIFICATION_DRAG_END)
+		assert_true(item.art_viewport_container.visible)
+
+	func test_drag_end_keeps_art_hidden_when_item_was_taken() -> void:
+		var item: ShopItem = _make_item(_definition)
+		_item_manager.take(_definition.key)
+		item._notification(Control.NOTIFICATION_DRAG_END)
+		assert_false(item.art_viewport_container.visible)
+
 
 class TestShopPanelLayout:
 	extends GutTest

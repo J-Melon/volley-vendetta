@@ -1,6 +1,8 @@
 class_name ShopItem
 extends Control
 
+const ItemDraggingScene: PackedScene = preload("res://scenes/items/item_dragging.tscn")
+
 @export var tooltip: ShopTooltip
 @export var art_viewport: SubViewport
 @export var art_viewport_container: SubViewportContainer
@@ -47,8 +49,13 @@ func build_drag_payload() -> ItemDefinition:
 
 
 func build_drag_preview() -> Control:
-	# todo: SH-66 wire item_drag_preview.tscn in Phase 3
-	return null
+	var dragging: ItemDragging = ItemDraggingScene.instantiate()
+	dragging.show_item(item_definition)
+	## Wrap so we can offset the preview and put the cursor tip at its centre.
+	var wrapper := Control.new()
+	wrapper.add_child(dragging)
+	dragging.position = -dragging.custom_minimum_size / 2.0
+	return wrapper
 
 
 func _get_drag_data(_pos: Vector2) -> Variant:
@@ -56,8 +63,17 @@ func _get_drag_data(_pos: Vector2) -> Variant:
 		return null
 	var preview: Control = build_drag_preview()
 	if preview != null:
-		set_drag_preview(preview)
+		DragManager.show_preview(preview)
+	## Hide the source art so the player perceives the item as lifted out of
+	## the slot. NOTIFICATION_DRAG_END restores it on cancel via _refresh_owned_visibility.
+	art_viewport_container.visible = false
 	return build_drag_payload()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_DRAG_END and item_definition != null:
+		DragManager.hide_preview()
+		_refresh_owned_visibility()
 
 
 func _build_visuals() -> void:

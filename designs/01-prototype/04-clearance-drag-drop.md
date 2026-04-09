@@ -150,13 +150,13 @@ Extends `Control`. Keeps its `setup(definition)` and existing signal subscriptio
 - `_get_drag_data(pos)` → returns null if `!can_be_taken()`, else calls `set_drag_preview(build_drag_preview())` and returns `build_drag_payload()`.
 - `can_be_taken()` encapsulates the gating: definition present, level < max, player can afford.
 - `build_drag_payload()` returns the `ItemDefinition`.
-- `build_drag_preview()` instantiates the shared `item_drag_preview.tscn` helper (see below) and hands it the current `ItemDefinition`.
+- `build_drag_preview()` instantiates the shared `item_dragging.tscn` helper (see below) and hands it the current `ItemDefinition`.
 
 Display case visibility and tooltip text refresh from `ItemManager` signals. There are no labels on the item itself; the tooltip is the only text surface.
 
-### item_drag_preview.tscn (new, shared)
+### item_dragging.tscn (new, shared)
 
-A small throwaway Control used as the drag preview that follows the cursor during a drag. Extends `Control` and contains a SubViewport-based renderer of an `ItemDefinition.art` scene, sized to roughly half the source's display size, modulated to ~0.75 alpha for translucency. Exposes a single `show_item(definition: ItemDefinition)` method.
+A small throwaway Control used as the drag preview that follows the cursor during a drag. Extends `Control` and contains a SubViewport-based renderer of an `ItemDefinition.art` scene, sized and rendered to match the source's display size 1:1 so the lift feels seamless. Exposes a single `show_item(definition: ItemDefinition)` method.
 
 This scene is shared across any drag source that shows an item being carried: `ShopItem` today, future `LockerItem` and `KitItem` tomorrow. Keeping it out of `shop_item.gd` avoids duplication when the kit/locker ticket adds its own drag sources.
 
@@ -238,7 +238,7 @@ Because the current design uses the forwarding pattern, the swap is mechanical: 
 
 The same stable contract handles the future locker↔kit drag flow. A `LockerItem` drag source implements `can_be_taken()` as "player owns it, not destroyed, not already in kit" and `build_drag_payload()` as "return the `ItemDefinition`". A `KitSlot` drop target implements `can_accept(definition)` as "slot eligible for this item type, slot empty or swappable" and `accept(definition)` as "call `ItemManager.equip_to_kit(key, slot_index)`". A `LockerSlot` drop target mirrors that for moving items back out of the kit.
 
-Nothing in `ShopItem` or `ClearanceBox` changes when the kit/locker ticket lands. The shared `item_drag_preview.tscn` is reused as the drag preview for every source. Source context (which slot did this come from?) does not need to live on the payload because `ItemManager` is the source of truth for current state: a drop target calls `equip_to_kit(key, slot)` and `ItemManager` handles any displacement or swap internally based on where it currently knows the item is.
+Nothing in `ShopItem` or `ClearanceBox` changes when the kit/locker ticket lands. The shared `item_dragging.tscn` is reused as the drag preview for every source. Source context (which slot did this come from?) does not need to live on the payload because `ItemManager` is the source of truth for current state: a drop target calls `equip_to_kit(key, slot)` and `ItemManager` handles any displacement or swap internally based on where it currently knows the item is.
 
 The only assumption this relies on is that `ItemManager` grows an `equip_to_kit` / `move_to_locker` pair (kit/locker ticket scope) and that those methods are state-aware enough to handle the full displacement logic without needing context from the drag source.
 
@@ -315,8 +315,8 @@ This is a rewrite of the shop's interior, not a fresh feature. Files affected:
 **New:**
 - `res://scenes/clearance_box.tscn`
 - `res://scripts/shop/clearance_box.gd`
-- `res://scenes/items/item_drag_preview.tscn` (shared drag preview, reused by future locker/kit sources)
-- `res://scripts/items/item_drag_preview.gd`
+- `res://scenes/items/item_dragging.tscn` (shared drag preview, reused by future locker/kit sources)
+- `res://scripts/items/item_dragging.gd`
 - `res://tests/unit/test_clearance_box.gd`
 - A "tink" sound effect asset for cased-item clicks (format and location per existing audio conventions)
 
