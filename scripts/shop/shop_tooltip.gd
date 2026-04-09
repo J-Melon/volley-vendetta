@@ -1,6 +1,7 @@
 class_name ShopTooltip
 extends Control
 
+@export var panel: PanelContainer
 @export var name_label: Label
 @export var cost_label: Label
 @export var flavor_label: Label
@@ -23,14 +24,15 @@ func hide_tooltip() -> void:
 
 
 func follow_mouse(mouse_position: Vector2) -> void:
+	var panel_size: Vector2 = panel.size
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 
 	var offset_x: float = 12.0
 	var offset_y: float = -20.0
 
 	## Flip horizontally if tooltip would overflow right edge
-	if mouse_position.x + offset_x + size.x > viewport_size.x:
-		offset_x = -size.x - 12.0
+	if mouse_position.x + offset_x + panel_size.x > viewport_size.x:
+		offset_x = -panel_size.x - 12.0
 
 	## Flip vertically if tooltip would overflow top edge
 	if mouse_position.y + offset_y < 0:

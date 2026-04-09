@@ -90,7 +90,7 @@ Shop (Control, script = shop_panel.gd)
 
 The Parallax2D background and Camera2D are removed. The Node2D `Table` is removed. The shop fills whatever Control space `SceneLayout` allocates to it. A `ColorRect` stands in as a plain backdrop until art replaces it. The `ClearanceBox` sits below the items row for prototype, spanning the full width so the player drags downward into it; exact placement is subject to change on the art pass.
 
-The middle slot (index 2 of 0-4) is visually distinguished as the friend's pick slot: a subtly different frame or background stylebox on the `ShopItem`. The rotation system that actually fills this slot with authored picks is out of scope for SH-66 (the prototype spawning logic continues to treat it as any other slot), but the visual cue lands now so the player sees one slot as more considered than the others from day one.
+The rightmost slot is visually distinguished as the friend's pick slot: a subtly different frame or background stylebox on the `ShopItem`. The rotation system that actually fills this slot with authored picks is out of scope for SH-66 (the prototype spawning logic continues to treat it as any other slot), but the visual cue lands now so the player sees one slot as more considered than the others from day one.
 
 The current `ShopPanel` script on the Node2D root is rewritten to extend Control instead. Its responsibilities remain: spawn items, update the friendship label, react to balance changes. It also flags the middle spawned item as the pick slot so the `ShopItem` applies the distinguished styling.
 

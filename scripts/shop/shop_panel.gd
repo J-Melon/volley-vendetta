@@ -40,11 +40,15 @@ func _apply_layout_config() -> void:
 
 
 func _spawn_items() -> void:
-	for definition: ItemDefinition in _get_visible_items():
+	var definitions: Array[ItemDefinition] = _get_visible_items()
+	var pick_index: int = definitions.size() - 1
+	for index: int in definitions.size():
+		var definition: ItemDefinition = definitions[index]
 		var item: ShopItem = ShopItemScene.instantiate()
 		item.name = "ShopItem_%s" % definition.key
 		item._item_manager = _item_manager
 		item.config = config
+		item.is_pick = index == pick_index
 		item.setup(definition)
 		items_row.add_child(item)
 
