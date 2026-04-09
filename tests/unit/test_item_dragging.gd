@@ -19,8 +19,8 @@ class TestShowItem:
 
 	func test_show_item_matches_source_art_size() -> void:
 		_dragging.show_item(RealItem)
-		var bounds: Rect2 = RealItem.art.instantiate().bounding_rect
-		assert_eq(_dragging.custom_minimum_size, bounds.size)
+		var art: ItemArt = _dragging.art_viewport.get_child(0)
+		assert_eq(_dragging.custom_minimum_size, art.bounding_rect.size)
 
 	func test_show_item_does_nothing_when_definition_is_null() -> void:
 		_dragging.show_item(null)

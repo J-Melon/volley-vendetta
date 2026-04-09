@@ -88,6 +88,14 @@ func calculate_cost(item_key: String) -> int:
 	return int(item.base_cost * pow(item.cost_scaling, get_level(item_key)))
 
 
+## Returns true if the item is unowned and affordable. Used by drop targets.
+func can_acquire(item_key: String) -> bool:
+	return (
+		get_level(item_key) == 0
+		and _progression.friendship_point_balance >= calculate_cost(item_key)
+	)
+
+
 ## Returns whether the player can afford and has not maxed an item
 func can_purchase(item_key: String) -> bool:
 	var item := _get_item(item_key)

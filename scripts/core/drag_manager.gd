@@ -13,8 +13,7 @@ func _ready() -> void:
 	add_child(_layer)
 
 
-## Hosts a drag preview Control above all SubViewports so it can follow the
-## cursor freely. Replaces any preview already showing.
+## Shows a drag preview Control above all SubViewports. Replaces any current preview.
 func show_preview(preview: Control) -> void:
 	hide_preview()
 	_preview = preview

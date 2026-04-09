@@ -21,8 +21,7 @@ func _ready() -> void:
 		_item_manager = ItemManager
 	if item_definition == null:
 		return
-	## Lift the tooltip out of normal sibling draw order so later items can't
-	## occlude an earlier item's tooltip. todo: SH-66 replace with a shared tooltip.
+	## todo: SH-66 replace with a shared tooltip; top_level avoids sibling occlusion.
 	tooltip.top_level = true
 	_build_visuals()
 	_refresh_owned_visibility()
@@ -36,12 +35,7 @@ func _ready() -> void:
 func can_be_taken() -> bool:
 	if item_definition == null:
 		return false
-	if _item_manager.get_level(item_definition.key) >= 1:
-		return false
-	return (
-		_item_manager.get_friendship_point_balance()
-		>= _item_manager.calculate_cost(item_definition.key)
-	)
+	return _item_manager.can_acquire(item_definition.key)
 
 
 func build_drag_payload() -> ItemDefinition:
@@ -51,8 +45,10 @@ func build_drag_payload() -> ItemDefinition:
 func build_drag_preview() -> Control:
 	var dragging: ItemDragging = ItemDraggingScene.instantiate()
 	dragging.show_item(item_definition)
-	## Wrap so we can offset the preview and put the cursor tip at its centre.
+	## Wrap so we can offset the preview to centre on the cursor. Mouse-ignore
+	## so the wrapper does not block the drop protocol from reaching the box.
 	var wrapper := Control.new()
+	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrapper.add_child(dragging)
 	dragging.position = -dragging.custom_minimum_size / 2.0
 	return wrapper
@@ -64,8 +60,7 @@ func _get_drag_data(_pos: Vector2) -> Variant:
 	var preview: Control = build_drag_preview()
 	if preview != null:
 		DragManager.show_preview(preview)
-	## Hide the source art so the player perceives the item as lifted out of
-	## the slot. NOTIFICATION_DRAG_END restores it on cancel via _refresh_owned_visibility.
+	## Hide the source art so the slot looks empty mid-drag; restored on DRAG_END.
 	art_viewport_container.visible = false
 	return build_drag_payload()
 
@@ -97,8 +92,7 @@ func _fit_to_art(art_instance: ItemArt) -> void:
 
 
 func _refresh_owned_visibility() -> void:
-	## Hide only the art so the slot keeps its place in the row. Lifting an item
-	## should not shift its neighbours.
+	## Hide only the art so the slot keeps its place in the row.
 	var owned: bool = _item_manager.get_level(item_definition.key) >= 1
 	art_viewport_container.visible = not owned
 	if owned:
@@ -106,8 +100,7 @@ func _refresh_owned_visibility() -> void:
 
 
 func _refresh_display_case() -> void:
-	## The display case is the unaffordable indicator. Owned slots are empty
-	## (no case, no art), not "behind glass".
+	## Display case marks unaffordable items; owned slots are empty, not behind glass.
 	var owned: bool = _item_manager.get_level(item_definition.key) >= 1
 	display_case.visible = not owned and not can_be_taken()
 

@@ -161,6 +161,27 @@ class TestRemoveLevel:
 		)
 
 
+class TestCanAcquire:
+	extends GutTest
+	const TEST_KEY := "test_speed"
+	var _manager: Node
+
+	func before_each() -> void:
+		_manager = ItemFactory.create_manager(self)
+
+	func test_returns_false_when_balance_too_low() -> void:
+		assert_false(_manager.can_acquire(TEST_KEY))
+
+	func test_returns_true_when_affordable_and_unowned() -> void:
+		_manager._progression.friendship_point_balance = 100
+		assert_true(_manager.can_acquire(TEST_KEY))
+
+	func test_returns_false_when_already_owned() -> void:
+		_manager._progression.friendship_point_balance = 1000
+		_manager.take(TEST_KEY)
+		assert_false(_manager.can_acquire(TEST_KEY))
+
+
 class TestTake:
 	extends GutTest
 	const TEST_KEY := "test_speed"
