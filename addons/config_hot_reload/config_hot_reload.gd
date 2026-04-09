@@ -82,6 +82,7 @@ func _add_watch(path: String, node: Node, property: String) -> void:
 
 
 func _on_node_exiting(node: Node) -> void:
+	var empty_paths: Array[String] = []
 	for path: String in _watches:
 		var entry: Dictionary = _watches[path]
 		entry.bindings = entry.bindings.filter(
@@ -89,6 +90,10 @@ func _on_node_exiting(node: Node) -> void:
 				var referenced: Node = binding.node_ref.get_ref()
 				return referenced != null and referenced != node
 		)
+		if entry.bindings.is_empty():
+			empty_paths.append(path)
+	for path: String in empty_paths:
+		_watches.erase(path)
 
 
 func _read_mtime(path: String) -> int:

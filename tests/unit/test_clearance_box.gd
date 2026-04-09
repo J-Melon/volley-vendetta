@@ -74,3 +74,32 @@ class TestAccept:
 		_item_manager._progression.friendship_point_balance = 1000
 		_box.accept(_definition)
 		assert_eq(_item_manager.get_stat(&"paddle_speed"), base_speed)
+
+
+class TestCanDropData:
+	extends GutTest
+	const TEST_KEY := "test_speed"
+
+	var _box: ClearanceBox
+	var _definition: ItemDefinition
+	var _item_manager: Node
+
+	func before_each() -> void:
+		_item_manager = ItemFactory.create_manager(self)
+		_item_manager._progression.friendship_point_balance = 1000
+		_definition = _item_manager.items[0]
+		_box = ClearanceBoxScene.instantiate()
+		_box._item_manager = _item_manager
+		add_child_autofree(_box)
+
+	func test_accepts_item_definition_payload() -> void:
+		assert_true(_box._can_drop_data(Vector2.ZERO, _definition))
+
+	func test_rejects_non_item_definition_payload() -> void:
+		assert_false(_box._can_drop_data(Vector2.ZERO, "a string"))
+
+	func test_rejects_null_payload() -> void:
+		assert_false(_box._can_drop_data(Vector2.ZERO, null))
+
+	func test_rejects_int_payload() -> void:
+		assert_false(_box._can_drop_data(Vector2.ZERO, 42))

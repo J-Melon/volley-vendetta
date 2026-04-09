@@ -9,13 +9,14 @@ const ShopItemScene: PackedScene = preload("res://scenes/shop_item.tscn")
 		config = value
 		if is_inside_tree():
 			_apply_config()
+			_cascade_config_to_items()
 @export var friendship_label: Label
 @export var items_row: HBoxContainer
 @export var pick_indicator: Control
 
 var preferred_width: int:
 	get:
-		return config.preferred_width if config != null else DEFAULT_CONFIG.preferred_width
+		return config.preferred_width
 
 var _item_manager: Node
 
@@ -29,13 +30,16 @@ func _ready() -> void:
 	_apply_config()
 
 
-## Re-applies every config-driven visual. Runs from _ready and whenever `config`
-## is re-assigned (inspector edit, hot reload, programmatic set).
+## Re-applies shop-level layout values. Child items receive their config during
+## spawn, so this function does not cascade; use _cascade_config_to_items() for that.
 func _apply_config() -> void:
 	if config == null or items_row == null:
 		return
 	items_row.position = config.items_row_position
 	_position_pick_indicator()
+
+
+func _cascade_config_to_items() -> void:
 	for child: Node in items_row.get_children():
 		if child is ShopItem:
 			child.config = config

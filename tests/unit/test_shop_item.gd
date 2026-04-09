@@ -123,6 +123,24 @@ class TestShopItemTakenState:
 		item._notification(Control.NOTIFICATION_DRAG_END)
 		assert_false(item.art_viewport_container.visible)
 
+	func test_drag_begin_sets_dragging_flag_on_every_item() -> void:
+		var item: ShopItem = _make_item(_definition)
+		item._notification(Control.NOTIFICATION_DRAG_BEGIN)
+		assert_true(item._dragging)
+
+	func test_drag_end_clears_dragging_flag() -> void:
+		var item: ShopItem = _make_item(_definition)
+		item._notification(Control.NOTIFICATION_DRAG_BEGIN)
+		item._notification(Control.NOTIFICATION_DRAG_END)
+		assert_false(item._dragging)
+
+	func test_mouse_entered_during_drag_does_not_show_tooltip() -> void:
+		var item: ShopItem = _make_item(_definition)
+		item._notification(Control.NOTIFICATION_DRAG_BEGIN)
+		item.tooltip.visible = false
+		item._on_mouse_entered()
+		assert_false(item.tooltip.visible)
+
 
 class TestDisplayCaseTap:
 	extends GutTest

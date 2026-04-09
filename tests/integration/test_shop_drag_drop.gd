@@ -128,3 +128,9 @@ func test_pick_indicator_sits_over_rightmost_item() -> void:
 	await get_tree().process_frame
 	var last_item: Control = _shop.items_row.get_child(_shop.items_row.get_child_count() - 1)
 	assert_eq(_shop.pick_indicator.global_position, last_item.global_position)
+
+
+func test_pick_note_position_matches_config() -> void:
+	await get_tree().process_frame
+	var note: Control = _shop.pick_indicator.get_child(0)
+	assert_eq(note.position, _shop.config.pick_note_position)

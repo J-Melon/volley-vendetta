@@ -31,7 +31,7 @@ func _ready() -> void:
 		_item_manager = ItemManager
 	if item_definition == null:
 		return
-	## todo: SH-66 replace with a shared tooltip; top_level avoids sibling occlusion.
+	## top_level lifts the tooltip out of sibling draw order; swap to a shared tooltip later.
 	tooltip.top_level = true
 	_build_visuals()
 	_refresh_owned_visibility()
@@ -61,7 +61,7 @@ func build_drag_preview() -> Control:
 	var wrapper := Control.new()
 	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wrapper.add_child(dragging)
-	dragging.position = -dragging.custom_minimum_size / 2.0
+	dragging.position = -dragging.visible_size / 2.0
 	return wrapper
 
 

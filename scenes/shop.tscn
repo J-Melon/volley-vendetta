@@ -4,30 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://d4grgci0n0c1y" path="res://scenes/clearance_box.tscn" id="2_1l46r"]
 [ext_resource type="Texture2D" uid="uid://hii0sc5nvjjx" path="res://assets/ui/friend_pick_note.svg" id="2_032fp"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ajvqh"]
-bg_color = Color(0.12, 0.1, 0.08, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.45, 0.35, 0.2, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v4bpy"]
-bg_color = Color(0.18, 0.14, 0.08, 0.95)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.85, 0.7, 0.35, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [node name="Shop" type="Control" unique_id=1880597484 node_paths=PackedStringArray("friendship_label", "items_row", "pick_indicator") groups=["hot_reloadable_config"]]
 layout_mode = 3
 anchors_preset = 15
@@ -135,6 +111,5 @@ size_flags_vertical = 3
 
 [node name="ClearanceBox" parent="Margin/Contents" unique_id=1891333944 instance=ExtResource("2_1l46r")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ajvqh")
-idle_stylebox = SubResource("StyleBoxFlat_ajvqh")
-hover_stylebox = SubResource("StyleBoxFlat_v4bpy")
+idle_stylebox = null
+hover_stylebox = null
