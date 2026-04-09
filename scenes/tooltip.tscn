@@ -13,14 +13,18 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
-[node name="Tooltip" type="Node2D" unique_id=577699881 node_paths=PackedStringArray("name_label", "cost_label", "flavor_label")]
-z_index = 100
+[node name="Tooltip" type="Control" unique_id=147463810 node_paths=PackedStringArray("panel", "name_label", "cost_label", "flavor_label")]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
 script = ExtResource("1_4vl6i")
+panel = NodePath("Panel")
 name_label = NodePath("Panel/VBoxContainer/HBoxContainer/NameLabel")
 cost_label = NodePath("Panel/VBoxContainer/HBoxContainer/CostLabel")
 flavor_label = NodePath("Panel/VBoxContainer/FlavorLabel")
 
 [node name="Panel" type="PanelContainer" parent="." unique_id=1928726747]
+layout_mode = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_7dicn")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=269132709]

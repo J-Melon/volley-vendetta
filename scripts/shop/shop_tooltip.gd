@@ -1,6 +1,7 @@
 class_name ShopTooltip
-extends Node2D
+extends Control
 
+@export var panel: PanelContainer
 @export var name_label: Label
 @export var cost_label: Label
 @export var flavor_label: Label
@@ -23,7 +24,6 @@ func hide_tooltip() -> void:
 
 
 func follow_mouse(mouse_position: Vector2) -> void:
-	var panel: PanelContainer = $Panel
 	var panel_size: Vector2 = panel.size
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 
