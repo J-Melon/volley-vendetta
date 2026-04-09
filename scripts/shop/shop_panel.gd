@@ -26,6 +26,7 @@ func _ready() -> void:
 func _spawn_items() -> void:
 	for definition: ItemDefinition in _get_visible_items():
 		var item: ShopItem = ShopItemScene.instantiate()
+		item.name = "ShopItem_%s" % definition.key
 		item._item_manager = _item_manager
 		item.setup(definition)
 		items_row.add_child(item)

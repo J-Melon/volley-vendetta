@@ -19,6 +19,9 @@ func _ready() -> void:
 		_item_manager = ItemManager
 	if item_definition == null:
 		return
+	## Lift the tooltip out of normal sibling draw order so later items can't
+	## occlude an earlier item's tooltip. todo: SH-66 replace with a shared tooltip.
+	tooltip.top_level = true
 	_build_visuals()
 	_refresh_owned_visibility()
 	_refresh_display_case()

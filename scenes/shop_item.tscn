@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://pk4rev1g2m1n"]
 
 [ext_resource type="Script" uid="uid://u11l4g640jwg" path="res://scripts/shop/shop_item.gd" id="1_lrx6i"]
+[ext_resource type="Script" uid="uid://dqi21u2ks283c" path="res://scripts/shop/shop_tooltip.gd" id="2_btjjm"]
 [ext_resource type="PackedScene" uid="uid://bo7g4jvqblgue" path="res://scenes/tooltip.tscn" id="3_6gmg1"]
 
 [node name="ShopItem" type="Control" unique_id=185153743 node_paths=PackedStringArray("tooltip", "art_viewport", "art_viewport_container", "display_case")]
@@ -12,8 +13,6 @@ tooltip = NodePath("Tooltip")
 art_viewport = NodePath("ArtViewportContainer/ArtViewport")
 art_viewport_container = NodePath("ArtViewportContainer")
 display_case = NodePath("DisplayCase")
-
-[node name="Tooltip" parent="." unique_id=577699881 instance=ExtResource("3_6gmg1")]
 
 [node name="ArtViewportContainer" type="SubViewportContainer" parent="." unique_id=1445583585]
 layout_mode = 0
@@ -29,3 +28,11 @@ render_target_update_mode = 4
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="Tooltip" type="Control" parent="." unique_id=147463810 node_paths=PackedStringArray("name_label", "cost_label", "flavor_label") instance=ExtResource("3_6gmg1")]
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("2_btjjm")
+name_label = NodePath("Panel/VBoxContainer/HBoxContainer/NameLabel")
+cost_label = NodePath("Panel/VBoxContainer/HBoxContainer/CostLabel")
+flavor_label = NodePath("Panel/VBoxContainer/FlavorLabel")
