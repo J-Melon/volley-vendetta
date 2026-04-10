@@ -1,4 +1,4 @@
-# Volley Vendetta - Pricing & Sales Strategy
+# Volley! - Pricing & Sales Strategy
 
 ## Launch Price
 
@@ -6,7 +6,7 @@
 
 ### Rationale
 
-- **Genre comps:** Cozy idle desktop games sit in the $5–$10 band. Cookie Clicker is $4.99, but Volley Vendetta has a genuine narrative hook (The Break) and a prestige loop, which justify the higher end of that range.
+- **Genre comps:** Cozy idle desktop games sit in the $5–$10 band. Cookie Clicker is $4.99, but Volley! has a genuine narrative hook (The Break) and a prestige loop, which justify the higher end of that range.
 - **Audience:** Casual players who run it in the background are price-sensitive. Anything above $9.99 creates friction at the point of impulse buy. $7.99 is the sweet spot, below the psychological $10 barrier, above "feels cheap."
 - **v1 scope:** v1 ships with the full core loop, 3–5 partners, milestones, prestige, and The Break twist. That's a complete, polished package, not a thin idle clicker.
 - **Steam context:** Steam's discovery algorithm rewards strong launch week sales volume. A lower price gets more wishlists converting, which feeds visibility.

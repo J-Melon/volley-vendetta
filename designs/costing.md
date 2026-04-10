@@ -1,4 +1,4 @@
-# Volley Vendetta - Costing
+# Volley! - Costing
 
 **Rate:** £22/hr | **Velocity:** 10pts/month | **Assumption:** 4 hours per point (half a working day)
 

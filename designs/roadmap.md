@@ -1,8 +1,8 @@
-# Volley Vendetta - Roadmap
+# Volley! - Roadmap
 
 ```mermaid
 timeline
-    title Volley Vendetta Roadmap
+    title Volley! Roadmap
 
     Prototype
         : HUD Pass
