@@ -4,12 +4,6 @@ extends PaddleAIController
 signal autoplay_toggled(autoplay: bool)
 
 
-func _physics_process(delta: float) -> void:
-	if Input.is_action_just_pressed("toggle_autoplay"):
-		toggle()
-	super._physics_process(delta)
-
-
 func toggle() -> void:
 	set_enabled(!_enabled)
 	paddle.set_physics_process(!_enabled)

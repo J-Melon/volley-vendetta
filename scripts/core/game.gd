@@ -47,6 +47,11 @@ func _ready() -> void:
 	personal_volley_best_changed.emit(_progression.personal_volley_best)
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_autoplay"):
+		autoplay_controller.toggle()
+
+
 func _physics_process(delta: float) -> void:
 	_item_manager.process_frame(delta)
 	var base_min: float = _item_manager.get_base_stat(&"ball_speed_min")
