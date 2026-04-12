@@ -26,6 +26,10 @@ func _ready() -> void:
 		shop_unlocked_changed.emit.call_deferred(true)
 
 
+func get_config() -> ProgressionConfig:
+	return _config
+
+
 ## Returns whether the shop has been unlocked
 func is_shop_unlocked() -> bool:
 	return _progression.shop_unlocked

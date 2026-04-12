@@ -24,7 +24,7 @@ func before_each() -> void:
 	_game.ball = _ball_stub
 	_game.paddle = _paddle_stub
 	_game.autoplay_controller = autoplay_controller_stub
-	_game.autoplay_config = AutoPlayConfig.new()
+	_game._progression_config = ProgressionConfig.new()
 	_game._progression = ProgressionData.new(mock_storage)
 	add_child_autofree(_ball_stub)
 	add_child_autofree(_paddle_stub)

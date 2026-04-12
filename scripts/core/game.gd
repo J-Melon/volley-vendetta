@@ -15,11 +15,11 @@ signal shop_button_pressed
 @export var ball: Ball
 @export var paddle: Paddle
 @export var autoplay_controller: AutoplayController
-@export var autoplay_config: AutoPlayConfig
 @export var hud: CanvasLayer
 
 var _volley_count := 0
 var _progression: ProgressionData
+var _progression_config: ProgressionConfig
 var _item_manager: Node
 var _is_autoplay_active := false
 var _friendship_point_accumulator := 0.0
@@ -27,9 +27,10 @@ var _friendship_point_accumulator := 0.0
 
 func _ready() -> void:
 	assert(autoplay_controller != null, "game.gd: autoplay_controller export must be assigned")
-	assert(autoplay_config != null, "game.gd: autoplay_config export must be assigned")
 	if _progression == null:
 		_progression = SaveManager.get_progression_data()
+	if _progression_config == null:
+		_progression_config = ProgressionManager.get_config()
 	if _item_manager == null:
 		_item_manager = ItemManager
 
@@ -44,6 +45,11 @@ func _ready() -> void:
 		hud.shop_button_pressed.connect(shop_button_pressed.emit)
 
 	personal_volley_best_changed.emit(_progression.personal_volley_best)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_autoplay"):
+		autoplay_controller.toggle()
 
 
 func _physics_process(delta: float) -> void:
@@ -85,14 +91,15 @@ func _on_ball_missed() -> void:
 
 func _on_auto_play_changed(is_active: bool) -> void:
 	_is_autoplay_active = is_active
-	auto_play_changed.emit(is_active, autoplay_config.friendship_point_rate)
+	auto_play_changed.emit(is_active, _progression_config.autoplay_friendship_point_rate)
 
 
 ## Fractional accumulation;
 ## remainder from a reduced autoplay rate carries between hits and resets on miss
 ## a missed rally never pays out
 func _accumulate_friendship_points() -> void:
-	var points_to_add: float = autoplay_config.friendship_point_rate if _is_autoplay_active else 1.0
+	var rate: float = _progression_config.autoplay_friendship_point_rate
+	var points_to_add: float = rate if _is_autoplay_active else 1.0
 	_friendship_point_accumulator += points_to_add
 	var whole_points: int = int(_friendship_point_accumulator)
 	if whole_points > 0:

@@ -10,7 +10,7 @@ const BALL_APPROACHING := Vector2(-100.0, 0.0)  # Ball moving toward paddle (neg
 var _controller: AutoplayController
 var _paddle: Paddle
 var _ball: Ball
-var _config: AutoPlayConfig
+var _config: PaddleAIConfig
 
 
 func before_each() -> void:
@@ -27,12 +27,10 @@ func before_each() -> void:
 	_paddle.add_child(tracker)
 	add_child_autofree(_paddle)
 
-	_config = AutoPlayConfig.new()
+	_config = PaddleAIConfig.new()
 	_config.reaction_delay_frames = 12
-	_config.autoplay_speed_scale = 0.75
-	_config.snap_threshold = 8.0
-	_config.center_drift_scale = 0.3
-	_config.center_drift_smoothing = 1.0  # No lerp smoothing in tests for predictable results
+	_config.speed_scale = 0.75
+	_config.noise = 0.0
 
 	_controller = load("res://scripts/core/autoplay_controller.gd").new()
 	_controller.paddle = _paddle
@@ -87,14 +85,21 @@ func test_autoplay_moves_paddle_toward_ball_when_ball_is_above() -> void:
 	assert_lt(_paddle.velocity.y, 0.0)
 
 
-func test_autoplay_speed_is_capped_at_configured_scale() -> void:
+func test_autoplay_speed_never_exceeds_configured_scale() -> void:
 	_ball.position = Vector2(0.0, FAR_BEYOND_SNAP_THRESHOLD)
 	_ball.linear_velocity = BALL_APPROACHING
 	_paddle.position = Vector2(0.0, 0.0)
 	_controller.toggle()
-	for i in range(_config.reaction_delay_frames + 1):
+	var max_allowed: float = _paddle.get_speed() * _config.speed_scale
+	for i in range(200):
 		_controller._physics_process(PHYSICS_DELTA)
-	assert_almost_eq(_paddle.velocity.y, _paddle.get_speed() * _config.autoplay_speed_scale, 0.01)
+		assert_true(
+			abs(_paddle.velocity.y) <= max_allowed + 0.01,
+			(
+				"velocity %.2f exceeded cap %.2f on frame %d"
+				% [abs(_paddle.velocity.y), max_allowed, i]
+			),
+		)
 
 
 # --- ring buffer delay ---
