@@ -60,7 +60,7 @@ func _on_shop_unlocked_changed(is_unlocked: bool) -> void:
 	shop_button.visible = is_unlocked
 
 
-func _on_partner_recruit_available(partner: PartnerDefinition) -> void:
+func _on_partner_recruit_available(partner: Variant) -> void:
 	if recruit_panel == null:
 		return
 	_pending_partner_key = partner.key
