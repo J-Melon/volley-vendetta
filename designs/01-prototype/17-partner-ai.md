@@ -163,9 +163,9 @@ The AI projects the ball in a straight line to the paddle's x-position. Three st
 
 ### How noise works
 
-Noise uses the Box-Muller transform to generate normally distributed random values from two uniform random numbers. The formula: `normal = sqrt(-2 * ln(u1)) * cos(2pi * u2)`, where u1 and u2 are uniform random values between 0 and 1. The result is a value from a standard normal distribution (mean 0, standard deviation 1), which is then scaled by the `noise` config value in pixels.
+Noise uses the Box-Muller transform to generate normally distributed random values from two uniform random numbers. The formula: `normal = sqrt(-2 * ln(u1)) * cos(2pi * u2)`, where u1 and u2 are uniform random values between 0 and 1. The result is a value from a standard normal distribution (mean 0, standard deviation 1), scaled by the `noise` config value in pixels, and clamped to 2x the noise value to prevent extreme outliers.
 
-Normal distribution means most samples cluster near zero (the AI aims close to the real target) with occasional larger values (the AI misjudges significantly). At `noise = 20`, about 68% of samples fall within 20 pixels of the real intercept, 95% within 40 pixels, and 99.7% within 60 pixels.
+Normal distribution means most samples cluster near zero (the AI aims close to the real target) with occasional larger values (the AI misjudges). The clamp at 2 sigma cuts the unbounded tail so the AI never produces offsets that look like bugs rather than misjudgements. At `noise = 20`: most offsets are under 20 pixels, the maximum possible offset is 40 pixels, and 95% of the natural distribution is preserved.
 
 Noise is sampled once per ball flight (when the ball changes horizontal direction after a wall bounce or paddle hit), not every frame. This means the AI commits to a slightly wrong position for the duration of a flight. Per-frame sampling would average out and produce no visible error.
 
