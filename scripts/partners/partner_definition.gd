@@ -5,4 +5,4 @@ extends Resource
 @export var display_name: String
 @export var unlock_threshold: int
 @export var unlock_cost: int
-@export var effects: Array[Effect]
+@export var effects: Array[Resource]

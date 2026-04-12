@@ -1,12 +1,12 @@
 extends Node
 
 signal shop_unlocked_changed(is_unlocked: bool)
-signal partner_recruit_available(partner: PartnerDefinition)
+signal partner_recruit_available(partner: Variant)
 signal partner_recruited(partner_key: StringName)
 
 const DEFAULT_CONFIG: ProgressionConfig = preload("res://resources/progression_config.tres")
 
-var partners: Array[PartnerDefinition] = [
+var partners: Array = [
 	preload("res://resources/partners/martha.tres"),
 ]
 
@@ -14,7 +14,6 @@ var _progression: ProgressionData
 var _config: ProgressionConfig
 var _item_manager: Node
 var _save_manager: Node
-var _recruit_offered: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -35,8 +34,7 @@ func _ready() -> void:
 	for partner in partners:
 		if partner.key in _progression.unlocked_partners:
 			continue
-		if _progression.total_friendship_points_earned >= partner.unlock_threshold:
-			_recruit_offered.append(partner.key)
+		if partner.key in _progression.recruit_offered_partners:
 			partner_recruit_available.emit.call_deferred(partner)
 
 
@@ -49,7 +47,7 @@ func is_shop_unlocked() -> bool:
 	return _progression.shop_unlocked
 
 
-func get_partner(partner_key: StringName) -> PartnerDefinition:
+func get_partner(partner_key: StringName):
 	for partner in partners:
 		if partner.key == partner_key:
 			return partner
@@ -61,7 +59,7 @@ func is_partner_unlocked(partner_key: StringName) -> bool:
 
 
 func can_recruit_partner(partner_key: StringName) -> bool:
-	var partner := get_partner(partner_key)
+	var partner = get_partner(partner_key)
 	if partner == null:
 		return false
 	return (
@@ -74,7 +72,7 @@ func can_recruit_partner(partner_key: StringName) -> bool:
 func recruit_partner(partner_key: StringName) -> bool:
 	if not can_recruit_partner(partner_key):
 		return false
-	var partner := get_partner(partner_key)
+	var partner = get_partner(partner_key)
 	_item_manager.subtract_friendship_points(partner.unlock_cost)
 	_progression.unlocked_partners.append(partner_key)
 	_progression.active_partner = partner_key
@@ -101,8 +99,9 @@ func _check_partner_unlocks() -> void:
 	for partner in partners:
 		if partner.key in _progression.unlocked_partners:
 			continue
-		if partner.key in _recruit_offered:
+		if partner.key in _progression.recruit_offered_partners:
 			continue
 		if _progression.total_friendship_points_earned >= partner.unlock_threshold:
-			_recruit_offered.append(partner.key)
+			_progression.recruit_offered_partners.append(partner.key)
+			_save_manager.save()
 			partner_recruit_available.emit(partner)

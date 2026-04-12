@@ -83,6 +83,7 @@ class TestPartnerRecruitPersistence:
 	func test_deferred_recruit_available_emitted_for_threshold_met_save() -> void:
 		var item_manager: Node = ItemFactory.create_manager(self)
 		item_manager._progression.total_friendship_points_earned = 200
+		item_manager._progression.recruit_offered_partners = [&"martha"] as Array[StringName]
 		var progression_manager: Node = ProgressionManagerFactory.create_manager(self, item_manager)
 		watch_signals(progression_manager)
 		await get_tree().process_frame
