@@ -1,4 +1,4 @@
-# Volley Vendetta - Costing
+# Volley! - Costing
 
 **Rate:** £22/hr | **Velocity:** 10pts/month | **Assumption:** 4 hours per point (half a working day)
 
@@ -43,7 +43,7 @@
 ## Notes
 
 - Calendar time is parallel (longest discipline track per phase), cost is total across all disciplines
-- Future updates (power-ups, new partners, cosmetics, etc.) not costed — scope undefined
+- Future updates (power-ups, new partners, cosmetics, etc.) not costed; scope undefined
 - Outreach (5pts in v1) has no discipline assignment
 - 4 hours per point assumes half a focused working day per point
 

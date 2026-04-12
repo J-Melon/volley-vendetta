@@ -1,4 +1,4 @@
-# Volley Vendetta - North Star
+# Volley! - North Star
 
 ## What is this game?
 

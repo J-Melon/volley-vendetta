@@ -1,6 +1,6 @@
 # World and Narrative
 
-The world building and emotional core of Volley Vendetta. Who these people are, what happened, and what the game is really about.
+The world building and emotional core of Volley!. Who these people are, what happened, and what the game is really about.
 
 ---
 
@@ -14,7 +14,7 @@ A plucky little paddle has a dream: beat the world volley record. It trains, rec
 
 Something is wrong.
 
-The game is a fiction inside a fiction. The world of Volley Vendetta, the arena, the partners, the record, is a constructed reality. It's too warm, too safe, too perfectly framed around one very specific goal. Real worlds don't work like that.
+The game is a fiction inside a fiction. The world of Volley!, the arena, the partners, the record, is a constructed reality. It's too warm, too safe, too perfectly framed around one very specific goal. Real worlds don't work like that.
 
 The paddle is a stand-in for someone. The world record is a displacement. The partners are not who they appear to be. They are memories of real people who affected the main character in their reality. Each partner has an ordinary human name because they are based on real people.
 
