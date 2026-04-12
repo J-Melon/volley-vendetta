@@ -25,7 +25,7 @@ func test_load_from_disk_returns_default_when_no_content() -> void:
 	stub(_mock_storage.read).to_return("")
 	_data.load_from_disk()
 	assert_eq(_data.friendship_point_balance, 0)
-	assert_eq(_data.item_levels, {} as Dictionary[StringName, int])
+	assert_eq(_data.item_levels, {} as Dictionary[String, int])
 	assert_eq(_data.personal_volley_best, 0)
 
 
@@ -42,7 +42,7 @@ func test_save_and_load_round_trip() -> void:
 	stub(_mock_storage.read).to_return(saved_json)
 	loaded.load_from_disk()
 	assert_eq(loaded.friendship_point_balance, 500)
-	assert_eq(loaded.item_levels, {"paddle_speed": 3} as Dictionary[StringName, int])
+	assert_eq(loaded.item_levels, {"paddle_speed": 3} as Dictionary[String, int])
 	assert_eq(loaded.personal_volley_best, 42)
 
 

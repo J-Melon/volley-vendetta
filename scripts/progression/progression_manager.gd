@@ -14,6 +14,7 @@ var _progression: ProgressionData
 var _config: ProgressionConfig
 var _item_manager: Node
 var _save_manager: Node
+var _recruit_offered: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -35,6 +36,7 @@ func _ready() -> void:
 		if partner.key in _progression.unlocked_partners:
 			continue
 		if _progression.total_friendship_points_earned >= partner.unlock_threshold:
+			_recruit_offered.append(partner.key)
 			partner_recruit_available.emit.call_deferred(partner)
 
 
@@ -99,5 +101,8 @@ func _check_partner_unlocks() -> void:
 	for partner in partners:
 		if partner.key in _progression.unlocked_partners:
 			continue
+		if partner.key in _recruit_offered:
+			continue
 		if _progression.total_friendship_points_earned >= partner.unlock_threshold:
+			_recruit_offered.append(partner.key)
 			partner_recruit_available.emit(partner)
