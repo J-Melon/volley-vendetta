@@ -6,7 +6,7 @@ Research into why Breakout spawned a richer, more enduring lineage of clones tha
 
 ## The Pong Clone Explosion (1972-1977)
 
-Pong was released in November 1972 by Atari. By January 1974, approximately **50,000 coin-op video games had been produced, with 90% being ball-and-paddle games** [1]. Atari had built less than a third of them; the rest were clones [1].
+Pong was released in November 1972 by Atari. By January 1974, approximately **50,000 coin-op video games had been produced, with 90% being ball-and-paddle games** [1]. Atari had built less than a third of them; the rest were clones [1]. (Note: this figure is widely cited in secondary sources but the original primary source is unclear; treat it as an order-of-magnitude estimate rather than a precise count.)
 
 ### Timeline
 
@@ -283,9 +283,9 @@ Arcade games were tested in limited numbers. Once word spread about a hit, compe
 
 Pong was widely *reproduced* but not widely *varied*. Its design space was too small; there were not enough knobs to turn. Breakout's design, by moving to single-player, adding a destructible environment, and introducing a level-based structure, opened up an enormous space for variation. Arkanoid proved that space could be expanded even further with power-ups, enemies, and bosses [8]. The result: Breakout became not just a game but a genre, one that is still producing new entries nearly 50 years later.
 
-The modern evidence reinforces this. Brick breakers have accumulated 948 million mobile downloads and $296 million in revenue [10]. Ball x Pit sold a million copies on PC in 2025 [13]. Pong-style games have found dedicated communities (Lethal League Blaze's 97% positive reviews speak for themselves [20]) but have not achieved the same commercial scale. The design space argument is not just a historical observation; it continues to shape which lineages grow and which stay niche.
+The modern evidence reinforces this. Brick breakers have accumulated 948 million mobile downloads and $296 million in revenue [10]. Ball x Pit sold a million copies on PC in 2025 [13]. Pong-style games have found dedicated communities (Lethal League Blaze's 97% positive reviews speak for themselves [20]) but have not achieved the same commercial scale. The design space argument is not just a historical observation; it continues to play out in real time.
 
-The distinction between reproduction and variation is the key to understanding why some games get cloned and forgotten, while others get cloned and become the foundation for an entire lineage.
+The distinction between reproduction and variation is the key to understanding why some games get cloned and forgotten, while others get cloned and become the seed of something that outlasts them.
 
 ---
 

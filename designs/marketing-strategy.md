@@ -244,7 +244,7 @@ All marketing materials should follow the same Five Commandments as the game's a
 
 **Mitigation**: The game must work as a pure idle game for Tier 1 players. The narrative is a retention and word-of-mouth driver, not a purchase driver. Do not try to sell the twist.
 
-### Risk: Small outreach budget (5 points / ~£440)
+### Risk: Small outreach budget (5 roadmap points / ~£440; see `costing.md`)
 
 **Mitigation**: The hand-drawn art style and partner personality are inherently shareable. The narrative generates organic word of mouth. Invest the budget in a small number of well-chosen creator keys rather than broad advertising.
 
@@ -297,7 +297,7 @@ Despite the headwinds, Volley! has several structural advantages that most first
 
 **No existing audience.** Starting from zero wishlists. Without a viral moment, festival pickup, or creator coverage, expect 1-5 organic wishlists per day from Steam discovery alone. That is slow [25].
 
-**The cozy idle space is getting crowded.** Post-Rusty's Retirement, there is a wave of idle and companion-style games arriving on Steam. Volley! differentiates through art direction, narrative depth, and a unique mechanical foundation, but the broader niche is no longer undiscovered.
+**The cozy idle space is getting crowded.** Post-Rusty's Retirement, a wave of idle and companion-style games is arriving on Steam: Ropuka's Idle Island, Cozy Island Idle, and various bottom-of-screen farming games are already competing for the same audience. Volley! differentiates through art direction, narrative depth, and a unique mechanical foundation, but the broader niche is no longer undiscovered.
 
 **Marketing takes real effort.** 54% of game developers do no marketing at all. Just being in the other 46% is an advantage, but it requires deliberate, sustained work alongside development [25].
 
@@ -370,6 +370,8 @@ A game can only participate in **one Next Fest, ever**. The timing of that singl
 - A February demo gives 5 months of sustained wishlist growth before v1.
 
 **Registration deadline**: Roughly 6-7 weeks before the fest (likely early-to-mid January 2027). Demo build and store assets need to be submitted 2-4 weeks before the fest starts [34].
+
+**Fallback if Alpha slips**: If Alpha does not ship by Dec 31 2026 and the demo is not ready for February, cancel the Next Fest registration (cancelling before the fest does not burn the one-time participation) and target **October 2027 Next Fest** instead. This is post-launch, which is less ideal, but a polished post-launch demo will convert better than a rushed pre-launch one. The themed fests (Cozy Fest, Narrative Fest) and showcases (Wholesome Direct, LudoNarraCon) would then carry the pre-launch visibility load.
 
 ---
 
