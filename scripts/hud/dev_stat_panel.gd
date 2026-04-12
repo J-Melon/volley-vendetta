@@ -73,9 +73,13 @@ func _read_version() -> String:
 		var file := FileAccess.open("res://version.txt", FileAccess.READ)
 		if file != null:
 			return file.get_as_text().strip_edges()
-	var output: Array = []
-	if OS.execute("git", ["describe", "--always", "--dirty"], output) == OK and output.size() > 0:
-		return output[0].strip_edges()
+	if OS.has_feature("editor"):
+		var output: Array = []
+		if (
+			OS.execute("git", ["describe", "--always", "--dirty"], output) == OK
+			and output.size() > 0
+		):
+			return output[0].strip_edges()
 	return "unknown"
 
 
