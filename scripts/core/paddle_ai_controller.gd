@@ -83,11 +83,11 @@ func _predict_intercept() -> float:
 func _sample_noise() -> float:
 	if config.noise <= 0.0:
 		return 0.0
-	# Box-Muller transform for normal distribution
+	# Box-Muller: normal distribution clamped at 2 sigma to prevent outliers
 	var u1: float = randf_range(0.001, 1.0)
 	var u2: float = randf_range(0.0, 1.0)
 	var normal: float = sqrt(-2.0 * log(u1)) * cos(TAU * u2)
-	return normal * config.noise
+	return clampf(normal * config.noise, -config.noise * 2.0, config.noise * 2.0)
 
 
 func _track() -> void:

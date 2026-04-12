@@ -1,7 +1,7 @@
 class_name GameRules
 extends RefCounted
 
-const CONFIG: Resource = preload("res://resources/base_stats.tres")
+const CONFIG: BaseStatsConfig = preload("res://resources/base_stats.tres")
 
 ## Read-only dictionary of base stat values loaded from base_stats.tres.
 static var base_stats: Dictionary = _init_base_stats()

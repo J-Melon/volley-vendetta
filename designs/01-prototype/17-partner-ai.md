@@ -149,7 +149,25 @@ flowchart TD
     Drift --> Drive
 ```
 
-The prediction is a single linear projection with a wall-reflection loop. Computationally trivial for pong geometry.
+### How prediction works
+
+The AI projects the ball in a straight line to the paddle's x-position. Three steps:
+
+**Step 1: Time to reach.** Distance from ball to paddle's x-lane divided by the ball's horizontal speed. `time = abs(paddle_x - ball_x) / abs(ball_velocity_x)`.
+
+**Step 2: Project y-position.** Advance the ball's y by that time. `projected_y = ball_y + ball_velocity_y * time`. This is where the ball would arrive if the arena had no walls.
+
+**Step 3: Reflect off walls.** If the projected y is outside the arena bounds, fold it back in. The overshoot past a wall is mirrored: if the ball would end up 57 pixels past the bottom wall at y=493, it reflects to 493 - 57 = 436. If a reflection puts it past the opposite wall, reflect again. Repeat until in bounds. Capped at 20 reflections to avoid infinite loops on near-vertical paths; the final result is clamped to arena bounds as a safety net.
+
+**Example:** Arena is -493 to 493. Ball at y=400 moving down at 300 px/s, reaching the paddle in 0.5s. Projected y = 400 + 300 * 0.5 = 550. That's 57 past the bottom wall, so reflect: 493 - 57 = 436. Result: the AI targets y=436.
+
+### How noise works
+
+Noise uses the Box-Muller transform to generate normally distributed random values from two uniform random numbers. The formula: `normal = sqrt(-2 * ln(u1)) * cos(2pi * u2)`, where u1 and u2 are uniform random values between 0 and 1. The result is a value from a standard normal distribution (mean 0, standard deviation 1), which is then scaled by the `noise` config value in pixels.
+
+Normal distribution means most samples cluster near zero (the AI aims close to the real target) with occasional larger values (the AI misjudges significantly). At `noise = 20`, about 68% of samples fall within 20 pixels of the real intercept, 95% within 40 pixels, and 99.7% within 60 pixels.
+
+Noise is sampled once per ball flight (when the ball changes horizontal direction after a wall bounce or paddle hit), not every frame. This means the AI commits to a slightly wrong position for the duration of a flight. Per-frame sampling would average out and produce no visible error.
 
 ### Why reaction delay on predicted targets (not raw position)
 
