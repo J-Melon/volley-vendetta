@@ -56,6 +56,9 @@ jobs:
           sed -i 's|, "res://addons/gut/plugin.cfg"||g' project.godot
           rm -rf addons/coverage
 
+      - name: Write version
+        run: git describe --always --dirty > version.txt
+
       - name: Export Web
         id: export
         uses: firebelley/godot-export@v7.0.0
