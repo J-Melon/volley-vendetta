@@ -39,7 +39,7 @@ func before_each() -> void:
 	_game.ball = _ball
 	_game.paddle = _paddle
 	_game.autoplay_controller = autoplay_controller_stub
-	_game.autoplay_config = AutoPlayConfig.new()
+	_game._progression_config = ProgressionConfig.new()
 	_game._item_manager = _manager
 	add_child_autofree(_ball)
 	add_child_autofree(_paddle)

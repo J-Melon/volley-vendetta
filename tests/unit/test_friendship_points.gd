@@ -27,15 +27,15 @@ func before_each() -> void:
 	_autoplay_controller_stub = load("res://tests/stubs/autoplay_controller_stub.gd").new()
 	add_child_autofree(_autoplay_controller_stub)
 
-	var autoplay_config: AutoPlayConfig = AutoPlayConfig.new()
-	autoplay_config.friendship_point_rate = 0.5
+	var progression_config: ProgressionConfig = ProgressionConfig.new()
+	progression_config.autoplay_friendship_point_rate = 0.5
 
 	_game = load("res://scripts/core/game.gd").new()
 	_game.ball = _ball_stub
 	_game.paddle = _paddle_stub
 	_game.autoplay_controller = _autoplay_controller_stub
-	_game.autoplay_config = autoplay_config
 	_game._progression = ProgressionData.new(mock_storage)
+	_game._progression_config = progression_config
 	_game._item_manager = _item_manager
 	add_child_autofree(_ball_stub)
 	add_child_autofree(_paddle_stub)
