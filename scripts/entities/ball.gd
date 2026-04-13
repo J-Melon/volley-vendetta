@@ -39,7 +39,8 @@ func _on_body_entered(body: Node) -> void:
 
 
 func register_miss_zone(zone: MissZone) -> void:
-	zone.body_entered.connect(_on_miss_zone_body_entered)
+	if not zone.body_entered.is_connected(_on_miss_zone_body_entered):
+		zone.body_entered.connect(_on_miss_zone_body_entered)
 
 
 func _on_miss_zone_body_entered(body: Node) -> void:
