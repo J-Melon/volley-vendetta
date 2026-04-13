@@ -88,7 +88,7 @@ func _on_paddle_hit() -> void:
 func _on_ball_at_max_speed_changed(is_at_max: bool) -> void:
 	ball_at_max_speed_changed.emit(is_at_max)
 	if is_at_max:
-		var actions: Array[StringName] = _item_manager.process_event(&"on_max_speed_reached")
+		_item_manager.process_event(&"on_max_speed_reached")
 
 
 func _on_ball_missed() -> void:
