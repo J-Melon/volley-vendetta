@@ -96,8 +96,9 @@ func _on_ball_missed() -> void:
 	# then reset uses the post-clear min_speed. Reversing this order would
 	# reset to a stale min before modifiers are removed.
 	var actions: Array[StringName] = _item_manager.process_event(&"on_miss")
+	var should_halve: bool = actions.has(&"halve_streak")
 
-	if actions.has(&"halve_streak"):
+	if should_halve:
 		_volley_count = _volley_count / 2
 	else:
 		_volley_count = 0
@@ -105,7 +106,7 @@ func _on_ball_missed() -> void:
 	_friendship_point_accumulator = 0.0
 	volley_count_changed.emit(_volley_count)
 
-	if actions.has(&"halve_streak") and _volley_count > 0:
+	if should_halve and _volley_count > 0:
 		ball.set_speed_for_streak(_volley_count)
 	else:
 		ball.reset_speed()

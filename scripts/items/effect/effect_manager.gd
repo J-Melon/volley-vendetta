@@ -44,10 +44,16 @@ func process_frame(delta: float) -> void:
 
 
 func unregister_source(source: Resource) -> void:
+	assert(source.has_method("get_key"), "Effect source must implement get_key()")
 	_clear_source(source.get_key())
 
 
 func register_source(source: Resource, level: int) -> void:
+	assert(source.has_method("get_key"), "Effect source must implement get_key()")
+	assert(
+		source.has_method("get_effects_for_level"),
+		"Effect source must implement get_effects_for_level()"
+	)
 	var source_key: String = source.get_key()
 	_clear_source(source_key)
 	for effect in source.get_effects_for_level(level):
