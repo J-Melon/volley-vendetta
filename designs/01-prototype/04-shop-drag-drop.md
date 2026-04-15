@@ -1,7 +1,7 @@
-# Clearance Drag and Drop
+# Shop Drag and Drop
 
 ## Goal
-Implementation design for the Act 1 clearance interaction: a Control-based drag and drop flow where the player moves items from the friend's things into a box to take them. Covers the structural shape of `shop.tscn`, the draggable `ShopItem` Control, the `ClearanceBox` drop target, and the new `ItemManager.take()` acquisition primitive that marks an item as owned without registering its effects.
+Implementation design for the Act 1 shop interaction: a Control-based drag and drop flow where the player moves items from the friend's things into a box to take them. Covers the structural shape of `shop.tscn`, the draggable `ShopItem` Control, the `ClearanceBox` drop target, and the new `ItemManager.take()` acquisition primitive that marks an item as owned without registering its effects.
 
 **Dependencies:** Upgrade Shop (04-upgrade-shop), Item UI (05-item-ui), Scene Layout (08-scene-layout)
 
@@ -23,7 +23,7 @@ This document restructures the shop's interior to be Control-rooted while keepin
 
 ## Interaction model
 
-The player interacts with the clearance by dragging items from a display row into a box. The interaction is diegetic: moving an object into a container, not selecting a menu option.
+The player interacts with the shop by dragging items from a display row into a box. The interaction is diegetic: moving an object into a container, not selecting a menu option.
 
 ### Pick up
 A draggable item responds to mouse-down with a drag start. Godot's Control drag and drop protocol handles the rest (cursor preview, hover feedback, cancellation).
@@ -42,7 +42,7 @@ The box has three visual states:
 - **Invalid hover**: not triggered in prototype, because unaffordable items cannot start a drag in the first place (see below)
 
 ### Release
-On successful drop, the box calls `ItemManager.take(item_definition.key)`. The item is now owned, but its effects do not apply until the player equips it into the kit. Per 04-kit-and-locker, the kit is the active loadout and only kit items fire their causality and stat effects. The clearance is the acquisition surface, not the equip surface: taking is "I want to keep this" and equipping happens later in the kit/locker UI. Where the item lives between acquisition and equip (the locker, in prototype) is the responsibility of the kit/locker UI, not of `take` itself.
+On successful drop, the box calls `ItemManager.take(item_definition.key)`. The item is now owned, but its effects do not apply until the player equips it into the kit. Per 04-kit-and-locker, the kit is the active loadout and only kit items fire their causality and stat effects. The shop is the acquisition surface, not the equip surface: taking is "I want to keep this" and equipping happens later in the kit/locker UI. Where the item lives between acquisition and equip (the locker, in prototype) is the responsibility of the kit/locker UI, not of `take` itself.
 
 The box emits an `item_taken(definition)` signal for future UI reactions (sound, flash, friend reaction animation).
 
@@ -81,7 +81,7 @@ Shop (Control, script = shop.gd)
 ├── Background (ColorRect)
 ├── Contents (VBoxContainer with margin padding)
 │   ├── Header (HBoxContainer)
-│   │   ├── TitleLabel ("Friend's Clearance")
+│   │   ├── TitleLabel ("Friend's Shop")
 │   │   └── FriendshipLabel (right-aligned)
 │   ├── ItemsRow (HBoxContainer)
 │   │   └── ShopItem instances
@@ -187,9 +187,9 @@ UI listeners react to the existing `friendship_point_balance_changed` and `item_
 
 ## ItemManager changes
 
-The current `ItemManager.purchase(item_key)` conflates owning an item with equipping its effects. That is fine for the dev item panel (which wants both in one click) but wrong for the clearance: per 04-kit-and-locker, only equipped kit items fire effects, and equipping is a separate action the kit/locker UI owns.
+The current `ItemManager.purchase(item_key)` conflates owning an item with equipping its effects. That is fine for the dev item panel (which wants both in one click) but wrong for the shop: per 04-kit-and-locker, only equipped kit items fire effects, and equipping is a separate action the kit/locker UI owns.
 
-SH-66 adds a new `take(item_key)` method that deducts FP, marks the item as owned, saves, and emits `item_level_changed`, but deliberately does **not** register effects with `EffectManager`. The clearance calls this instead of `purchase()`.
+SH-66 adds a new `take(item_key)` method that deducts FP, marks the item as owned, saves, and emits `item_level_changed`, but deliberately does **not** register effects with `EffectManager`. The shop calls this instead of `purchase()`.
 
 The existing `purchase()` method stays unchanged so the dev panel and existing tests continue to work. The eventual kit/locker ticket will replace the dev panel's reliance on auto-equipping and `purchase()` can be deleted then.
 
@@ -211,7 +211,7 @@ Godot's built-in drag protocol handles cancellation silently: dropping outside a
 
 ## Extensibility: multi-window drag (SH-51 forward compatibility)
 
-SH-66 ships single-window drag and drop using Godot's built-in Control protocol. SH-51 introduces desktop mode where the clearance, kit, locker, and compendium can live in separate OS windows, and items must be draggable between them. This section explains why the current design does not directly support that, and what has to change when SH-51 arrives.
+SH-66 ships single-window drag and drop using Godot's built-in Control protocol. SH-51 introduces desktop mode where the shop, kit, locker, and compendium can live in separate OS windows, and items must be draggable between them. This section explains why the current design does not directly support that, and what has to change when SH-51 arrives.
 
 ### Why Godot's built-in drag does not cross windows
 
@@ -246,7 +246,7 @@ The only assumption this relies on is that `ItemManager` grows an `equip_to_kit`
 
 ## Extensibility: direct-to-kit and direct-to-locker takes
 
-Once the kit and locker UI exist alongside the clearance, the player can drag a `ShopItem` straight onto a `KitSlot` or `LockerSlot` instead of routing through `ClearanceBox`. The clearance box stays as an explicit "deposit" affordance for players who prefer that gesture, or for layouts where the kit/locker UI is not currently visible, but it stops being the only path.
+Once the kit and locker UI exist alongside the shop, the player can drag a `ShopItem` straight onto a `KitSlot` or `LockerSlot` instead of routing through `ClearanceBox`. The `ClearanceBox` drop target stays as an explicit "deposit" affordance for players who prefer that gesture, or for layouts where the kit/locker UI is not currently visible, but it stops being the only path.
 
 ### Why this works without changing `ShopItem`
 
@@ -277,7 +277,7 @@ func can_acquire(item_key: String) -> bool:
     return get_level(item_key) == 0 and _progression.friendship_point_balance >= calculate_cost(item_key)
 ```
 
-`ClearanceBox.can_accept`, `KitSlot.can_accept`, and `LockerSlot.can_accept` all call this when the item is unowned. The clearance box keeps its existing behaviour because `can_acquire` is exactly its current check, just named.
+`ClearanceBox.can_accept`, `KitSlot.can_accept`, and `LockerSlot.can_accept` all call this when the item is unowned. The `ClearanceBox` keeps its existing behaviour because `can_acquire` is exactly its current check, just named.
 
 ### Friend's pick slot interaction
 
@@ -341,7 +341,7 @@ These live in the doc for context but are not in scope for this ticket:
 - Rotation system (act-gated pools, paired gravity, friend's pick, discovery floor, safety net item). The prototype keeps the placeholder "first five unpurchased items" logic that already exists in `shop.gd`.
 - Item destruction and second-chance variants.
 - Cross-window drag for desktop experience.
-- The clearance winding-down phase (slot count drops, pick slot goes quiet).
+- The shop winding-down phase (slot count drops, pick slot goes quiet).
 - Friend reaction animations.
 - Drag juice (tweens, scale pops, rubber-band snap-back).
 - Display case art.
