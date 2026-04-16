@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   sync:
-    name: Mirror designs/ to wiki
+    name: Mirror designs to wiki
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -46,7 +46,6 @@ jobs:
 
           if [ -f designs/INDEX.md ]; then
             cp designs/INDEX.md wiki/Home.md
-            cp designs/INDEX.md wiki/_Sidebar.md
           fi
 
           # Wiki page URLs drop the .md extension. Rewrite markdown link targets
