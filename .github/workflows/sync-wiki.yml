@@ -1,0 +1,63 @@
+name: Sync Design Docs to GitHub Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'designs/**/*.md'
+      - '.github/workflows/sync-wiki.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-wiki
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Mirror designs/ to wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Checkout wiki
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.WIKI_TOKEN }}
+
+      - name: Mirror designs/ into wiki
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+
+          find wiki -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          for src in designs/**/*.md; do
+            rel="${src#designs/}"
+            # Top-level INDEX.md becomes Home.md + _Sidebar.md, skip the copy-through.
+            [ "$rel" = "INDEX.md" ] && continue
+            dest="wiki/$rel"
+            mkdir -p "$(dirname "$dest")"
+            cp "$src" "$dest"
+          done
+
+          if [ -f designs/INDEX.md ]; then
+            cp designs/INDEX.md wiki/Home.md
+            cp designs/INDEX.md wiki/_Sidebar.md
+          fi
+
+      - name: Commit and push
+        working-directory: wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Sync designs/ from ${{ github.sha }}"
+            git push
+          else
+            echo "No changes to sync."
+          fi
