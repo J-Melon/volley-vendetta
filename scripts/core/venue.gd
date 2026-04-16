@@ -1,15 +1,13 @@
 class_name Venue
 extends Control
 
-const HudScene: PackedScene = preload("res://scenes/hud.tscn")
-
 @export var game_root: Node
 @export var game_ui_viewport: SubViewport
 @export var secondary_container: Control
 @export var shop: Control
+@export var hud: Hud
 
 var _ui_scale_config := UIScaleConfig.new()
-var _hud: CanvasLayer
 
 
 func _ready() -> void:
@@ -17,7 +15,7 @@ func _ready() -> void:
 	if shop != null:
 		secondary_container.custom_minimum_size.x = shop.preferred_width
 
-	_setup_hud()
+	_wire_hud()
 
 	# Defer scale application until after stretch has resized the viewport.
 	await get_tree().process_frame
@@ -25,23 +23,20 @@ func _ready() -> void:
 	game_ui_viewport.size_changed.connect(_on_game_ui_viewport_resized)
 
 
-func _setup_hud() -> void:
-	_hud = HudScene.instantiate()
-	game_ui_viewport.add_child(_hud)
+func _wire_hud() -> void:
+	hud.shop_button_pressed.connect(_on_shop_button_pressed)
 
-	_hud.shop_button_pressed.connect(_on_shop_button_pressed)
-
-	var scale_setting := _hud.get_node_or_null("HudScaleSetting")
+	var scale_setting := hud.get_node_or_null("HudScaleSetting")
 	if scale_setting != null:
 		scale_setting.set_ui_scale_config(_ui_scale_config)
 		scale_setting.scale_applied.connect(func(_value: float) -> void: apply_global_scale())
 
 	if game_root != null:
-		game_root.volley_count_changed.connect(_hud.update_volley_count)
-		game_root.personal_volley_best_changed.connect(_hud.update_personal_volley_best)
-		game_root.ball_speed_updated.connect(_hud.update_speed)
-		game_root.auto_play_changed.connect(_hud.update_auto_play)
-		game_root.partner_changed.connect(_hud.update_fp_bonus)
+		game_root.volley_count_changed.connect(hud.update_volley_count)
+		game_root.personal_volley_best_changed.connect(hud.update_personal_volley_best)
+		game_root.ball_speed_updated.connect(hud.update_speed)
+		game_root.auto_play_changed.connect(hud.update_auto_play)
+		game_root.partner_changed.connect(hud.update_fp_bonus)
 
 
 func get_ui_scale_config() -> UIScaleConfig:

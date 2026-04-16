@@ -1,3 +1,4 @@
+class_name Hud
 extends CanvasLayer
 
 signal shop_button_pressed
