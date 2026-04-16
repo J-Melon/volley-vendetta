@@ -1,7 +1,7 @@
 class_name Venue
 extends Control
 
-# todo: revisit canvas_items stretch (godot #86563 blurs text off-native);
+# todo: sh-104 revisit canvas_items stretch (godot#86563 blurs text off-native);
 # disabled stretch + responsive UI or diegetic + msdf is the long-term fix.
 
 @export var game_root: Node

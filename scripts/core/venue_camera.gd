@@ -1,7 +1,7 @@
 class_name VenueCamera
 extends Camera2D
 
-# todo: clamp to venue bounds once shop and workshop placeholders exist (sh-106).
+# todo: sh-106 clamp to venue bounds once shop and workshop placeholders exist.
 
 @export var pan_speed: float = 800.0
 
