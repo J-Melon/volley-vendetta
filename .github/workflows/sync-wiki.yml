@@ -9,6 +9,10 @@ on:
       - '.github/workflows/sync-wiki.yml'
   workflow_dispatch:
 
+concurrency:
+  group: sync-wiki
+  cancel-in-progress: false
+
 jobs:
   sync:
     name: Mirror designs/ to wiki
@@ -33,12 +37,13 @@ jobs:
 
           for src in designs/**/*.md; do
             rel="${src#designs/}"
+            # Top-level INDEX.md becomes Home.md + _Sidebar.md, skip the copy-through.
+            [ "$rel" = "INDEX.md" ] && continue
             dest="wiki/$rel"
             mkdir -p "$(dirname "$dest")"
             cp "$src" "$dest"
           done
 
-          # Home page + sidebar both derive from the top-level INDEX.
           if [ -f designs/INDEX.md ]; then
             cp designs/INDEX.md wiki/Home.md
             cp designs/INDEX.md wiki/_Sidebar.md
