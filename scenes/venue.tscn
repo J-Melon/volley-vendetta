@@ -3,10 +3,9 @@
 [ext_resource type="Script" uid="uid://di7sl61edbmuc" path="res://scripts/core/venue.gd" id="1_qaugd"]
 [ext_resource type="PackedScene" uid="uid://ctjs62ui6cpso" path="res://scenes/court.tscn" id="2_01afa"]
 [ext_resource type="PackedScene" uid="uid://hvh6q02lrntj" path="res://scenes/shop.tscn" id="3_shop"]
-[ext_resource type="PackedScene" uid="uid://dumhl1skwhd7q" path="res://scenes/hud.tscn" id="3_wttuf"]
-[ext_resource type="Script" uid="uid://cjue0o73mhyck" path="res://scripts/hud/hud.gd" id="4_s1xkn"]
+[ext_resource type="PackedScene" uid="uid://dumhl1skwhd7q" path="res://scenes/hud.tscn" id="4_hud"]
 
-[node name="Venue" type="Control" unique_id=695286340 node_paths=PackedStringArray("game_root", "game_ui_viewport", "secondary_container", "shop", "hud")]
+[node name="Venue" type="Control" unique_id=1553404037 node_paths=PackedStringArray("game_root", "secondary_container", "shop", "hud")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,55 +14,23 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_qaugd")
 game_root = NodePath("Court")
-game_ui_viewport = NodePath("UILayer/HBoxContainer/GameSlot/GameUIContainer/GameUIViewport")
-secondary_container = NodePath("UILayer/HBoxContainer/SecondaryContainer")
-shop = NodePath("UILayer/HBoxContainer/SecondaryContainer/Shop")
-hud = NodePath("UILayer/HBoxContainer/GameSlot/GameUIContainer/GameUIViewport/Hud")
+secondary_container = NodePath("SecondaryContainer")
+shop = NodePath("SecondaryContainer/Shop")
+hud = NodePath("Hud")
 
-[node name="Court" parent="." unique_id=75800363 instance=ExtResource("2_01afa")]
+[node name="Court" parent="." unique_id=29311361 instance=ExtResource("2_01afa")]
 
-[node name="UILayer" type="CanvasLayer" parent="." unique_id=117971415]
+[node name="Hud" parent="." unique_id=604769333 instance=ExtResource("4_hud")]
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UILayer" unique_id=1712174179]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="GameSlot" type="Control" parent="UILayer/HBoxContainer" unique_id=1093701823]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="GameUIContainer" type="SubViewportContainer" parent="UILayer/HBoxContainer/GameSlot" unique_id=501572691]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch = true
-
-[node name="GameUIViewport" type="SubViewport" parent="UILayer/HBoxContainer/GameSlot/GameUIContainer" unique_id=804846951]
-transparent_bg = true
-handle_input_locally = false
-size = Vector2i(1920, 1080)
-render_target_update_mode = 4
-
-[node name="Hud" type="CanvasLayer" parent="UILayer/HBoxContainer/GameSlot/GameUIContainer/GameUIViewport" unique_id=794024698 node_paths=PackedStringArray("counter_label", "personal_volley_best_label", "friendship_point_balance_label", "speed_bar", "auto_label", "fp_bonus_label", "shop_button") instance=ExtResource("3_wttuf")]
-script = ExtResource("4_s1xkn")
-counter_label = NodePath("CurrentVolleyCountLabel")
-personal_volley_best_label = NodePath("PersonalVolleyBestLabel")
-friendship_point_balance_label = NodePath("FriendshipTotalLabel")
-speed_bar = NodePath("SpeedBar")
-auto_label = NodePath("AutoLabel")
-fp_bonus_label = NodePath("FPBonusLabel")
-shop_button = NodePath("ShopButton")
-
-[node name="SecondaryContainer" type="Control" parent="UILayer/HBoxContainer" unique_id=669083198]
+[node name="SecondaryContainer" type="Control" parent="." unique_id=2135170732]
 visible = false
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
 
-[node name="Shop" parent="UILayer/HBoxContainer/SecondaryContainer" unique_id=444828137 instance=ExtResource("3_shop")]
+[node name="Shop" parent="SecondaryContainer" unique_id=62253598 instance=ExtResource("3_shop")]
 layout_mode = 1
