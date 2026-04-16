@@ -37,22 +37,27 @@ jobs:
 
           for src in designs/**/*.md; do
             rel="${src#designs/}"
-            # Top-level INDEX.md becomes Home.md + _Sidebar.md, skip the copy-through.
+            # Top-level INDEX.md becomes Home.md; _Sidebar.md passes through.
             [ "$rel" = "INDEX.md" ] && continue
-            dest="wiki/$rel"
-            mkdir -p "$(dirname "$dest")"
-            cp "$src" "$dest"
+            # Wiki only renders top-level .md files, so flatten nested paths
+            # with dashes: "01-prototype/foo.md" -> "01-prototype-foo.md".
+            flat="${rel//\//-}"
+            cp "$src" "wiki/$flat"
           done
 
           if [ -f designs/INDEX.md ]; then
             cp designs/INDEX.md wiki/Home.md
           fi
 
-          # Wiki page URLs drop the .md extension. Rewrite markdown link targets
-          # so [text](foo.md) and [text](dir/foo.md#anchor) resolve as wiki pages
-          # instead of serving raw file content.
-          find wiki -name '*.md' -print0 | xargs -0 sed -i -E \
-            's|\]\(([^)[:space:]]+)\.md(#[^)]*)?\)|](\1\2)|g'
+          # Rewrite markdown link targets: strip .md extensions and flatten
+          # internal slashes to match the flattened filenames. Only touches
+          # relative links (the [^):] class excludes "://" in URLs).
+          find wiki -name '*.md' -print0 | xargs -0 perl -i -pe '
+            s{\]\(([^):\s]+)\.md(\#[^)]*)?\)}{
+              my ($p, $a) = ($1, $2 // "");
+              $p =~ s|/|-|g;
+              "]($p$a)"
+            }ge'
 
       - name: Commit and push
         working-directory: wiki
