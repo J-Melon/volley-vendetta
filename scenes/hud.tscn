@@ -1,14 +1,13 @@
-[gd_scene format=3 uid="uid://dumhl1skwhd7q"]
+[gd_scene load_steps=6 format=3 uid="uid://dumhl1skwhd7q"]
 
 [ext_resource type="Script" uid="uid://cjue0o73mhyck" path="res://scripts/hud/hud.gd" id="1_ahhtf"]
 [ext_resource type="Script" uid="uid://bpo6xjafeebkl" path="res://scripts/hud/dev_item_panel.gd" id="2_oo0fn"]
 [ext_resource type="Script" uid="uid://cq0lcy64wmraf" path="res://scripts/hud/dev_stat_panel.gd" id="3_5ysmq"]
 [ext_resource type="Script" uid="uid://cp16q4n8se0mu" path="res://scripts/hud/speed_bar.gd" id="4_6fi6k"]
 [ext_resource type="PackedScene" uid="uid://kyv43r8jy2b" path="res://scenes/recruit_panel.tscn" id="5_uo2fv"]
-[ext_resource type="PackedScene" uid="uid://c3e4rkpxtudc0" path="res://scenes/hud_scale_setting.tscn" id="6_047uy"]
-[ext_resource type="Theme" path="res://resources/themes/debug_theme.tres" id="7_debug"]
+[ext_resource type="Theme" uid="uid://bsv1tc4laq7mr" path="res://resources/themes/debug_theme.tres" id="7_debug"]
 
-[node name="HUD" type="CanvasLayer" unique_id=794024698 node_paths=PackedStringArray("counter_label", "personal_volley_best_label", "friendship_point_balance_label", "speed_bar", "auto_label", "fp_bonus_label", "shop_button")]
+[node name="Hud" type="CanvasLayer" node_paths=PackedStringArray("counter_label", "personal_volley_best_label", "friendship_point_balance_label", "speed_bar", "auto_label", "fp_bonus_label", "shop_button")]
 script = ExtResource("1_ahhtf")
 counter_label = NodePath("CurrentVolleyCountLabel")
 personal_volley_best_label = NodePath("PersonalVolleyBestLabel")
@@ -18,7 +17,7 @@ auto_label = NodePath("AutoLabel")
 fp_bonus_label = NodePath("FPBonusLabel")
 shop_button = NodePath("ShopButton")
 
-[node name="CurrentVolleyCountLabel" type="Label" parent="." unique_id=162178436]
+[node name="CurrentVolleyCountLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -31,7 +30,7 @@ theme_override_font_sizes/font_size = 32
 text = "Volleys: 0"
 horizontal_alignment = 1
 
-[node name="PersonalVolleyBestLabel" type="Label" parent="." unique_id=17876533]
+[node name="PersonalVolleyBestLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -43,7 +42,7 @@ size_flags_horizontal = 4
 text = "PB: 0"
 horizontal_alignment = 1
 
-[node name="FriendshipTotalLabel" type="Label" parent="." unique_id=223871176]
+[node name="FriendshipTotalLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -55,7 +54,7 @@ size_flags_horizontal = 4
 text = "FP: 0"
 horizontal_alignment = 1
 
-[node name="AutoLabel" type="Label" parent="." unique_id=1460641188]
+[node name="AutoLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -68,7 +67,7 @@ size_flags_horizontal = 4
 text = "AUTO (X% Friendship Points)"
 horizontal_alignment = 1
 
-[node name="DevItemUI" type="VBoxContainer" parent="." unique_id=2133504667]
+[node name="DevItemUI" type="VBoxContainer" parent="."]
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 40.0
@@ -76,7 +75,7 @@ offset_bottom = 40.0
 theme = ExtResource("7_debug")
 script = ExtResource("2_oo0fn")
 
-[node name="DevStatPanel" type="VBoxContainer" parent="." unique_id=1266814919]
+[node name="DevStatPanel" type="VBoxContainer" parent="."]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -93,7 +92,7 @@ theme_override_constants/separation = 2
 alignment = 1
 script = ExtResource("3_5ysmq")
 
-[node name="SpeedBar" type="Control" parent="." unique_id=2124383212]
+[node name="SpeedBar" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 5
 anchor_left = 0.5
@@ -105,7 +104,7 @@ offset_bottom = 72.0
 grow_horizontal = 2
 script = ExtResource("4_6fi6k")
 
-[node name="ShopButton" type="Button" parent="." unique_id=221980416]
+[node name="ShopButton" type="Button" parent="."]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -117,7 +116,7 @@ grow_vertical = 0
 focus_mode = 0
 text = "Clearance"
 
-[node name="RecruitPanel" parent="." unique_id=1288823691 instance=ExtResource("5_uo2fv")]
+[node name="RecruitPanel" parent="." instance=ExtResource("5_uo2fv")]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -127,15 +126,7 @@ offset_right = 123.0
 offset_bottom = -43.0
 grow_vertical = 0
 
-[node name="HudScaleSetting" parent="." unique_id=1159505156 instance=ExtResource("6_047uy")]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -227.0
-offset_bottom = 31.0
-grow_horizontal = 0
-
-[node name="FPBonusLabel" type="Label" parent="." unique_id=1612202386]
+[node name="FPBonusLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
