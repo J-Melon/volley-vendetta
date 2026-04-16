@@ -58,7 +58,7 @@ New-arrival cues (a shipment landing, a commission finishing, a character unlock
 
 `DevHUD` is a `CanvasLayer` child of `venue.tscn`. Screen-space. Only the developer overlay (FPS counter, state inspection, dev-panel toggles) lives here. Player-facing game state does not.
 
-Stretch: `canvas_items` with `keep` aspect ratio. Steam Deck, desktop, and phone all receive the same root scene at their native aspect; the stretch handles letterboxing.
+Stretch: `canvas_items` with `keep` aspect ratio. Steam Deck and desktop receive the same root scene at their native aspect; the stretch handles letterboxing.
 
 ---
 

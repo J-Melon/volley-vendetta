@@ -13,7 +13,6 @@ Shop (child of venue.tscn, hidden until friend unlocked)
 ├── FriendCharacter
 ├── ShopTable                 (pool-gated small items)
 │   └── ShopItem instances
-├── TakeBox              (drop target from 04-shop-drag-drop.md)
 ├── ShopCatalog               (browseable bigger items)
 │   └── CatalogEntry instances
 └── ShippingCounter           (sealed orders leaving for the shipment mat)
@@ -25,13 +24,13 @@ Gated by `&"friend"` in `unlocked_characters`. Everything is visible at all time
 
 ## Table (grab-and-go)
 
-Small items sit on the table. Pool rotation is in `05-upgrade-shop-mechanics.md`.
+Small items sit on the table as physics objects. Pool rotation is in `05-upgrade-shop-mechanics.md`.
 
-- Drag a `ShopItem` onto the `TakeBox`, or directly onto the matching inactive area (`BallRack` for balls, `GearRack` for equipment) → `ItemManager.take(key)` → item is owned and inactive.
+The player buys an item by dragging or pushing it outside the shop area. Once the item crosses the shop boundary, `ItemManager.take(key)` fires and the item is owned. From there the item lands wherever the player left it: on the `BallRack`, `GearRack`, or the venue floor.
 
 Acquisition is immediate. No shipping.
 
-Unaffordable items show the display-case overlay from `04-shop-drag-drop.md`; cased items don't drag. Taken items hide in their slot; the slot refills on rotation.
+Unaffordable items show the display-case overlay from `04-shop-drag-drop.md`; cased items don't drag. Taken items leave their slot; the slot refills on rotation.
 
 ---
 
@@ -64,7 +63,7 @@ Owned by `05-upgrade-shop-mechanics.md`. The table rotates through the pool; the
 
 ## Interaction surfaces
 
-- Drag table → `TakeBox` or kit.
+- Drag or push table items outside the shop area to buy.
 - Tap catalog → inline browse → tap to order.
 - Tap friend → greeting dialogue (dialogue system, later).
 
@@ -82,7 +81,7 @@ Owned by `05-upgrade-shop-mechanics.md`. The table rotates through the pool; the
 
 Not filing yet.
 
-1. Shop child scene: table, `TakeBox`, catalog stub, shipping counter, friend placement.
+1. Shop child scene: table, shop boundary trigger, catalog stub, shipping counter, friend placement.
 2. Friend unlock beat, `unlocked_characters` gate, show/hide.
 3. `catalog_only` flag on `ItemDefinition`; author one catalog item (the bot).
 4. Catalog browse: inline open, paginate, tap to order, confirm, FP deduct.
