@@ -16,7 +16,7 @@ var _drag := DraggableBehavior.new()
 
 func _ready() -> void:
 	if not OS.is_debug_build():
-		hide()
+		queue_free()
 		return
 	_items_anchor = get_node_or_null(items_anchor_path)
 	mouse_filter = Control.MOUSE_FILTER_PASS

@@ -11,7 +11,7 @@ func _ready() -> void:
 		return
 
 	if not OS.is_debug_build():
-		hide()
+		queue_free()
 		return
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	_add_header()

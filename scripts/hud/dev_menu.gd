@@ -10,7 +10,7 @@ var _drag := DraggableBehavior.new()
 
 func _ready() -> void:
 	if not OS.is_debug_build():
-		hide()
+		queue_free()
 		return
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	_content = VBoxContainer.new()
