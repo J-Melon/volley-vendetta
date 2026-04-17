@@ -3,6 +3,10 @@ extends GutTest
 # Verifies camera pans along x in response to camera_left/camera_right input.
 
 const VenueCameraScene := preload("res://scripts/core/venue_camera.gd")
+const LEFT_ANCHOR_X: float = -1500.0
+const RIGHT_ANCHOR_X: float = 1500.0
+const FAR_OUTSIDE_X: float = 9999.0
+const FLOAT_TOLERANCE: float = 0.001
 
 var _camera: VenueCamera
 
@@ -57,3 +61,68 @@ func test_opposing_inputs_cancel_out() -> void:
 	var start_x: float = _camera.position.x
 	_camera._process(0.1)
 	assert_eq(_camera.position.x, start_x)
+
+
+# --- clamp to anchors ---
+func _make_anchor(x: float) -> Node2D:
+	var anchor := Node2D.new()
+	anchor.position = Vector2(x, 0.0)
+	add_child_autofree(anchor)
+	return anchor
+
+
+func _set_bounds(left_x: float, right_x: float) -> void:
+	_camera.left_anchor = _make_anchor(left_x)
+	_camera.right_anchor = _make_anchor(right_x)
+
+
+func _is_visible(anchor: Node2D) -> bool:
+	var half_view: float = _camera.get_viewport_rect().size.x * 0.5 / _camera.zoom.x
+	var distance_from_centre: float = abs(anchor.global_position.x - _camera.global_position.x)
+	return distance_from_centre <= half_view + FLOAT_TOLERANCE
+
+
+func _pan_until_stopped(action: StringName) -> void:
+	Input.action_press(action)
+	var previous: float = _camera.global_position.x
+	for _i in 50:
+		_camera._process(1.0)
+		if is_equal_approx(_camera.global_position.x, previous):
+			return
+		previous = _camera.global_position.x
+
+
+func test_left_anchor_stays_visible_no_matter_how_far_you_pan_left() -> void:
+	_set_bounds(LEFT_ANCHOR_X, RIGHT_ANCHOR_X)
+	_pan_until_stopped(&"camera_left")
+	assert_true(_is_visible(_camera.left_anchor))
+
+
+func test_right_anchor_stays_visible_no_matter_how_far_you_pan_right() -> void:
+	_set_bounds(LEFT_ANCHOR_X, RIGHT_ANCHOR_X)
+	_pan_until_stopped(&"camera_right")
+	assert_true(_is_visible(_camera.right_anchor))
+
+
+func test_panning_left_eventually_stops() -> void:
+	_set_bounds(LEFT_ANCHOR_X, RIGHT_ANCHOR_X)
+	Input.action_press(&"camera_left")
+	_pan_until_stopped(&"camera_left")
+	var resting_x: float = _camera.global_position.x
+	_camera._process(1.0)
+	assert_almost_eq(_camera.global_position.x, resting_x, FLOAT_TOLERANCE)
+
+
+func test_clamp_is_noop_without_anchors() -> void:
+	_camera.global_position.x = FAR_OUTSIDE_X
+	_camera._process(0.0)
+	assert_eq(_camera.global_position.x, FAR_OUTSIDE_X)
+
+
+func test_clamp_still_bounds_motion_when_anchors_are_swapped() -> void:
+	# Swapped anchors are a misconfiguration, not a crash; the clamp should still
+	# prevent the camera from flying out to an arbitrary far position.
+	_set_bounds(RIGHT_ANCHOR_X, LEFT_ANCHOR_X)
+	_camera.global_position.x = FAR_OUTSIDE_X
+	_camera._process(0.0)
+	assert_lt(abs(_camera.global_position.x), FAR_OUTSIDE_X)
