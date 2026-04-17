@@ -62,6 +62,13 @@ class TestShopItemContract:
 		_item.mark_owned()
 		assert_true(_item.can_be_dragged())
 
+	func test_purchase_hides_case_overlay_and_unfreezes_body() -> void:
+		_item_manager._progression.friendship_point_balance = 1000
+		_item_manager.take(_definition.key)
+		_item.mark_owned()
+		assert_false(_item.case_overlay.visible)
+		assert_false(_item.freeze)
+
 
 class TestShopItemArt:
 	extends GutTest

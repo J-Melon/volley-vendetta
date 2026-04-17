@@ -26,6 +26,10 @@ logs/
 .windsurfrules
 .github/copilot-instructions.md
 
+# Personal lefthook overrides
+lefthook-local.yml
+scripts/local/
+
 # Mood board reference images (copyrighted material, local only)
 designs/01-prototype/mood-boards/
 
