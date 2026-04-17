@@ -30,6 +30,60 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+## Debug canary: warn if a left-click lands on a ShopItem's collision AABB
+## but no drag starts. Catches regressions where a Control or filter intercepts
+## the event before physics picking can fire.
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_button: InputEventMouseButton = event
+	if mouse_button.button_index != MOUSE_BUTTON_LEFT or not mouse_button.pressed:
+		return
+	if _items_anchor == null:
+		return
+	var world: Vector2 = _items_anchor.get_global_mouse_position()
+	var overlapped: ShopItem = _find_item_under(world)
+	if overlapped == null:
+		return
+	await get_tree().physics_frame
+	if not overlapped.is_dragging():
+		push_warning(
+			(
+				"DevShopPanel: click over %s at %s did not start a drag; input pipeline may be blocked"
+				% [overlapped.name, world]
+			)
+		)
+
+
+func _find_item_under(world: Vector2) -> ShopItem:
+	for child in _items_anchor.get_children():
+		if not child is ShopItem:
+			continue
+		var shop_item: ShopItem = child
+		var collision_shape: CollisionShape2D = shop_item.collision_shape
+		if collision_shape == null or collision_shape.shape == null:
+			continue
+		var rectangle := collision_shape.shape as RectangleShape2D
+		if rectangle == null:
+			continue
+		var half: Vector2 = rectangle.size * 0.5
+		var xform: Transform2D = collision_shape.global_transform
+		var corners := [
+			xform * Vector2(-half.x, -half.y),
+			xform * Vector2(half.x, -half.y),
+			xform * Vector2(half.x, half.y),
+			xform * Vector2(-half.x, half.y),
+		]
+		var min_corner: Vector2 = corners[0]
+		var max_corner: Vector2 = corners[0]
+		for corner: Vector2 in corners:
+			min_corner = min_corner.min(corner)
+			max_corner = max_corner.max(corner)
+		if Rect2(min_corner, max_corner - min_corner).has_point(world):
+			return shop_item
+	return null
+
+
 func _process(_delta: float) -> void:
 	if not visible:
 		return

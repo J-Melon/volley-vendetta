@@ -46,6 +46,10 @@ func is_taken() -> bool:
 	return _taken
 
 
+func is_dragging() -> bool:
+	return _dragging
+
+
 func _ready() -> void:
 	if _item_manager == null:
 		_item_manager = ItemManager
@@ -55,18 +59,6 @@ func _ready() -> void:
 	_item_manager.friendship_point_balance_changed.connect(_on_balance_changed)
 	_item_manager.item_level_changed.connect(_on_item_level_changed)
 	_refresh_case_overlay()
-	_add_debug_marker()
-
-
-func _add_debug_marker() -> void:
-	if not OS.is_debug_build():
-		return
-	var marker := ColorRect.new()
-	marker.color = Color(1, 0, 1, 0.6)
-	marker.size = Vector2(4, 4)
-	marker.position = Vector2(-2, -2)
-	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(marker)
 
 
 func _physics_process(_delta: float) -> void:
