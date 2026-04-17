@@ -29,7 +29,7 @@ Wall-clock timing: shipments tick while the game is closed. On resume, any shipm
 
 ## Arrival
 
-The box lands on the `ShipmentMat` in `venue.tscn`. The friend walks in from the shop, sets the box down, returns. Prototype uses a placeholder animation.
+The box lands on the `ShipmentMat` in `court.tscn`. The friend walks in from the shop, sets the box down, returns. Prototype uses a placeholder animation.
 
 These items come from offshore: they are expensive and unique, and the wait reflects real shipping time. The timer runs both while the game is open and while it is closed, just like reality. Per-order timing can vary (a local supplier vs. an overseas specialist).
 

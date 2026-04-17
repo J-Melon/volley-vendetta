@@ -8,7 +8,7 @@ The kit is every item the player owns. This doc covers where inactive items sit,
 
 ## Storage for inactive items
 
-Two areas sit as siblings at the player's end of `venue.tscn`. Each is both the parent for its items at rest and the drop target for deactivation.
+Two areas sit at the player's end of the court, as children of `court.tscn`. Each is both the parent for its items at rest and the drop target for deactivation.
 
 - **BallRack**: inactive ball items. The court's ball manager reads from here.
 - **GearRack**: inactive equipment. Items here are dragged onto the main character to equip.
@@ -109,6 +109,6 @@ Kit-driven `add_friendship_points` skips autosave; a 30-second timer flushes. Us
 
 Not filing yet.
 
-1. `BallRack` and `GearRack` in `venue.tscn`; drag targets wired per role.
+1. `BallRack` and `GearRack` in `court.tscn`; drag targets wired per role.
 2. Timeout gesture: main character walks off on timeout call, back on at timeout end.
 3. Passive FP (cadence, formula, offline catch-up, save throttling).
