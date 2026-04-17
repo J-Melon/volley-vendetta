@@ -38,8 +38,8 @@ func can_be_dragged() -> bool:
 
 
 func mark_owned() -> void:
-	# _refresh_case_overlay runs via item_level_changed after ItemManager.take().
 	_owned = true
+	_refresh_case_overlay()
 
 
 func is_owned() -> bool:
