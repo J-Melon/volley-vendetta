@@ -24,6 +24,7 @@ logs/
 .mcp.json
 .cursorrules
 .windsurfrules
+.github/copilot-instructions.md
 
 # Mood board reference images (copyrighted material, local only)
 designs/01-prototype/mood-boards/
