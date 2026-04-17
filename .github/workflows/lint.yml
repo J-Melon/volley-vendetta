@@ -37,8 +37,8 @@ jobs:
         if: steps.cache-tools.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/.local/bin
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v${{ env.GITLEAKS_VERSION }}/gitleaks_${{ env.GITLEAKS_VERSION }}_linux_x64.tar.gz | tar -xz
-          mv gitleaks ~/.local/bin/
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v${{ env.GITLEAKS_VERSION }}/gitleaks_${{ env.GITLEAKS_VERSION }}_linux_x64.tar.gz \
+            | tar -xz -C ~/.local/bin gitleaks
 
       - name: Add tools to PATH
         run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
