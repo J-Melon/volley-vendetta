@@ -32,9 +32,6 @@ pre-commit:
       glob: "*.gd"
       exclude: "^addons/"
       run: gdlint {staged_files}
-
-pre-push:
-  commands:
     gut:
       glob: "*.gd"
       exclude: "^addons/"
