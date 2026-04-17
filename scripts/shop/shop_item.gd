@@ -37,6 +37,7 @@ func can_be_dragged() -> bool:
 	return can_be_owned()
 
 
+# Explicit refresh: item_level_changed fires in take() before this runs. todo: SH-109.
 func mark_owned() -> void:
 	_owned = true
 	_refresh_case_overlay()
