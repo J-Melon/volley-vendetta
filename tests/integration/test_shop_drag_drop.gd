@@ -66,17 +66,17 @@ func test_exiting_shop_area_deducts_cost_from_balance() -> void:
 	assert_eq(_item_manager.get_friendship_point_balance(), balance_before - cost)
 
 
-func test_exiting_shop_area_marks_item_taken() -> void:
+func test_exiting_shop_area_marks_item_owned() -> void:
 	var item: ShopItem = _shop_item("grip_tape")
 	await _drag_item_out_of_shop_area(item)
-	assert_true(item.is_taken())
+	assert_true(item.is_owned())
 
 
 func test_exiting_shop_area_does_not_affect_other_items() -> void:
 	var grip_item: ShopItem = _shop_item("grip_tape")
 	var other_item: ShopItem = _shop_item("cadence")
 	await _drag_item_out_of_shop_area(grip_item)
-	assert_false(other_item.is_taken())
+	assert_false(other_item.is_owned())
 
 
 func test_exiting_shop_area_when_unaffordable_does_not_purchase() -> void:
@@ -86,9 +86,9 @@ func test_exiting_shop_area_when_unaffordable_does_not_purchase() -> void:
 	assert_eq(_item_manager.get_level("grip_tape"), 0)
 
 
-func test_exiting_shop_area_when_already_taken_does_nothing() -> void:
+func test_exiting_shop_area_when_already_owned_does_nothing() -> void:
 	var item: ShopItem = _shop_item("grip_tape")
-	item.mark_taken()
+	item.mark_owned()
 	var balance_before: int = _item_manager.get_friendship_point_balance()
 	await _drag_item_out_of_shop_area(item)
 	assert_eq(_item_manager.get_friendship_point_balance(), balance_before)

@@ -42,10 +42,10 @@ func _input(event: InputEvent) -> void:
 	var overlapped: ShopItem = _find_item_under(world)
 	if overlapped == null:
 		return
-	var before: int = overlapped.last_input_frame()
+	var before: int = overlapped.get_last_input_frame()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	if overlapped.last_input_frame() == before:
+	if overlapped.get_last_input_frame() == before:
 		var message := (
 			"[shop] click over %s at %s did not reach the body; input pipeline may be blocked"
 			% [overlapped.name, world]
@@ -175,9 +175,9 @@ func _make_cell(text: String, color: Color) -> Label:
 
 
 func _status_for(shop_item: ShopItem) -> String:
-	if shop_item.is_taken():
-		return "taken"
-	if shop_item.can_be_taken():
+	if shop_item.is_owned():
+		return "owned"
+	if shop_item.can_be_owned():
 		return "dragable"
 	var definition: ItemDefinition = shop_item.item_definition
 	if definition != null and ItemManager.get_level(definition.key) >= definition.max_level:

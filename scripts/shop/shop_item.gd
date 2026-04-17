@@ -13,7 +13,7 @@ var _item_manager: Node
 var _art_instance: ItemArt
 var _dragging: bool = false
 var _drag_offset: Vector2 = Vector2.ZERO
-var _taken: bool = false
+var _owned: bool = false
 var _last_input_frame: int = -1
 
 
@@ -24,26 +24,26 @@ func configure(item_manager: Node, definition: ItemDefinition) -> void:
 	_refresh_case_overlay()
 
 
-func can_be_taken() -> bool:
-	if _taken or item_definition == null or _item_manager == null:
+func can_be_owned() -> bool:
+	if _owned or item_definition == null or _item_manager == null:
 		return false
 	return _item_manager.can_acquire(item_definition.key)
 
 
 ## Pickup permission: owned items stay draggable, unowned must be affordable.
 func can_be_dragged() -> bool:
-	if _taken:
+	if _owned:
 		return true
-	return can_be_taken()
+	return can_be_owned()
 
 
-func mark_taken() -> void:
-	_taken = true
+func mark_owned() -> void:
+	_owned = true
 	_refresh_case_overlay()
 
 
-func is_taken() -> bool:
-	return _taken
+func is_owned() -> bool:
+	return _owned
 
 
 func is_dragging() -> bool:
@@ -97,7 +97,7 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 		_start_drag()
 
 
-func last_input_frame() -> int:
+func get_last_input_frame() -> int:
 	return _last_input_frame
 
 
@@ -124,12 +124,12 @@ func _on_item_level_changed(item_key: String) -> void:
 func _refresh_case_overlay() -> void:
 	if case_overlay == null:
 		return
-	# Taken items have left the shop's price-gate; case stays off regardless.
-	if _taken:
+	# Owned items have left the shop's price-gate; case stays off regardless.
+	if _owned:
 		case_overlay.visible = false
 		_refresh_freeze()
 		return
-	case_overlay.visible = not can_be_taken()
+	case_overlay.visible = not can_be_owned()
 	_refresh_freeze()
 
 
@@ -137,4 +137,4 @@ func _refresh_case_overlay() -> void:
 func _refresh_freeze() -> void:
 	if _dragging:
 		return
-	freeze = not _taken and not can_be_taken()
+	freeze = not _owned and not can_be_owned()

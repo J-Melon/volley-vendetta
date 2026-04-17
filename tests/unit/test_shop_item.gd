@@ -18,48 +18,48 @@ class TestShopItemContract:
 		add_child_autofree(_item)
 		_item.configure(_item_manager, _definition)
 
-	func test_can_be_taken_returns_false_without_definition() -> void:
+	func test_can_be_owned_returns_false_without_definition() -> void:
 		var bare_item: ShopItem = ShopItemScene.instantiate()
 		bare_item._item_manager = _item_manager
 		add_child_autofree(bare_item)
-		assert_false(bare_item.can_be_taken())
+		assert_false(bare_item.can_be_owned())
 
-	func test_can_be_taken_returns_false_when_balance_too_low() -> void:
+	func test_can_be_owned_returns_false_when_balance_too_low() -> void:
 		_item_manager._progression.friendship_point_balance = 0
-		assert_false(_item.can_be_taken())
+		assert_false(_item.can_be_owned())
 
-	func test_can_be_taken_returns_true_when_affordable_and_unowned() -> void:
+	func test_can_be_owned_returns_true_when_affordable_and_unowned() -> void:
 		_item_manager._progression.friendship_point_balance = 1000
-		assert_true(_item.can_be_taken())
+		assert_true(_item.can_be_owned())
 
-	func test_can_be_taken_returns_false_when_already_owned() -> void:
+	func test_can_be_owned_returns_false_when_already_owned() -> void:
 		_item_manager._progression.friendship_point_balance = 1000
 		_item_manager.take(_definition.key)
-		assert_false(_item.can_be_taken())
+		assert_false(_item.can_be_owned())
 
-	func test_can_be_taken_returns_false_after_mark_taken() -> void:
+	func test_can_be_owned_returns_false_after_mark_owned() -> void:
 		_item_manager._progression.friendship_point_balance = 1000
-		_item.mark_taken()
-		assert_false(_item.can_be_taken())
+		_item.mark_owned()
+		assert_false(_item.can_be_owned())
 
-	func test_is_taken_defaults_to_false() -> void:
-		assert_false(_item.is_taken())
+	func test_is_owned_defaults_to_false() -> void:
+		assert_false(_item.is_owned())
 
-	func test_mark_taken_sets_taken_flag() -> void:
-		_item.mark_taken()
-		assert_true(_item.is_taken())
+	func test_mark_owned_sets_owned_flag() -> void:
+		_item.mark_owned()
+		assert_true(_item.is_owned())
 
-	func test_can_be_dragged_mirrors_can_be_taken_when_not_taken() -> void:
+	func test_can_be_dragged_mirrors_can_be_owned_when_not_owned() -> void:
 		_item_manager._progression.friendship_point_balance = 1000
 		assert_true(_item.can_be_dragged())
 
-	func test_can_be_dragged_returns_false_when_unaffordable_and_not_taken() -> void:
+	func test_can_be_dragged_returns_false_when_unaffordable_and_not_owned() -> void:
 		_item_manager._progression.friendship_point_balance = 0
 		assert_false(_item.can_be_dragged())
 
-	func test_can_be_dragged_returns_true_after_mark_taken_even_when_unaffordable() -> void:
+	func test_can_be_dragged_returns_true_after_mark_owned_even_when_unaffordable() -> void:
 		_item_manager._progression.friendship_point_balance = 0
-		_item.mark_taken()
+		_item.mark_owned()
 		assert_true(_item.can_be_dragged())
 
 
