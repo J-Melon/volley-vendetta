@@ -19,17 +19,24 @@ const MissZoneScene: PackedScene = preload("res://scenes/miss_zone.tscn")
 @export var right_wall: StaticBody2D
 @export var partner_spawn: Marker2D
 
+@export var volley_counter_label: Label
+@export var personal_volley_best_label: Label
+@export var friendship_point_balance_label: Label
+@export var auto_label: Label
+@export var fp_bonus_label: Label
+@export var speed_bar: Control
+
 var player_paddle: Paddle
 var partner_paddle: PartnerPaddle
 
-var _volley_count := 0
+var _volley_count: int = 0
 var _active_partner_definition: Resource
 var _partner_miss_zone: MissZone
 var _progression: ProgressionData
 var _progression_config: ProgressionConfig
 var _item_manager: Node
-var _is_autoplay_active := false
-var _friendship_point_accumulator := 0.0
+var _is_autoplay_active: bool = false
+var _friendship_point_accumulator: float = 0.0
 
 
 func _ready() -> void:
@@ -58,6 +65,17 @@ func _ready() -> void:
 		_activate_partner()
 
 	ProgressionManager.partner_recruited.connect(_on_partner_recruited)
+
+	if auto_label != null:
+		ItemManager.friendship_point_balance_changed.connect(_update_friendship_point_balance)
+		_update_friendship_point_balance(ItemManager.get_friendship_point_balance())
+		auto_label.visible = false
+		_update_fp_bonus()
+		volley_count_changed.connect(_update_volley_count)
+		personal_volley_best_changed.connect(_update_personal_volley_best)
+		ball_speed_updated.connect(_update_speed)
+		auto_play_changed.connect(_update_auto_play)
+		partner_changed.connect(_update_fp_bonus)
 
 	ball.missed.connect(_on_ball_missed)
 	ball.at_max_speed_changed.connect(_on_ball_at_max_speed_changed)
@@ -177,6 +195,41 @@ func _deactivate_partner() -> void:
 		_partner_miss_zone = null
 
 	partner_changed.emit()
+
+
+func _update_volley_count(count: int) -> void:
+	volley_counter_label.text = "Volleys: %d" % count
+
+
+func _update_personal_volley_best(best: int) -> void:
+	personal_volley_best_label.text = "PB: %d" % best
+
+
+func _update_friendship_point_balance(friendship_point_balance: int) -> void:
+	friendship_point_balance_label.text = "FP: %d" % friendship_point_balance
+
+
+func _update_speed(
+	current_speed: float, min_speed: float, max_speed: float, permanent_max_speed: float
+) -> void:
+	speed_bar.update_speed(current_speed, min_speed, max_speed, permanent_max_speed)
+
+
+func _update_auto_play(is_active: bool, friendship_point_rate: float) -> void:
+	auto_label.visible = is_active
+	if is_active:
+		auto_label.text = "AUTO (%.0f%% Friendship Points)" % (friendship_point_rate * 100)
+
+
+func _update_fp_bonus() -> void:
+	if fp_bonus_label == null:
+		return
+	var percentage_offset: float = ItemManager.get_percentage_offset(&"friendship_points_per_hit")
+	if percentage_offset > 0.0:
+		fp_bonus_label.text = "+%.0f%% FP" % (percentage_offset * 100)
+		fp_bonus_label.visible = true
+	else:
+		fp_bonus_label.visible = false
 
 
 ## Fractional accumulation;

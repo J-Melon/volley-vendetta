@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://mws700v36gko" path="res://scenes/gear_rack.tscn" id="9_c7axm"]
 [ext_resource type="PackedScene" uid="uid://3l88siilc0hu" path="res://scenes/shipment_mat.tscn" id="10_5mv5b"]
 [ext_resource type="PackedScene" path="res://scenes/miss_zone.tscn" id="10_miss_zone"]
+[ext_resource type="Script" uid="uid://cp16q4n8se0mu" path="res://scripts/hud/speed_bar.gd" id="11_2768l"]
+[ext_resource type="PackedScene" uid="uid://kyv43r8jy2b" path="res://scenes/recruit_panel.tscn" id="12_rnrgf"]
+[ext_resource type="Script" uid="uid://cvqhvm88n4nog" path="res://scripts/hud/recruit_panel.gd" id="13_i5cvy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horz"]
 size = Vector2(36, 1472)
@@ -17,7 +20,7 @@ size = Vector2(36, 1472)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vert"]
 size = Vector2(36, 1172)
 
-[node name="Node2D" type="Node2D" unique_id=75800363 node_paths=PackedStringArray("ball", "player_spawn", "autoplay_controller", "right_wall", "partner_spawn")]
+[node name="Court" type="Node2D" unique_id=75800363 node_paths=PackedStringArray("ball", "player_spawn", "autoplay_controller", "right_wall", "partner_spawn", "volley_counter_label", "personal_volley_best_label", "friendship_point_balance_label", "auto_label", "fp_bonus_label", "speed_bar")]
 script = ExtResource("1_tbgi4")
 ball = NodePath("Ball")
 player_paddle_scene = ExtResource("9_0tnpc")
@@ -25,6 +28,12 @@ player_spawn = NodePath("PlayerSpawn")
 autoplay_controller = NodePath("AutoplayController")
 right_wall = NodePath("Bounds/Right Wall")
 partner_spawn = NodePath("PartnerSpawn")
+volley_counter_label = NodePath("CurrentVolleyCountLabel")
+personal_volley_best_label = NodePath("PersonalVolleyBestLabel")
+friendship_point_balance_label = NodePath("FriendshipTotalLabel")
+auto_label = NodePath("AutoLabel")
+fp_bonus_label = NodePath("FPBonusLabel")
+speed_bar = NodePath("SpeedBar")
 
 [node name="CourtBackground" type="Parallax2D" parent="." unique_id=1053024008]
 scroll_scale = Vector2(0, 0)
@@ -114,20 +123,72 @@ position = Vector2(500, 0)
 [node name="PlayerSpawn" type="Marker2D" parent="." unique_id=1995993314]
 position = Vector2(-500, 0)
 
-[node name="BallRack" type="Node2D" parent="." unique_id=949376876 instance=ExtResource("8_h0b8m")]
-z_index = 100
-z_as_relative = false
+[node name="BallRack" parent="." unique_id=949376876 instance=ExtResource("8_h0b8m")]
 position = Vector2(-1065, 0)
-metadata/_edit_group_ = true
 
-[node name="GearRack" type="Node2D" parent="." unique_id=445509089 instance=ExtResource("9_c7axm")]
-z_index = 100
-z_as_relative = false
+[node name="GearRack" parent="." unique_id=445509089 instance=ExtResource("9_c7axm")]
 position = Vector2(760, 0)
-metadata/_edit_group_ = true
 
-[node name="ShipmentMat" type="Node2D" parent="." unique_id=530264883 instance=ExtResource("10_5mv5b")]
-z_index = 100
-z_as_relative = false
+[node name="ShipmentMat" parent="." unique_id=530264883 instance=ExtResource("10_5mv5b")]
 position = Vector2(760, 438)
-metadata/_edit_group_ = true
+
+[node name="CurrentVolleyCountLabel" type="Label" parent="." unique_id=1644947756]
+offset_left = -150.0
+offset_top = -760.695
+offset_right = 174.0
+offset_bottom = -661.695
+theme_override_font_sizes/font_size = 72
+text = "Volleys: 0"
+horizontal_alignment = 1
+
+[node name="PersonalVolleyBestLabel" type="Label" parent="." unique_id=2015920781]
+offset_left = 350.0
+offset_top = -755.0
+offset_right = 550.0
+offset_bottom = -688.0
+theme_override_font_sizes/font_size = 48
+text = "PB: 0"
+
+[node name="FriendshipTotalLabel" type="Label" parent="." unique_id=95972184]
+offset_left = 350.0
+offset_top = -700.0
+offset_right = 550.0
+offset_bottom = -670.0
+theme_override_font_sizes/font_size = 48
+text = "FP: 0"
+
+[node name="AutoLabel" type="Label" parent="." unique_id=171294256]
+offset_left = -282.0
+offset_top = -824.905
+offset_right = 118.0
+offset_bottom = -757.905
+theme_override_font_sizes/font_size = 48
+text = "AUTO"
+horizontal_alignment = 1
+
+[node name="FPBonusLabel" type="Label" parent="." unique_id=1233964651]
+offset_left = -700.0
+offset_top = -740.0
+offset_right = -500.0
+offset_bottom = -710.0
+theme_override_font_sizes/font_size = 48
+text = "+0% FP"
+
+[node name="SpeedBar" type="Control" parent="." unique_id=645165939]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -150.0
+offset_top = -634.0
+offset_right = 150.0
+offset_bottom = -624.0
+script = ExtResource("11_2768l")
+
+[node name="RecruitPanel" type="VBoxContainer" parent="." unique_id=1288823691 node_paths=PackedStringArray("recruit_label", "recruit_button", "recruit_sound") instance=ExtResource("12_rnrgf")]
+offset_left = -900.0
+offset_top = -400.0
+offset_right = -900.0
+offset_bottom = -400.0
+script = ExtResource("13_i5cvy")
+recruit_label = NodePath("RecruitLabel")
+recruit_button = NodePath("RecruitButton")
+recruit_sound = NodePath("RecruitSound")
