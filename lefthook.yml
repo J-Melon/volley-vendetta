@@ -1,3 +1,9 @@
+output:
+  - summary
+  - success
+  - failure
+  - execution_out
+
 prepare-commit-msg:
   commands:
     ticket-prefix:
@@ -12,7 +18,7 @@ pre-commit:
   piped: true
   commands:
     gitleaks:
-      run: gitleaks protect --staged --redact --verbose
+      run: gitleaks protect --staged --redact --no-banner
     codespell:
       exclude: "^addons/"
       run: codespell {staged_files}
@@ -29,4 +35,4 @@ pre-commit:
 pre-push:
   commands:
     gut:
-      run: godot --headless -s addons/gut/gut_cmdln.gd
+      run: ./scripts/ci/run_gut.sh
