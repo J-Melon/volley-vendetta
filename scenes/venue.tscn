@@ -27,8 +27,10 @@ scale = Vector2(0.6, 0.6)
 
 [node name="Hud" parent="." unique_id=720275437 instance=ExtResource("4_hud")]
 
-[node name="Camera" type="Camera2D" parent="." unique_id=1084046387]
+[node name="Camera" type="Camera2D" parent="." unique_id=1084046387 node_paths=PackedStringArray("left_anchor", "right_anchor")]
 script = ExtResource("5_wttuf")
+left_anchor = NodePath("../Workshop")
+right_anchor = NodePath("../Shop")
 
 [node name="VenueFloor" type="StaticBody2D" parent="." unique_id=984529763]
 position = Vector2(0, 410)
@@ -46,3 +48,23 @@ color = Color(0.15, 0.1, 0.08, 1)
 
 [node name="Shop" parent="." unique_id=1688593906 instance=ExtResource("3_shop")]
 position = Vector2(1500, 3.13)
+
+[node name="Workshop" type="Node2D" parent="." unique_id=348325752]
+z_index = 100
+z_as_relative = false
+position = Vector2(-1500, 0)
+metadata/_edit_group_ = true
+
+[node name="Marker" type="ColorRect" parent="Workshop" unique_id=264609764]
+offset_right = 500.0
+offset_bottom = 400.0
+mouse_filter = 2
+color = Color(0.6, 0.3, 0.8, 0.6)
+
+[node name="Name" type="Label" parent="Workshop" unique_id=1317991923]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 187.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 36
+text = "Workshop"
