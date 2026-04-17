@@ -7,7 +7,6 @@ on:
 
 env:
   GITLEAKS_VERSION: "8.28.0"
-  GDTOOLKIT_VERSION: "4.*"
 
 jobs:
   lint:
@@ -16,32 +15,29 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Cache pipx + local bin
-        id: cache-tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python tools
+        run: |
+          pip install --user "gdtoolkit==4.*" codespell
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Cache gitleaks
+        id: cache-gitleaks
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.local/pipx
-            ~/.local/bin
-          key: lint-tools-${{ runner.os }}-gdtoolkit-${{ env.GDTOOLKIT_VERSION }}-gitleaks-${{ env.GITLEAKS_VERSION }}
-
-      - name: Install gdtoolkit
-        if: steps.cache-tools.outputs.cache-hit != 'true'
-        run: pipx install "gdtoolkit==${{ env.GDTOOLKIT_VERSION }}"
-
-      - name: Install codespell
-        if: steps.cache-tools.outputs.cache-hit != 'true'
-        run: pipx install codespell
+          path: ~/.local/bin/gitleaks
+          key: gitleaks-${{ env.GITLEAKS_VERSION }}
 
       - name: Install gitleaks
-        if: steps.cache-tools.outputs.cache-hit != 'true'
+        if: steps.cache-gitleaks.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/.local/bin
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v${{ env.GITLEAKS_VERSION }}/gitleaks_${{ env.GITLEAKS_VERSION }}_linux_x64.tar.gz \
             | tar -xz -C ~/.local/bin gitleaks
-
-      - name: Add tools to PATH
-        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: gdformat
         run: find scripts tests -name '*.gd' | xargs gdformat --check
