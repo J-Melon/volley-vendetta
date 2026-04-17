@@ -1,0 +1,38 @@
+output:
+  - summary
+  - success
+  - failure
+  - execution_out
+  - skips
+
+prepare-commit-msg:
+  commands:
+    ticket-prefix:
+      run: ./prepend_ticket_prefix.sh {1} {2}
+
+commit-msg:
+  commands:
+    format:
+      run: ./scripts/ci/check_commit_message.sh {1}
+
+pre-commit:
+  piped: true
+  commands:
+    gitleaks:
+      run: gitleaks protect --staged --redact --no-banner
+    codespell:
+      exclude: "^addons/"
+      run: codespell {staged_files}
+    gdformat:
+      glob: "*.gd"
+      exclude: "^addons/"
+      run: gdformat {staged_files}
+      stage_fixed: true
+    gdlint:
+      glob: "*.gd"
+      exclude: "^addons/"
+      run: gdlint {staged_files}
+    gut:
+      glob: "*.gd"
+      exclude: "^addons/"
+      run: ./scripts/ci/run_gut.sh

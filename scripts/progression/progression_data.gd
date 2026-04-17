@@ -14,8 +14,7 @@ var partner_volley_totals: Dictionary[StringName, int] = {}
 var _storage: SaveStorage
 
 
-## Resets progression fields to defaults. Deliberately leaves `_storage` alone:
-## this is a data reset, not a storage disconnect; the caller decides whether to save.
+## Resets progression fields to defaults; caller decides whether to persist.
 func clear() -> void:
 	friendship_point_balance = 0
 	total_friendship_points_earned = 0
@@ -24,27 +23,33 @@ func clear() -> void:
 	shop_unlocked = false
 	recruit_offered_partners = []
 	unlocked_partners = []
-	active_partner = ""
+	active_partner = &""
 	partner_volley_totals = {}
 
 
-## Saves game data to storeage (disk)
 func save_to_disk() -> bool:
 	return _storage.write(JSON.stringify(to_dict()))
 
 
-## Loads game data from storage (disk)
+## Loads from storage, falling back to rolling backups if primary fails to parse.
 func load_from_disk() -> bool:
-	var content := _storage.read()
+	if _try_load_content(_storage.read()):
+		return true
+	var fallbacks: Variant = _storage.read_fallbacks()
+	if fallbacks is Array:
+		for content: Variant in fallbacks:
+			if content is String and _try_load_content(content):
+				return true
+	return false
 
+
+func _try_load_content(content: String) -> bool:
 	if content == "":
 		return false
-
-	var data: Dictionary = JSON.parse_string(content)
-
-	if data == null:
+	var parsed: Variant = JSON.parse_string(content)
+	if not parsed is Dictionary:
 		return false
-
+	var data: Dictionary = parsed
 	var loaded := from_dict(data)
 	friendship_point_balance = loaded.friendship_point_balance
 	total_friendship_points_earned = loaded.total_friendship_points_earned
@@ -55,7 +60,6 @@ func load_from_disk() -> bool:
 	unlocked_partners = loaded.unlocked_partners
 	active_partner = loaded.active_partner
 	partner_volley_totals = loaded.partner_volley_totals
-
 	return true
 
 
