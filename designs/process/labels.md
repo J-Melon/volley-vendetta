@@ -10,8 +10,8 @@ Every ticket carries one intent label that names its discipline and its tier. La
 | **art**      | `study`       | `asset`   | `revision` |
 | **music**    | `concept`     | `cue`     | `rework`   |
 | **writing**  | `voice`       | `draft`   | `rewrite`  |
-| **design**   | `discovery`   | —         | `tune`     |
-| **audio**    | —             | `sfx`     | —          |
+| **design**   | `discovery`   | -         | `tune`     |
+| **audio**    | -             | `sfx`     | -          |
 
 Three intents plus `bug` as its own shape. Pick the label whose discipline and tier best match the work.
 
@@ -21,36 +21,36 @@ Three intents plus `bug` as its own shape. Pick the label whose discipline and t
 
 ### Tech
 
-- **`spike`** — explore a technical unknown to inform an implementation choice. Timeboxed investigation producing a written recommendation.
-- **`feature`** — build new capability into the game.
-- **`bug`** — restore intended behaviour where the system has drifted.
+- **`spike`**: explore a technical unknown to inform an implementation choice. Timeboxed investigation producing a written recommendation.
+- **`feature`**: build new capability into the game.
+- **`bug`**: restore intended behaviour where the system has drifted.
 
 ### Art
 
-- **`study`** — explore a visual direction before committing to production. Output: concept work, options, a decision.
-- **`asset`** — produce a finalised visual element for game integration. Done when integrated in-engine.
-- **`revision`** — evolve an existing asset as the creative direction develops.
+- **`study`**: explore a visual direction before committing to production. Output: concept work, options, a decision.
+- **`asset`**: produce a finalised visual element for game integration. Done when integrated in-engine.
+- **`revision`**: evolve an existing asset as the creative direction develops.
 
 ### Music
 
-- **`concept`** — explore a musical direction before committing to a composed cue.
-- **`cue`** — produce a finished music piece ready for integration.
-- **`rework`** — evolve an existing music piece as the creative direction develops.
+- **`concept`**: explore a musical direction before committing to a composed cue.
+- **`cue`**: produce a finished music piece ready for integration.
+- **`rework`**: evolve an existing music piece as the creative direction develops.
 
 ### Writing
 
-- **`voice`** — explore the voice and tone before committing to written content. Output: a bible entry a draft can cite.
-- **`draft`** — produce new written content ready for integration.
-- **`rewrite`** — evolve existing written content as the creative direction develops.
+- **`voice`**: explore the voice and tone before committing to written content. Output: a bible entry a draft can cite.
+- **`draft`**: produce new written content ready for integration.
+- **`rewrite`**: evolve existing written content as the creative direction develops.
 
 ### Design
 
-- **`discovery`** — work through an open design question toward a realised idea.
-- **`tune`** — refine the balance or feel of an established system.
+- **`discovery`**: work through an open design question toward a realised idea.
+- **`tune`**: refine the balance or feel of an established system.
 
 ### Audio
 
-- **`sfx`** — add or change a sound effect in the game.
+- **`sfx`**: add or change a sound effect in the game.
 
 ---
 

@@ -25,6 +25,7 @@ Inclusion here is a reference, not a claim of derivation.
 
 - **Pong** (1972, Atari)
 - **Oddworld: Abe's Oddysee / Exodus** (1997 / 1998, Oddworld Inhabitants)
+- **The Stanley Parable** (2013, Galactic Cafe) — writing and narrative reference
 - **Neko Atsume** (2014, Hit-Point)
 - **Enter the Gungeon** (2016, Dodge Roll Games)
 - **Cuphead** (2017, Studio MDHR)

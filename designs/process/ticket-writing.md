@@ -54,8 +54,8 @@ Our label taxonomy follows a pattern across most disciplines:
 | art       | study                 | asset                   | revision              |
 | music     | concept               | cue                     | rework                |
 | writing   | voice                 | draft                   | rewrite               |
-| design    | discovery             | —                       | tune                  |
-| sfx       | —                     | sfx                     | —                     |
+| design    | discovery             | -                       | tune                  |
+| sfx       | -                     | sfx                     | -                     |
 
 Three intents, plus `bug` as its own shape.
 

@@ -6,9 +6,9 @@ The bible is the decision layer. The [Style Workshop](style-workshop.md) is the 
 
 ---
 
-## The five commandments
+## The Six Marks
 
-Every piece of art in Volley! satisfies all five. These are qualities, not style rules. Any asset, any screen, either register.
+Every piece of art in Volley! carries all six. Not style rules, not commandments: Shuck is a sanctuary for craft, not a place that tells people what to make. The Six Marks describe what Volley! looks like when the work is landing, so an artist working on any asset, any screen, either register, has something to hold the work up against rather than a set of commands to obey.
 
 **Intentional.** Every mark, colour, and placement is a choice. Nothing is filler, nothing is accidental.
 
@@ -19,6 +19,8 @@ Every piece of art in Volley! satisfies all five. These are qualities, not style
 **Diegetic.** Part of the world, not on top of it. Every interaction and interface exists within the fiction.
 
 **Breathing.** Feels alive. Movement carries personality. Still frames feel about to move.
+
+**Shifting.** Designed for more than one state. The constructed register and the real register do not look the same, and both are Volley!.
 
 ---
 
