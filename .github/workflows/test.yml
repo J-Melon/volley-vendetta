@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GODOT_VERSION: "4.6.2"
 
