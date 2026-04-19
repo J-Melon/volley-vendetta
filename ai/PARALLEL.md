@@ -12,6 +12,8 @@ Live scratchpad for parallel agent work on individual Linear tickets. One agent 
 4. **Finish.** Move the row from Active to Done, note the commit SHA and PR number. After `gh pr create`, dispatch a code-reviewer sub-agent against the PR, apply every suggested fix as commits on the PR branch, push, then report. Don't wait for human approval of the auto-fixes; Josh reviews after.
 5. **Block or spin.** If you loop on the same issue twice, escalate to Josh immediately (see Escalation). Do not try a third variant silently.
 
+**Optional: follow-up review.** If Josh asks for another review on an existing PR, dispatch a fresh code-reviewer and post its findings as a PR comment using `gh pr comment <N> --body "..."`. Do **not** auto-apply fixes; Josh may respond inline or mark comments resolved. Initial review fixes still auto-commit per step 4; only follow-up reviews are comment-only.
+
 ---
 
 ## Ground rules
