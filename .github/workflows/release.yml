@@ -79,6 +79,6 @@ jobs:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
 
       - name: Push macOS to Itch.io
-        run: ./butler push "${{ steps.export.outputs.build_directory }}/macOS" ${{ env.ITCH_PROJECT }}:osx --userversion ${{ github.event.release.tag_name }}
+        run: ./butler push "${{ steps.export.outputs.build_directory }}/macOS/volley.zip" ${{ env.ITCH_PROJECT }}:osx --userversion ${{ github.event.release.tag_name }}
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
