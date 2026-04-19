@@ -189,6 +189,7 @@ If you hit an edge case not on this list, append it here before closing your tic
 | Agent | Ticket | Branch | Files touched | Started | Notes |
 |---|---|---|---|---|---|
 | claude-main | SH-116 | sh-116-linux-release-channel | .github/workflows/release.yml | 2026-04-19 | Switch prod release to Linux preset + `linux` channel; preview stays web; waiting on Josh's Linux export preset commit to land on main |
+| sh-126-agent | SH-126 | sh-126-pip-audit | lefthook.yml, requirements-dev.txt | 2026-04-19 | Add pip-audit pre-commit hook, fires only when requirements-dev.txt staged |
 
 ## Done (recent)
 
@@ -209,6 +210,7 @@ If you hit an edge case not on this list, append it here before closing your tic
 Newest at top. One line per event.
 
 ```
+[SH-126] sh-126-agent: claimed, added pip-audit pre-commit hook gated on requirements-dev.txt glob; lefthook run pre-commit green, clean audit
 [SH-52] sh-52-agent: done, commit 05e0f47, 345/345 tests pass, lefthook green, not pushed
 [init] scratchpad created, ready for claims
 ```
