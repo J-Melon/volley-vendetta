@@ -5,7 +5,7 @@ on:
     types: [published]
 
 env:
-  GODOT_VERSION: "4.6.1"
+  GODOT_VERSION: "4.6.2"
   ITCH_PROJECT: Speedyoshi/volley
 
 jobs:
