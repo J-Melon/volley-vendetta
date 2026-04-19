@@ -6,7 +6,7 @@ Background research that informs Volley!'s direction. Each doc stands alone; tog
 
 | Doc | Purpose |
 |---|---|
-| [The Case for Open Development](the-case-for-open-development.md) | The published essay. ~13,000 words across fourteen sections plus bibliography. The case for open development as the most reliable practice for a new indie to be seen, with implications past games. |
+| [The Case for Open Development](the-case-for-open-development.md) | The published essay. ~15,900 words across fourteen sections plus bibliography. The case for open development as the most reliable practice for a new indie to be seen, with implications past games. |
 | [STYLE.md](STYLE.md) | The style guide every editor (human or agent) reads before touching the essay. Voice, forbidden tics, citation rules, narrative momentum, AI prose tells. |
 
 ## Sister research
@@ -17,11 +17,12 @@ Background research that informs Volley!'s direction. Each doc stands alone; tog
 | [Early Clone Games](early-clone-games.md) | Why Breakout's clone lineage outlasted Pong's, and what cloning shaped in the early industry. |
 | [Open Development Plan](open-development-plan.md) | Earlier internal plan that seeded the essay. |
 
-## Working folders (gitignored)
+## Working folders
 
-| Folder | Contents |
-|---|---|
-| `drafts/` | Section files for the essay (00 title through 15 sources). Concatenate via the script in any meta doc to regenerate the published file. |
-| `critiques/` | Critical reviews of the essay across multiple rounds. |
-| `notes/` | Per-angle research notes the essay was built from. |
-| `meta/` | Internal planning docs: structure proposal, fact-check log, book-extension notes. |
+| Folder | Tracked | Contents |
+|---|---|---|
+| `drafts/` | no | Section files for the essay (00 title through 15 sources). Concatenated via the cat command in regen scripts to produce the published file. |
+| `critiques/` | yes | Critical reviews of the essay across multiple rounds. |
+| `notes/` | yes | Per-angle research notes the essay was built from. |
+| `meta/` | yes | Active planning and audit docs. `BOOK-EXTENSION.md` (forward-looking) and `PERSUASION-AUDIT.md` (open fixes) live here. |
+| `meta/archive/` | yes | Completed audit and research docs whose findings are baked into the essay (citation audits, misattribution audit, AI-lab follow-through, etc.). Kept as the visible audit trail for the work. |
