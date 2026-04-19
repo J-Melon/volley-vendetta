@@ -1,6 +1,6 @@
 # Parallel Processing Coordination: Volley!
 
-Live scratchpad for parallel agent work on individual Linear tickets. One agent per ticket. Read this before starting; write a status line when you commit or block.
+Live scratchpad for parallel agent work on individual Linear tickets. One agent per ticket. Read this before starting, and log progress in the Activity Log at the bottom (see "How to use this doc" for cadence).
 
 ---
 
