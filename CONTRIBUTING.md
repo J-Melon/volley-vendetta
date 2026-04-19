@@ -14,7 +14,7 @@ Sometimes maintainers will pick up a ticket themselves to hit a deadline. When t
 
 ## Running the project
 
-The project is built in [Godot](https://godotengine.org). Install the editor version matching the `engine_version` in `project.godot`, open the project folder, and you should be playing within a minute.
+The project is built in [Godot](https://godotengine.org). Install the editor version listed in `project.godot` (under `config/features`), open the project folder, and you should be playing within a minute.
 
 ## Tests and lint
 
