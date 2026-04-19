@@ -24,6 +24,35 @@ Live scratchpad for parallel agent work on individual Linear tickets. One agent 
 
 ---
 
+## Godot session tiers
+
+Three tiers of Godot access. Pick the lowest tier that answers your question. Higher tiers cost more isolation and, for Tier 2, need Josh's consent.
+
+| Tier | What it covers | Parallelism | Needs an editor? |
+|---|---|---|---|
+| **0 — Static** | `ggut`, `validate`, `file_context`, `signal_map`, `impact_check`, edits to `.gd`, grep, read | High. N agents in parallel. | No. Headless forks. |
+| **1 — Scene edits** | `node_ops`, `build_scene`, `save_scene`, `placement`, `scene_map`, `spatial_audit` | Serial on the live editor, or parallel via git worktrees (each worktree = its own `.godot/` cache and editor). | Yes, per worktree. |
+| **2 — Runtime** | `run(play)`, `state_inspect`, `verify_motion`, `screenshot`, `input`, `ui_map`, `perf_snapshot` | Single-agent, exclusive editor. | Yes, exclusive. |
+
+**Default is Tier 0.** Josh's no-playtest rule keeps most work here.
+
+**Tier 1** is fine when scene work is genuinely required. If another agent is at Tier 1 on overlapping files, spawn with `isolation: "worktree"` so each gets its own `.godot/`. First boot of a fresh worktree re-imports the project (~1 minute on this codebase) — plan for it.
+
+**Tier 2 is by request only.** An agent must ask Josh before running the game. Acceptable reasons: reproducing a reported bug that only manifests at runtime, verifying a Tier 1 scene change loads without errors, measuring a performance regression the code review cannot catch. Unacceptable: "double-checking my work", "just to be sure". The no-playtest rule stands by default; exceptions are earned per ticket.
+
+Format for the ask:
+
+```
+RUNTIME REQUEST [SH-XX] <agent>: <one-line reason>
+  What I'll verify: <concrete claim, e.g. "Martha's bark fires when score crosses 50">
+  How I'll verify: <which state_inspect path, or which verify_motion call>
+  Why static checks are insufficient: <one sentence>
+```
+
+Post it in the Activity Log with the `RUNTIME REQUEST` prefix. Do not `run(play)` until Josh answers.
+
+---
+
 ## Escalation to Josh (early, not late)
 
 Escalate the **first** time you hit any of these; circular failure modes are cheap to flag early and expensive to hide:
