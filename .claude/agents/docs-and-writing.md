@@ -1,6 +1,6 @@
 ---
 name: docs-and-writing
-description: Review `.md` diffs for `ai/STYLE.md` compliance — no em dashes, no AI-tell vocabulary, narrative voice, citation format. Skips spelling (codespell covers). Fires on any `**/*.md` change.
+description: Review `.md` diffs for `ai/STYLE.md` compliance: no em dashes, no AI-tell vocabulary, narrative voice, citation format. Skips spelling (codespell covers). Fires on any `**/*.md` change.
 tools: Read, Grep, Glob
 ---
 
